@@ -1,0 +1,1384 @@
+openapi: 3.0.0
+info:
+  title: TRIPPIN AI API
+  version: 1.0.0
+  description: AIを活用した日本旅行プランニングおよびチャットサービスを提供するAPIです。
+  contact:
+    name: TRIPPIN Support
+    email: support@trippin.co.jp
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+servers:
+  - url: https://your-app.vercel.app/api
+    description: 本番環境APIサーバー
+  - url: http://localhost:3000/api
+    description: 開発環境APIサーバー
+paths:
+  /openai-chat:
+    post:
+      summary: AIアシスタントとのチャット対話
+      description: ユーザーからのメッセージを受け取り、AIが応答を生成します。
+      operationId: chatWithAI
+      tags:
+        - AI
+        - Chat
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - message
+              properties:
+                message:
+                  type: string
+                  description: ユーザーからのチャットメッセージ
+                  example: 日本旅行について教えてください。
+                  minLength: 1
+                  maxLength: 1000
+                language:
+                  type: string
+                  description: AI応答の希望言語
+                  example: ja
+                  enum:
+                    - ja
+                    - en
+                    - zh
+                    - ko
+                    - es
+                    - fr
+                    - hi
+                    - ru
+                    - ar
+                    - id
+                    - pt
+                    - th
+                    - vi
+                    - it
+                context:
+                  type: string
+                  description: AIに与える会話のコンテキスト
+                  example: travel_japan
+            example:
+              message: 日本旅行について教えてください。
+              language: ja
+              context: travel_japan
+      responses:
+        '200':
+          description: 成功時のAI応答
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - response
+                  - language
+                  - isMockData
+                properties:
+                  success:
+                    type: boolean
+                    description: APIリクエストが成功したか
+                    example: true
+                  response:
+                    type: string
+                    description: AIからの応答メッセージ
+                    example: 日本旅行についてですね！どのような情報にご興味がありますか？
+                  language:
+                    type: string
+                    description: 応答の言語
+                    example: ja
+                  isMockData:
+                    type: boolean
+                    description: モックデータが返されたか（APIキー未設定時など）
+                    example: false
+                  message:
+                    type: string
+                    description: エラーメッセージや追加の情報
+                    example: OpenAI APIキーが設定されていません。
+              example:
+                success: true
+                response: 日本旅行についてですね！どのような情報にご興味がありますか？
+                language: ja
+                isMockData: false
+                message: null
+        '400':
+          description: 無効なリクエスト
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - error
+                properties:
+                  error:
+                    type: string
+                    description: エラーメッセージ
+                    example: Message is required
+              example:
+                error: Message is required
+        '405':
+          description: 許可されていないHTTPメソッド
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Method not allowed
+        '500':
+          description: サーバー内部エラー
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Internal server error
+  /openai-generate:
+    post:
+      summary: ユーザーの好みに基づきAIが旅行プランを生成
+      description: 旅行先や日程、興味に応じて旅行プランを提案します。
+      operationId: generateTravelPlan
+      tags:
+        - AI
+        - Travel
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TripDataRequest'
+            example:
+              tripData:
+                basicInfo:
+                  tripTitle: 春の桜旅行
+                  destination: 東京
+                  startDate: 2025-04-01
+                  endDate: 2025-04-05
+                  travelers: 2
+                preferences:
+                  interests:
+                    - history-culture
+                    - food-gourmet
+                  transportation:
+                    - shinkansen
+                    - local-train
+                  accommodation:
+                    - hotel
+                  esim: true
+                language: ja
+                generateMultiplePlans: true
+      responses:
+        '200':
+          description: 成功時の旅行プランデータ
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - data
+                  - language
+                  - isMockData
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    oneOf:
+                      - $ref: '#/components/schemas/GeneratedPlan'
+                      - type: array
+                        items:
+                          $ref: '#/components/schemas/GeneratedPlan'
+                    description: 旅行プランの詳細、または複数プランの配列
+                  language:
+                    type: string
+                    example: ja
+                  isMockData:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    description: 追加の情報メッセージ
+                    example: null
+              example:
+                success: true
+                data:
+                  destination: 東京
+                  duration: 3日2泊
+                  theme: 東京ハイライト・文化体験
+                  description: 東京の伝統文化と現代的な魅力の完璧な組み合わせ
+                  totalEstimatedCost: ¥85,000（1人あたり）
+                  itinerary:
+                    - day: 1
+                      title: 到着・浅草探索
+                      description: 東京の心を探索し、方向感覚を身につけましょう
+                      activities:
+                        - time: "14:00"
+                          name: 東京駅・丸の内エリア
+                          description: 歴史ある鉄道駅と優れたショッピングを備えた現代的なビジネス地区
+                          location: 東京駅、丸の内、千代田区、東京
+                          rating: "4.3/5"
+                          duration: 120
+                          estimatedCost: ¥2,000
+                          coordinates:
+                            lat: 35.6812
+                            lng: 139.7671
+                          transportDetails:
+                            method: 空港エクスプレス
+                            distance: 45分
+                            line: 成田空港から東京駅
+                            transfers: 0
+                            walkingTime: 2分
+                          tips: 自由に探索するためにコインロッカーに荷物を預けましょう
+                  highlights:
+                    - 東京最古の寺院・浅草寺を訪問
+                    - 東京スカイツリーからのパノラマビューを体験
+                  recommendations:
+                    - 無制限の電車旅行にはJRパスを取得
+                    - より良いやりとりのために基本的な日本語フレーズを学習
+                language: ja
+                isMockData: false
+                message: null
+        '400':
+          description: 無効なリクエスト
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - error
+                properties:
+                  error:
+                    type: string
+                    example: Invalid trip data
+              example:
+                error: Trip data is required
+        '500':
+          description: サーバー内部エラー
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Internal server error
+components:
+  schemas:
+    TripDataRequest:
+      type: object
+      required:
+        - tripData
+      properties:
+        tripData:
+          type: object
+          description: 旅行情報全体
+          required:
+            - basicInfo
+          properties:
+            basicInfo:
+              type: object
+              description: 基本的な旅行情報
+              required:
+                - tripTitle
+                - destination
+                - startDate
+                - endDate
+                - travelers
+              properties:
+                tripTitle:
+                  type: string
+                  description: 旅行のタイトル
+                  example: 春の桜旅行
+                  minLength: 1
+                  maxLength: 100
+                destination:
+                  type: string
+                  description: 旅行の目的地
+                  example: 東京
+                  minLength: 1
+                  maxLength: 100
+                startDate:
+                  type: string
+                  format: date
+                  description: 旅行の開始日
+                  example: 2025-04-01
+                endDate:
+                  type: string
+                  format: date
+                  description: 旅行の終了日
+                  example: 2025-04-05
+                travelers:
+                  type: integer
+                  description: 旅行者の人数
+                  example: 2
+                  minimum: 1
+                  maximum: 20
+            preferences:
+              type: object
+              description: ユーザーの旅行の嗜好
+              properties:
+                interests:
+                  type: array
+                  description: 興味のあるアクティビティカテゴリ
+                  items:
+                    type: string
+                    enum:
+                      - history-culture
+                      - temples-shrines
+                      - traditional-experience
+                      - castles-historic-sites
+                      - museums-galleries
+                      - nature-scenery
+                      - hiking-trekking
+                      - beach-swimming
+                      - forest-mountain-camping
+                      - national-parks
+                      - cycling
+                      - anime-manga
+                      - nightlife
+                      - shopping
+                      - urban-architecture
+                      - cafe-bar-hopping
+                      - food-gourmet
+                      - local-street-food
+                      - wine-sake-tasting
+                      - sweets-cafe
+                      - festivals-events
+                      - gaming-esports
+                      - performance-live
+                      - theater-musical
+                      - hot-springs
+                      - massage-spa
+                      - fitness-activities
+                      - yoga-meditation
+                      - technology
+                      - vr-ar-experience
+                      - science-tech-facilities
+                      - fashion
+                      - brand-outlet
+                      - online-shopping
+                  example:
+                    - history-culture
+                    - food-gourmet
+                transportation:
+                  type: array
+                  description: 希望する交通手段
+                  items:
+                    type: string
+                    enum:
+                      - shinkansen
+                      - local-train
+                      - bus
+                      - rental-car
+                      - taxi
+                      - bicycle
+                      - ferry
+                      - airplane
+                  example:
+                    - shinkansen
+                    - local-train
+                accommodation:
+                  type: array
+                  description: 希望する宿泊施設のタイプ
+                  items:
+                    type: string
+                    enum:
+                      - hotel
+                      - ryokan
+                      - hostel
+                      - airbnb
+                      - capsule
+                      - minshuku
+                      - luxury-resort
+                      - camping
+                      - unnecessary
+                  example:
+                    - hotel
+                esim:
+                  type: boolean
+                  description: eSIMデータプランが必要か
+                  example: true
+            language:
+              type: string
+              description: 生成するプランの言語
+              example: ja
+              enum:
+                - ja
+                - en
+                - zh
+                - ko
+                - es
+                - fr
+                - hi
+                - ru
+                - ar
+                - id
+                - pt
+                - th
+                - vi
+                - it
+            generateMultiplePlans:
+              type: boolean
+              description: 複数のプランを生成するか
+              example: true
+              default: false
+    GeneratedPlan:
+      type: object
+      description: AIによって生成された旅行プランの詳細
+      required:
+        - destination
+        - duration
+        - theme
+        - description
+        - totalEstimatedCost
+        - itinerary
+        - highlights
+        - recommendations
+      properties:
+        destination:
+          type: string
+          description: 旅行の目的地
+          example: 東京
+        duration:
+          type: string
+          description: 旅行の期間
+          example: 7 days 6 nights
+        theme:
+          type: string
+          description: 旅行のテーマ
+          example: Cultural Heritage & Modern Tokyo
+        description:
+          type: string
+          description: プランの簡単な説明
+          example: A perfect blend of traditional culture and modern attractions in Tokyo
+        totalEstimatedCost:
+          type: string
+          description: 一人あたりの総推定費用
+          example: ¥85,000 per person
+        itinerary:
+          type: array
+          description: 日ごとの詳細な旅行日程
+          items:
+            $ref: '#/components/schemas/DayItinerary'
+        highlights:
+          type: array
+          description: プランの主要なハイライト
+          items:
+            type: string
+          example:
+            - Visit Tokyo's oldest temple Senso-ji
+            - Experience panoramic views from Tokyo Skytree
+        recommendations:
+          type: array
+          description: 旅行に関する追加の推奨事項やヒント
+          items:
+            type: string
+          example:
+            - Get a JR Pass for unlimited train travel
+            - Learn basic Japanese phrases for better interactions
+    DayItinerary:
+      type: object
+      description: 一日の旅行日程
+      required:
+        - day
+        - title
+        - description
+        - activities
+      properties:
+        day:
+          type: integer
+          description: 日数
+          example: 1
+          minimum: 1
+        title:
+          type: string
+          description: その日のタイトル
+          example: Arrival & Tokyo Station Area
+        description:
+          type: string
+          description: その日の概要
+          example: Explore the heart of Tokyo and get oriented
+        activities:
+          type: array
+          description: その日のアクティビティリスト
+          items:
+            $ref: '#/components/schemas/TripActivity'
+    TripActivity:
+      type: object
+      description: 旅行アクティビティの詳細
+      required:
+        - time
+        - name
+        - location
+      properties:
+        time:
+          type: string
+          description: アクティビティの開始時間
+          example: "09:00"
+          pattern: "^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$"
+        name:
+          type: string
+          description: アクティビティ名
+          example: Tokyo Station & Marunouchi Area
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+          description: アクティビティの詳細説明
+          example: Historic railway station and modern business district with excellent shopping
+        location:
+          type: string
+          description: アクティビティの場所
+          example: Tokyo Station, Marunouchi, Chiyoda City, Tokyo
+          minLength: 1
+          maxLength: 200
+        rating:
+          type: string
+          description: アクティビティの評価
+          example: "4.5/5"
+          pattern: "^[0-5]\\.?[0-9]?/5$"
+        duration:
+          type: integer
+          description: アクティビティの所要時間（分）
+          example: 90
+          minimum: 15
+          maximum: 480
+        estimatedCost:
+          type: string
+          description: アクティビティの推定費用
+          example: ¥1,500
+        coordinates:
+          type: object
+          description: アクティビティの地理座標
+          properties:
+            lat:
+              type: number
+              format: float
+              description: 緯度
+              example: 35.6762
+              minimum: -90
+              maximum: 90
+            lng:
+              type: number
+              format: float
+              description: 経度
+              example: 139.6503
+              minimum: -180
+              maximum: 180
+        transportDetails:
+          type: object
+          description: アクティビティ間の交通手段の詳細
+          properties:
+            method:
+              type: string
+              description: 交通手段
+              example: JR Yamanote Line
+            distance:
+              type: string
+              description: 移動時間または距離
+              example: 15分
+            line:
+              type: string
+              description: 路線名や詳細ルート
+              example: 新宿駅から渋谷駅
+            transfers:
+              type: integer
+              description: 乗り換え回数
+              example: 0
+              minimum: 0
+            walkingTime:
+              type: string
+              description: 徒歩時間
+              example: 5分
+        reviews:
+          type: array
+          description: アクティビティに関するレビュー
+          items:
+            type: object
+            properties:
+              text:
+                type: string
+                description: レビューの内容
+                example: Amazing experience with beautiful views!
+              author:
+                type: string
+                description: レビューの投稿者
+                example: Tourist Review
+              rating:
+                type: integer
+                description: レビューの評価（1-5）
+                example: 5
+                minimum: 1
+                maximum: 5
+        tips:
+          type: string
+          description: アクティビティに関するヒント
+          example: Visit early morning for fewer crowds
+  /tripadvisor:
+    post:
+      summary: TripAdvisor観光地情報取得（モック）
+      description: 指定された場所の観光情報やレビューを取得します。（現在はモックデータ返却中）
+      operationId: getTripAdvisorInfo
+      tags:
+        - External
+        - Mock
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                location:
+                  type: string
+                  description: 検索対象の場所名
+                  example: 浅草寺
+                language:
+                  type: string
+                  description: 応答言語
+                  example: ja
+                  enum: [ja, en, zh, ko, es, fr, hi, ru, ar, id, pt, th, vi, it]
+      responses:
+        '200':
+          description: 観光地情報（モック）
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          example: 浅草寺
+                        description:
+                          type: string
+                          example: 645年創建の東京最古の寺院
+                        rating:
+                          type: string
+                          example: "4.5"
+                        num_reviews:
+                          type: string
+                          example: "15,000+"
+                        photo:
+                          type: object
+                          properties:
+                            images:
+                              type: object
+                              properties:
+                                original:
+                                  type: object
+                                  properties:
+                                    url:
+                                      type: string
+                                      format: uri
+                                      example: https://images.pexels.com/photos/161251/senso-ji-temple-asakusa-tokyo-japan-161251.jpeg
+                        web_url:
+                          type: string
+                          format: uri
+                          example: https://www.tripadvisor.com/Attraction_Review-example
+                  reviews:
+                    type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            title:
+                              type: string
+                              example: 早朝参拝が最高でした
+                            text:
+                              type: string
+                              example: 朝6時に訪れましたが、観光客も少なく静寂な雰囲気の中で参拝できました。
+                            rating:
+                              type: integer
+                              example: 5
+                            user:
+                              type: object
+                              properties:
+                                username:
+                                  type: string
+                                  example: TokyoMorningWalker
+                  isMockData:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: 通信に失敗したため、モックデータを表示しています。
+
+  /google-maps:
+    post:
+      summary: Google Maps検索（モック）
+      description: Google Maps APIを通じて場所検索や詳細取得を行います。（現在はモックデータ返却中）
+      operationId: searchGoogleMaps
+      tags:
+        - External
+        - Mock
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                input:
+                  type: string
+                  description: 検索クエリ
+                  example: 東京タワー
+                types:
+                  type: string
+                  description: 検索タイプ
+                  example: establishment
+                components:
+                  type: string
+                  description: 地域制限
+                  example: country:jp
+                language:
+                  type: string
+                  description: 応答言語
+                  example: ja
+                location:
+                  type: string
+                  description: 中心座標
+                  example: "35.6762,139.6503"
+                radius:
+                  type: string
+                  description: 検索半径
+                  example: "5000"
+                type:
+                  type: string
+                  description: 場所タイプ
+                  example: tourist_attraction
+      responses:
+        '200':
+          description: Google Maps検索結果（モック）
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          example: place_1
+                        name:
+                          type: string
+                          example: 浅草寺
+                        nameEn:
+                          type: string
+                          example: Senso-ji Temple
+                        category:
+                          type: string
+                          example: temple
+                        rating:
+                          type: number
+                          format: float
+                          example: 4.8
+                        distance:
+                          type: string
+                          example: 0.5km
+                        address:
+                          type: string
+                          example: 東京都台東区浅草2-3-1
+                        phone:
+                          type: string
+                          example: "03-3842-0181"
+                        hours:
+                          type: string
+                          example: "6:00-17:00"
+                        image:
+                          type: string
+                          format: uri
+                          example: https://images.pexels.com/photos/161251/senso-ji-temple-asakusa-tokyo-japan-161251.jpeg
+                  predictions:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        structured_formatting:
+                          type: object
+                          properties:
+                            main_text:
+                              type: string
+                              example: 浅草寺
+                        description:
+                          type: string
+                          example: 東京都台東区浅草2-3-1, 日本
+                        place_id:
+                          type: string
+                          example: mock_asakusa_temple
+                        types:
+                          type: array
+                          items:
+                            type: string
+                          example: ["place_of_worship", "tourist_attraction"]
+                  isMockData:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: 通信に失敗したため、モックデータを表示しています。
+
+  /esim:
+    get:
+      summary: eSIMプラン一覧取得（モック）
+      description: 利用可能なeSIMプランの一覧を取得します。（現在はモックデータ返却中）
+      operationId: getESIMPlans
+      tags:
+        - External
+        - Mock
+      responses:
+        '200':
+          description: eSIMプラン一覧（モック）
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          example: esim_plan_1
+                        name:
+                          type: string
+                          example: Japan 3GB - 15 Days
+                        description:
+                          type: string
+                          example: 日本全国で使える15日間3GBプラン
+                        dataAmount:
+                          type: string
+                          example: 3GB
+                        validity:
+                          type: string
+                          example: 15日
+                        price:
+                          type: object
+                          properties:
+                            amount:
+                              type: integer
+                              example: 3500
+                            currency:
+                              type: string
+                              example: JPY
+                        coverage:
+                          type: string
+                          example: 日本全国
+                        network:
+                          type: string
+                          example: NTT Docomo
+                  isMockData:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: 通信に失敗したため、モックデータを表示しています。
+    post:
+      summary: eSIMプラン購入（モック）
+      description: eSIMプランの購入処理を行います。（現在はモックデータ返却中）
+      operationId: purchaseESIMPlan
+      tags:
+        - External
+        - Mock
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - planId
+                - customerInfo
+              properties:
+                planId:
+                  type: string
+                  description: 購入するプランID
+                  example: plan_1
+                customerInfo:
+                  type: object
+                  description: 顧客情報
+                  required:
+                    - email
+                    - name
+                  properties:
+                    email:
+                      type: string
+                      format: email
+                      description: 顧客のメールアドレス
+                      example: test@example.com
+                    name:
+                      type: string
+                      description: 顧客の名前
+                      example: Test User
+                    phone:
+                      type: string
+                      description: 電話番号（オプション）
+                      example: "+81-90-1234-5678"
+      responses:
+        '200':
+          description: eSIM購入結果（モック）
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  activationCode:
+                    type: string
+                    description: eSIM有効化コード
+                    example: ABCD-1234-EFGH-5678
+                  qrCode:
+                    type: string
+                    description: QRコード画像のBase64データ
+                    example: data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==
+                  isMockData:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: 通信に失敗したため、モックデータを表示しています。決済機能は現在利用できません。
+
+  /amadeus:
+    get:
+      summary: 航空券・ホテル検索（モック）
+      description: Amadeus APIを利用して航空券やホテルを検索します。（現在はモックデータ返却中）
+      operationId: searchAmadeus
+      tags:
+        - External
+        - Mock
+      parameters:
+        - name: origin
+          in: query
+          required: true
+          schema:
+            type: string
+          description: 出発地コード
+          example: TYO
+        - name: destination
+          in: query
+          required: true
+          schema:
+            type: string
+          description: 目的地コード
+          example: OSA
+        - name: date
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+          description: 出発日
+          example: 2025-05-01
+        - name: travelers
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 9
+            default: 1
+          description: 旅行者数
+          example: 2
+      responses:
+        '200':
+          description: 航空券・ホテル情報（モック）
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      flights:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              example: flight_1
+                            airline:
+                              type: string
+                              example: JAL
+                            flightNumber:
+                              type: string
+                              example: JL123
+                            departure:
+                              type: object
+                              properties:
+                                airport:
+                                  type: string
+                                  example: NRT
+                                city:
+                                  type: string
+                                  example: Tokyo
+                                time:
+                                  type: string
+                                  example: "09:30"
+                            arrival:
+                              type: object
+                              properties:
+                                airport:
+                                  type: string
+                                  example: KIX
+                                city:
+                                  type: string
+                                  example: Osaka
+                                time:
+                                  type: string
+                                  example: "11:00"
+                            price:
+                              type: object
+                              properties:
+                                amount:
+                                  type: integer
+                                  example: 15000
+                                currency:
+                                  type: string
+                                  example: JPY
+                            duration:
+                              type: string
+                              example: 1h 30m
+                      hotels:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              example: hotel_1
+                            name:
+                              type: string
+                              example: グランドホテル東京
+                            location:
+                              type: string
+                              example: 東京駅周辺
+                            rating:
+                              type: number
+                              format: float
+                              example: 4.5
+                            price:
+                              type: object
+                              properties:
+                                amount:
+                                  type: integer
+                                  example: 25000
+                                currency:
+                                  type: string
+                                  example: JPY
+                            amenities:
+                              type: array
+                              items:
+                                type: string
+                              example: ["WiFi", "朝食", "温泉", "ジム"]
+                  isMockData:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: 通信に失敗したため、モックデータを表示しています。
+
+  /currency-convert:
+    get:
+      summary: 通貨換算レート取得（モック）
+      description: 通貨換算レートを取得します。（現在はモックデータ返却中）
+      operationId: convertCurrency
+      tags:
+        - External
+        - Mock
+      parameters:
+        - name: from
+          in: query
+          required: true
+          schema:
+            type: string
+          description: 換算元通貨コード
+          example: JPY
+        - name: to
+          in: query
+          required: true
+          schema:
+            type: string
+          description: 換算先通貨コード
+          example: USD
+        - name: amount
+          in: query
+          schema:
+            type: number
+            format: float
+            default: 1
+          description: 換算する金額
+          example: 100
+      responses:
+        '200':
+          description: 通貨換算結果（モック）
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      rates:
+                        type: object
+                        additionalProperties:
+                          type: number
+                          format: float
+                        example:
+                          USD: 0.0067
+                          EUR: 0.0063
+                          GBP: 0.0054
+                          CNY: 0.048
+                          KRW: 9.2
+                          THB: 0.23
+                      base:
+                        type: string
+                        example: JPY
+                      date:
+                        type: string
+                        format: date
+                        example: "2024-01-01"
+                  isMockData:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: 通信に失敗したため、モックデータを表示しています。
+
+  /create-checkout-session:
+    post:
+      summary: Stripe Checkoutセッション作成（モック）
+      description: Stripe Checkoutセッションを作成します。（現在はモックデータ返却中）
+      operationId: createCheckoutSession
+      tags:
+        - Payment
+        - Mock
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - planId
+                - userId
+                - successUrl
+                - cancelUrl
+              properties:
+                planId:
+                  type: string
+                  description: 購入するプランID
+                  example: premium
+                userId:
+                  type: string
+                  description: ユーザーID
+                  example: user123
+                successUrl:
+                  type: string
+                  format: uri
+                  description: 決済成功時のリダイレクト先URL
+                  example: https://example.com/payment-success
+                cancelUrl:
+                  type: string
+                  format: uri
+                  description: 決済キャンセル時のリダイレクト先URL
+                  example: https://example.com/checkout
+      responses:
+        '200':
+          description: セッション作成結果（モック）
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      sessionUrl:
+                        type: string
+                        format: uri
+                        description: Stripe CheckoutセッションのURL
+                        example: "#mock-checkout-session"
+                      sessionId:
+                        type: string
+                        description: セッションID
+                        example: mock_session_123
+                  isMockData:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: 通信に失敗したため、モックデータを表示しています。決済機能は現在利用できません。
+
+  /verify-payment:
+    post:
+      summary: Stripe決済検証（モック）
+      description: Stripe決済を検証します。（現在はモックデータ返却中）
+      operationId: verifyPayment
+      tags:
+        - Payment
+        - Mock
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - sessionId
+              properties:
+                sessionId:
+                  type: string
+                  description: 検証するセッションID
+                  example: cs_test_123456789
+      responses:
+        '200':
+          description: 決済検証結果（モック）
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      status:
+                        type: string
+                        description: 決済ステータス
+                        example: paid
+                        enum: [paid, pending, failed, cancelled]
+                      amount:
+                        type: integer
+                        description: 決済金額
+                        example: 2500
+                      currency:
+                        type: string
+                        description: 通貨
+                        example: JPY
+                      customerId:
+                        type: string
+                        description: 顧客ID
+                        example: cus_mock123
+                  isMockData:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: 通信に失敗したため、モックデータを表示しています。
+
+  /openai-vision:
+    post:
+      summary: AI画像翻訳（モック）
+      description: 画像内のテキストを認識して翻訳します。（現在はモックデータ返却中）
+      operationId: translateImageText
+      tags:
+        - AI
+        - Mock
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - image
+                - targetLanguage
+              properties:
+                image:
+                  type: string
+                  description: Base64エンコードされた画像データ
+                  example: iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==
+                sourceLanguage:
+                  type: string
+                  description: 画像内テキストの言語（オプション）
+                  example: ja
+                  enum: [ja, en, zh, ko, es, fr, hi, ru, ar, id, pt, th, vi, it]
+                targetLanguage:
+                  type: string
+                  description: 翻訳先言語
+                  example: en
+                  enum: [ja, en, zh, ko, es, fr, hi, ru, ar, id, pt, th, vi, it]
+      responses:
+        '200':
+          description: 画像翻訳結果（モック）
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  translation:
+                    type: string
+                    description: 翻訳されたテキスト
+                    example: "Welcome to Tokyo"
+                  detectedText:
+                    type: string
+                    description: 画像から検出された元のテキスト
+                    example: "東京へようこそ"
+                  language:
+                    type: string
+                    description: 翻訳先言語
+                    example: en
+                  isMockData:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: 画像翻訳APIが一時的に利用できません。
+tags:
+  - name: AI
+    description: AI機能関連のエンドポイント
+  - name: Chat
+    description: チャット機能
+  - name: Travel
+    description: 旅行プランニング機能
+  - name: External
+    description: 外部API連携（モック含む）
+  - name: Payment
+    description: 決済関連（モック含む）
+  - name: Mock
+    description: モックデータを返すエンドポイント

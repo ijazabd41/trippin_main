@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Fixed Plan Generation</title>
+</head>
+<body>
+    <h1>Test Fixed Plan Generation</h1>
+    <p>This page will test the fixed plan generation with proper data structure.</p>
+    
+    <div id="status"></div>
+    
+    <script>
+        function injectCompleteTestData() {
+            const completeTripData = {
+                destination: 'Tokyo, Japan',
+                duration: 3,
+                budget: 150000,
+                travelers: 2,
+                interests: ['culture', 'food', 'nature'],
+                accommodation: 'hotel',
+                startDate: '2024-01-15',
+                endDate: '2024-01-18',
+                basicInfo: {
+                    tripTitle: 'Tokyo Adventure',
+                    travelers: 2,
+                    startDate: '2024-01-15',
+                    endDate: '2024-01-18'
+                },
+                travelStyle: {
+                    budget: '150000',
+                    currency: 'JPY',
+                    interests: ['culture', 'food', 'nature']
+                }
+            };
+            
+            localStorage.setItem('trippin-complete-data', JSON.stringify(completeTripData));
+            document.getElementById('status').innerHTML = '<p style="color: green;">Complete test data injected!</p>';
+            console.log('Complete test data stored:', completeTripData);
+        }
+        
+        function clearAllData() {
+            localStorage.removeItem('trippin-complete-data');
+            localStorage.removeItem('trippin-generated-plan');
+            document.getElementById('status').innerHTML = '<p style="color: blue;">All data cleared!</p>';
+            console.log('All data cleared');
+        }
+        
+        function goToPlanGeneration() {
+            window.location.href = 'http://localhost:5173/plan-generation';
+        }
+        
+        function checkBackendStatus() {
+            fetch('http://localhost:3001/health')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('status').innerHTML = 
+                        '<p style="color: green;">Backend is running: ' + JSON.stringify(data) + '</p>';
+                })
+                .catch(error => {
+                    document.getElementById('status').innerHTML = 
+                        '<p style="color: red;">Backend is not running: ' + error.message + '</p>';
+                });
+        }
+        
+        // Show current status
+        window.onload = function() {
+            const tripData = localStorage.getItem('trippin-complete-data');
+            if (tripData) {
+                try {
+                    const data = JSON.parse(tripData);
+                    document.getElementById('status').innerHTML = 
+                        `<p style="color: green;">Trip data found: ${data.destination || 'Unknown'}</p>`;
+                } catch (e) {
+                    document.getElementById('status').innerHTML = 
+                        '<p style="color: red;">Invalid trip data in localStorage</p>';
+                }
+            } else {
+                document.getElementById('status').innerHTML = 
+                    '<p style="color: orange;">No trip data found</p>';
+            }
+        };
+    </script>
+    
+    <div style="margin: 20px 0;">
+        <button onclick="injectCompleteTestData()" style="margin: 5px; padding: 10px; background: green; color: white;">Inject Complete Test Data</button>
+        <button onclick="clearAllData()" style="margin: 5px; padding: 10px; background: red; color: white;">Clear All Data</button>
+        <button onclick="checkBackendStatus()" style="margin: 5px; padding: 10px; background: blue; color: white;">Check Backend Status</button>
+        <button onclick="goToPlanGeneration()" style="margin: 5px; padding: 10px; background: purple; color: white;">Go to Plan Generation</button>
+    </div>
+    
+    <div style="margin-top: 20px; padding: 10px; background: #f0f0f0; border-radius: 5px;">
+        <h3>Fixed Issues:</h3>
+        <ul>
+            <li>✅ Fixed null reference error in GeneratedPlanDisplay.tsx line 142</li>
+            <li>✅ Added null checks for plan.budget.breakdown</li>
+            <li>✅ Updated API configuration to use local backend</li>
+            <li>✅ Added debugging for plan structure validation</li>
+            <li>✅ Added proper error handling for missing properties</li>
+        </ul>
+        
+        <h3>Test Instructions:</h3>
+        <ol>
+            <li>Make sure backend is running: <code>cd backend && npm run dev</code></li>
+            <li>Click "Check Backend Status" to verify backend is running</li>
+            <li>Click "Inject Complete Test Data" to store test data</li>
+            <li>Click "Go to Plan Generation" to test the fixed page</li>
+        </ol>
+        
+        <p><strong>Expected Results:</strong></p>
+        <ul>
+            <li>No more "Cannot read properties of undefined" errors</li>
+            <li>Plan generation page should load without white screen</li>
+            <li>Budget breakdown should display properly</li>
+            <li>All sections should render with proper null checks</li>
+        </ul>
+    </div>
+</body>
+</html>
+
+
+

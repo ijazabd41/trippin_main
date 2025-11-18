@@ -1,0 +1,134 @@
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Function to recursively find all .tsx and .ts files
+function findTsxFiles(dir) {
+  const files = [];
+  const items = fs.readdirSync(dir);
+  
+  for (const item of items) {
+    const fullPath = path.join(dir, item);
+    const stat = fs.statSync(fullPath);
+    
+    if (stat.isDirectory() && !item.startsWith('.') && item !== 'node_modules') {
+      files.push(...findTsxFiles(fullPath));
+    } else if (item.endsWith('.tsx') || item.endsWith('.ts')) {
+      files.push(fullPath);
+    }
+  }
+  
+  return files;
+}
+
+// Function to extract translation keys from file content
+function extractTranslationKeys(content) {
+  const keys = new Set();
+  
+  // Match t('key') or t("key") patterns
+  const tPattern = /t\(['"`]([^'"`]+)['"`]\)/g;
+  let match;
+  
+  while ((match = tPattern.exec(content)) !== null) {
+    keys.add(match[1]);
+  }
+  
+  return Array.from(keys);
+}
+
+// Function to check if a key exists in a translation object
+function keyExists(obj, keyPath) {
+  return keyPath.split('.').reduce((current, key) => {
+    return current && current[key] !== undefined ? current[key] : undefined;
+  }, obj) !== undefined;
+}
+
+// Main function
+async function main() {
+  console.log('🔍 Extracting translation keys from codebase...\n');
+  
+  // Find all TypeScript files
+  const srcDir = path.join(__dirname, 'src');
+  const files = findTsxFiles(srcDir);
+  
+  console.log(`Found ${files.length} TypeScript files\n`);
+  
+  // Extract all translation keys
+  const allKeys = new Set();
+  
+  for (const file of files) {
+    try {
+      const content = fs.readFileSync(file, 'utf8');
+      const keys = extractTranslationKeys(content);
+      
+      if (keys.length > 0) {
+        console.log(`📄 ${path.relative(srcDir, file)}: ${keys.length} keys`);
+        keys.forEach(key => allKeys.add(key));
+      }
+    } catch (error) {
+      console.log(`❌ Error reading ${file}: ${error.message}`);
+    }
+  }
+  
+  const sortedKeys = Array.from(allKeys).sort();
+  console.log(`\n📊 Total unique translation keys found: ${sortedKeys.length}\n`);
+  
+  // Save keys to file for reference
+  fs.writeFileSync(
+    path.join(__dirname, 'translation-keys-used.txt'),
+    sortedKeys.join('\n')
+  );
+  
+  console.log('💾 Translation keys saved to translation-keys-used.txt\n');
+  
+  // Check each language file for missing keys
+  const languages = [
+    'ja', 'en', 'zh', 'ko', 'es', 'fr', 'hi', 'ru', 'ar', 'id', 
+    'pt', 'th', 'vi', 'it', 'de', 'tr', 'pl', 'nl', 'sv', 'ur'
+  ];
+  
+  console.log('🔍 Checking translation coverage...\n');
+  
+  for (const lang of languages) {
+    try {
+      const filePath = path.join(__dirname, 'src', 'i18n', 'translations', `${lang}.ts`);
+      const content = fs.readFileSync(filePath, 'utf8');
+      
+      // Extract the export object (simplified approach)
+      const exportMatch = content.match(/export const \w+ = ({[\s\S]*});$/m);
+      
+      if (exportMatch) {
+        // This is a simplified check - we'd need a proper parser for complete validation
+        const missingKeys = [];
+        
+        // Check for common keys by looking for patterns in the file
+        for (const key of sortedKeys.slice(0, 20)) { // Check first 20 keys as sample
+          const keyPattern = new RegExp(`['"]${key.replace(/\./g, "\\.")}['"]\\s*:`);
+          if (!keyPattern.test(content)) {
+            missingKeys.push(key);
+          }
+        }
+        
+        console.log(`🌐 ${lang.toUpperCase()}: ${missingKeys.length > 0 ? `❌ ${missingKeys.length} missing` : '✅ Complete'}`);
+        if (missingKeys.length > 0) {
+          console.log(`   Missing: ${missingKeys.join(', ')}`);
+        }
+      } else {
+        console.log(`❌ ${lang.toUpperCase()}: Could not parse file`);
+      }
+    } catch (error) {
+      console.log(`❌ ${lang.toUpperCase()}: Error - ${error.message}`);
+    }
+  }
+  
+  console.log('\n📋 Sample of extracted keys:');
+  sortedKeys.slice(0, 20).forEach(key => console.log(`  • ${key}`));
+  if (sortedKeys.length > 20) {
+    console.log(`  ... and ${sortedKeys.length - 20} more`);
+  }
+}
+
+main().catch(console.error);

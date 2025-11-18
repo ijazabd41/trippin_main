@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<browserconfig>
+    <msapplication>
+        <tile>
+            <square150x150logo src="/trippin-logo.png"/>
+            <square310x310logo src="/trippin-logo.png"/>
+            <wide310x150logo src="/trippin-logo.png"/>
+            <TileColor>#8b5cf6</TileColor>
+        </tile>
+    </msapplication>
+</browserconfig>

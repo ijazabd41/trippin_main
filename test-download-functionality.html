@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Download Functionality</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .success { color: green; font-weight: bold; }
+        .error { color: red; font-weight: bold; }
+        .info { color: blue; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border: 1px solid #dee2e6;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .download-preview {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #dee2e6;
+            white-space: pre-wrap;
+            font-family: monospace;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test Download Functionality</h1>
+        <p>This test verifies that the download plan functionality works correctly.</p>
+        
+        <div>
+            <button onclick="createTestPlan()">📝 Create Test Plan</button>
+            <button onclick="testDownloadFormat()">📄 Test Download Format</button>
+            <button onclick="simulateDownload()">📥 Simulate Download</button>
+            <button onclick="clearTestData()">🗑️ Clear Test Data</button>
+        </div>
+        
+        <div id="results"></div>
+        
+        <h3>Download Preview:</h3>
+        <div id="download-preview" class="download-preview">No plan data available</div>
+    </div>
+
+    <script>
+        let testPlan = null;
+        
+        function createTestPlan() {
+            testPlan = {
+                id: `test-plan-${Date.now()}`,
+                title: 'Tokyo Adventure Test',
+                destination: 'Tokyo, Japan',
+                duration: 3,
+                budget: {
+                    total: 150000,
+                    currency: 'JPY',
+                    breakdown: {
+                        accommodation: 60000,
+                        transportation: 30000,
+                        food: 37500,
+                        activities: 15000,
+                        miscellaneous: 7500
+                    }
+                },
+                itinerary: [
+                    {
+                        day: 1,
+                        date: '2024-01-15',
+                        theme: 'Arrival & Exploration',
+                        activities: [
+                            {
+                                time: '09:00',
+                                title: 'Arrival at Tokyo',
+                                description: 'Arrive and check into accommodation',
+                                location: 'Tokyo',
+                                type: 'transport',
+                                duration: 120,
+                                cost: 3000,
+                                tips: 'Get local transportation pass'
+                            },
+                            {
+                                time: '12:00',
+                                title: 'Local Lunch',
+                                description: 'Try local cuisine',
+                                location: 'Tokyo',
+                                type: 'dining',
+                                duration: 90,
+                                cost: 1500,
+                                tips: 'Ask locals for recommendations'
+                            },
+                            {
+                                time: '14:00',
+                                title: 'Explore Asakusa',
+                                description: 'Visit Senso-ji Temple and Nakamise Street',
+                                location: 'Asakusa',
+                                type: 'sightseeing',
+                                duration: 180,
+                                cost: 0,
+                                tips: 'Visit early morning for fewer crowds'
+                            }
+                        ]
+                    },
+                    {
+                        day: 2,
+                        date: '2024-01-16',
+                        theme: 'Cultural Exploration',
+                        activities: [
+                            {
+                                time: '09:00',
+                                title: 'Visit Senso-ji Temple',
+                                description: 'Explore the historic temple',
+                                location: 'Asakusa',
+                                type: 'sightseeing',
+                                duration: 120,
+                                cost: 0,
+                                tips: 'Visit early morning for fewer crowds'
+                            },
+                            {
+                                time: '12:00',
+                                title: 'Lunch at Tsukiji',
+                                description: 'Fresh sushi experience',
+                                location: 'Tsukiji',
+                                type: 'dining',
+                                duration: 90,
+                                cost: 5000,
+                                tips: 'Book in advance for popular restaurants'
+                            }
+                        ]
+                    }
+                ],
+                recommendations: [
+                    {
+                        type: 'Restaurant',
+                        name: 'Sushi Dai',
+                        description: 'Fresh sushi experience',
+                        location: 'Tsukiji',
+                        cost: 5000,
+                        rating: 4.8
+                    },
+                    {
+                        type: 'Attraction',
+                        name: 'Tokyo Skytree',
+                        description: 'Panoramic city views',
+                        location: 'Sumida',
+                        cost: 2100,
+                        rating: 4.5
+                    }
+                ],
+                practicalInfo: {
+                    weather: 'Check local weather forecast before traveling',
+                    packingList: ['Clothes', 'Passport', 'Camera', 'Charger', 'Comfortable shoes'],
+                    localCustoms: ['Respect local traditions', 'Learn basic phrases', 'Follow local etiquette'],
+                    emergencyContacts: ['Police: 110', 'Ambulance: 119', 'Tourist helpline'],
+                    usefulPhrases: ['Hello', 'Thank you', 'Excuse me', 'Where is...?', 'How much?']
+                },
+                createdAt: new Date().toISOString()
+            };
+            
+            document.getElementById('results').innerHTML = 
+                '<div class="success">✅ Test plan created successfully!</div>';
+            updateDownloadPreview();
+        }
+        
+        function testDownloadFormat() {
+            if (!testPlan) {
+                document.getElementById('results').innerHTML = 
+                    '<div class="error">❌ Please create test plan first</div>';
+                return;
+            }
+            
+            const formattedText = formatPlanForDownload(testPlan);
+            document.getElementById('download-preview').textContent = formattedText;
+            
+            document.getElementById('results').innerHTML = 
+                '<div class="success">✅ Download format generated! Check the preview below.</div>';
+        }
+        
+        function simulateDownload() {
+            if (!testPlan) {
+                document.getElementById('results').innerHTML = 
+                    '<div class="error">❌ Please create test plan first</div>';
+                return;
+            }
+            
+            try {
+                const formattedText = formatPlanForDownload(testPlan);
+                
+                // Create and download the file
+                const blob = new Blob([formattedText], { type: 'text/plain;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `${testPlan.title.replace(/[^a-zA-Z0-9]/g, '_')}_travel_plan.txt`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+                
+                document.getElementById('results').innerHTML = 
+                    '<div class="success">✅ Plan downloaded successfully! Check your downloads folder.</div>';
+            } catch (error) {
+                document.getElementById('results').innerHTML = 
+                    '<div class="error">❌ Download failed: ' + error.message + '</div>';
+            }
+        }
+        
+        function formatPlanForDownload(plan) {
+            let text = '';
+            
+            // Header
+            text += `========================================\n`;
+            text += `${plan.title}\n`;
+            text += `========================================\n\n`;
+            
+            // Basic Info
+            text += `目的地: ${plan.destination}\n`;
+            text += `期間: ${plan.duration}日間\n`;
+            text += `予算: ${plan.budget?.currency || 'JPY'} ${plan.budget?.total?.toLocaleString() || '0'}\n\n`;
+            
+            // Budget Breakdown
+            if (plan.budget?.breakdown) {
+                text += `予算内訳:\n`;
+                Object.entries(plan.budget.breakdown).forEach(([category, amount]) => {
+                    text += `  ${category}: ${plan.budget?.currency || 'JPY'} ${amount.toLocaleString()}\n`;
+                });
+                text += `\n`;
+            }
+            
+            // Itinerary
+            text += `日程:\n`;
+            text += `========================================\n`;
+            
+            plan.itinerary?.forEach((day, index) => {
+                text += `\n${day.day}日目 - ${day.theme || '観光'}\n`;
+                text += `日付: ${day.date}\n`;
+                text += `----------------------------------------\n`;
+                
+                day.activities?.forEach((activity) => {
+                    text += `${activity.time} - ${activity.title}\n`;
+                    text += `  場所: ${activity.location}\n`;
+                    text += `  説明: ${activity.description}\n`;
+                    if (activity.duration) {
+                        text += `  所要時間: ${activity.duration}分\n`;
+                    }
+                    if (activity.cost && activity.cost > 0) {
+                        text += `  費用: ${plan.budget?.currency || 'JPY'} ${activity.cost.toLocaleString()}\n`;
+                    }
+                    if (activity.tips) {
+                        text += `  ヒント: ${activity.tips}\n`;
+                    }
+                    text += `\n`;
+                });
+            });
+            
+            // Recommendations
+            if (plan.recommendations && plan.recommendations.length > 0) {
+                text += `\nおすすめスポット:\n`;
+                text += `========================================\n`;
+                plan.recommendations.forEach((rec) => {
+                    text += `${rec.name}\n`;
+                    text += `  説明: ${rec.description}\n`;
+                    text += `  場所: ${rec.location}\n`;
+                    if (rec.cost) {
+                        text += `  費用: ${plan.budget?.currency || 'JPY'} ${rec.cost.toLocaleString()}\n`;
+                    }
+                    if (rec.rating) {
+                        text += `  評価: ${rec.rating}\n`;
+                    }
+                    text += `\n`;
+                });
+            }
+            
+            // Practical Info
+            if (plan.practicalInfo) {
+                text += `\n実用情報:\n`;
+                text += `========================================\n`;
+                
+                if (plan.practicalInfo.weather) {
+                    text += `天気: ${plan.practicalInfo.weather}\n`;
+                }
+                
+                if (plan.practicalInfo.packingList && plan.practicalInfo.packingList.length > 0) {
+                    text += `持参品:\n`;
+                    plan.practicalInfo.packingList.forEach((item) => {
+                        text += `  - ${item}\n`;
+                    });
+                    text += `\n`;
+                }
+                
+                if (plan.practicalInfo.localCustoms && plan.practicalInfo.localCustoms.length > 0) {
+                    text += `現地のマナー:\n`;
+                    plan.practicalInfo.localCustoms.forEach((custom) => {
+                        text += `  - ${custom}\n`;
+                    });
+                    text += `\n`;
+                }
+                
+                if (plan.practicalInfo.emergencyContacts && plan.practicalInfo.emergencyContacts.length > 0) {
+                    text += `緊急連絡先:\n`;
+                    plan.practicalInfo.emergencyContacts.forEach((contact) => {
+                        text += `  - ${contact}\n`;
+                    });
+                    text += `\n`;
+                }
+                
+                if (plan.practicalInfo.usefulPhrases && plan.practicalInfo.usefulPhrases.length > 0) {
+                    text += `便利なフレーズ:\n`;
+                    plan.practicalInfo.usefulPhrases.forEach((phrase) => {
+                        text += `  - ${phrase}\n`;
+                    });
+                    text += `\n`;
+                }
+            }
+            
+            // Footer
+            text += `\n========================================\n`;
+            text += `このプランは ${new Date().toLocaleDateString('ja-JP')} に生成されました。\n`;
+            text += `Trippin - あなたの旅のパートナー\n`;
+            text += `========================================\n`;
+            
+            return text;
+        }
+        
+        function updateDownloadPreview() {
+            if (testPlan) {
+                const formattedText = formatPlanForDownload(testPlan);
+                document.getElementById('download-preview').textContent = formattedText;
+            }
+        }
+        
+        function clearTestData() {
+            testPlan = null;
+            document.getElementById('results').innerHTML = '';
+            document.getElementById('download-preview').textContent = 'No plan data available';
+        }
+    </script>
+</body>
+</html>

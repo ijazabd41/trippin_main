@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Complete Plan Generation Flow</title>
+</head>
+<body>
+    <h1>Test Complete Plan Generation Flow</h1>
+    <p>This page will test the complete plan generation flow with the new backend endpoint.</p>
+    
+    <div id="status"></div>
+    
+    <script>
+        function testBackendEndpoint() {
+            const testData = {
+                tripData: {
+                    destination: 'Nikko, Japan',
+                    duration: 1,
+                    budget: 50000,
+                    travelers: 2,
+                    interests: ['culture', 'nature'],
+                    accommodation: 'hotel',
+                    currency: 'JPY'
+                }
+            };
+
+            fetch('http://localhost:3001/api/openai/generate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(testData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('status').innerHTML = 
+                        '<p style="color: green;">✅ Backend OpenAI endpoint is working!</p>' +
+                        '<p>Plan structure: ' + JSON.stringify({
+                            hasBudget: !!data.data.budget,
+                            hasItinerary: !!data.data.itinerary,
+                            hasRecommendations: !!data.data.recommendations,
+                            hasPracticalInfo: !!data.data.practicalInfo
+                        }) + '</p>';
+                    console.log('Backend response:', data);
+                } else {
+                    document.getElementById('status').innerHTML = 
+                        '<p style="color: red;">❌ Backend endpoint failed: ' + data.message + '</p>';
+                }
+            })
+            .catch(error => {
+                document.getElementById('status').innerHTML = 
+                    '<p style="color: red;">❌ Backend test failed: ' + error.message + '</p>';
+            });
+        }
+        
+        function injectTestData() {
+            const testTripData = {
+                destination: 'Nikko, Japan',
+                duration: 1,
+                budget: 50000,
+                travelers: 2,
+                interests: ['culture', 'nature'],
+                accommodation: 'hotel',
+                startDate: '2025-10-24',
+                endDate: '2025-10-25',
+                basicInfo: {
+                    tripTitle: 'Nikko Adventure',
+                    travelers: 2,
+                    startDate: '2025-10-24',
+                    endDate: '2025-10-25'
+                },
+                travelStyle: {
+                    budget: '50000',
+                    currency: 'JPY',
+                    interests: ['culture', 'nature']
+                }
+            };
+            
+            localStorage.setItem('trippin-complete-data', JSON.stringify(testTripData));
+            document.getElementById('status').innerHTML = 
+                '<p style="color: green;">✅ Test data injected!</p>' +
+                '<p>Data: ' + JSON.stringify(testTripData, null, 2) + '</p>';
+        }
+        
+        function goToPlanGeneration() {
+            window.location.href = 'http://localhost:5173/plan-generation';
+        }
+        
+        function clearData() {
+            localStorage.removeItem('trippin-complete-data');
+            localStorage.removeItem('trippin-generated-plan');
+            document.getElementById('status').innerHTML = '<p style="color: blue;">🗑️ Data cleared!</p>';
+        }
+        
+        // Show current status
+        window.onload = function() {
+            const tripData = localStorage.getItem('trippin-complete-data');
+            if (tripData) {
+                try {
+                    const data = JSON.parse(tripData);
+                    document.getElementById('status').innerHTML = 
+                        `<p style="color: green;">✅ Trip data found: ${data.destination || 'Unknown'}</p>`;
+                } catch (e) {
+                    document.getElementById('status').innerHTML = 
+                        '<p style="color: red;">❌ Invalid trip data in localStorage</p>';
+                }
+            } else {
+                document.getElementById('status').innerHTML = 
+                    '<p style="color: orange;">⚠️ No trip data found</p>';
+            }
+        };
+    </script>
+    
+    <div style="margin: 20px 0;">
+        <button onclick="testBackendEndpoint()" style="margin: 5px; padding: 10px; background: blue; color: white;">Test Backend OpenAI Endpoint</button>
+        <button onclick="injectTestData()" style="margin: 5px; padding: 10px; background: green; color: white;">Inject Test Data</button>
+        <button onclick="goToPlanGeneration()" style="margin: 5px; padding: 10px; background: purple; color: white;">Go to Plan Generation</button>
+        <button onclick="clearData()" style="margin: 5px; padding: 10px; background: red; color: white;">Clear Data</button>
+    </div>
+    
+    <div style="margin-top: 20px; padding: 10px; background: #f0f0f0; border-radius: 5px;">
+        <h3>🔧 Fixed Issues:</h3>
+        <ul>
+            <li>✅ Added OpenAI backend endpoint at <code>/api/openai/generate</code></li>
+            <li>✅ Fixed API configuration to use correct endpoint</li>
+            <li>✅ Added plan structure validation and fallbacks</li>
+            <li>✅ Fixed authentication issues with graceful fallback</li>
+            <li>✅ Enhanced error handling for missing plan properties</li>
+        </ul>
+        
+        <h3>🧪 Test Instructions:</h3>
+        <ol>
+            <li>Make sure backend is running: <code>cd backend && npm run dev</code></li>
+            <li>Make sure you have OPENAI_API_KEY in backend/.env</li>
+            <li>Click "Test Backend OpenAI Endpoint" to verify the endpoint works</li>
+            <li>Click "Inject Test Data" to store test data</li>
+            <li>Click "Go to Plan Generation" to test the complete flow</li>
+        </ol>
+        
+        <p><strong>Expected Results:</strong></p>
+        <ul>
+            <li>Backend endpoint should return a complete travel plan with all properties</li>
+            <li>Plan generation page should work without 404 errors</li>
+            <li>Plan should have budget, itinerary, recommendations, and practical info</li>
+            <li>No more "Cannot read properties of undefined" errors</li>
+        </ul>
+    </div>
+</body>
+</html>
+
+
+

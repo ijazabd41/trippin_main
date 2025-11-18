@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Auth Flow</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        button { padding: 10px 15px; margin: 5px; cursor: pointer; }
+        input { padding: 8px; margin: 5px; width: 200px; }
+        .log { background: #f8f9fa; padding: 10px; margin: 10px 0; border-radius: 3px; font-family: monospace; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+    <h1>Debug Authentication Flow</h1>
+    
+    <div class="test-section info">
+        <h3>Step 1: Test Registration</h3>
+        <p>This will test the complete registration flow and show you exactly what happens.</p>
+        <input type="email" id="reg-email" placeholder="Email" value="debug@example.com">
+        <input type="password" id="reg-password" placeholder="Password" value="testpassword123">
+        <input type="text" id="reg-name" placeholder="Full Name" value="Debug User">
+        <br>
+        <button onclick="testRegistration()">Test Registration</button>
+        <div id="reg-result" class="log"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>Step 2: Check Current URL</h3>
+        <p>After registration, check what URL you're on:</p>
+        <button onclick="checkCurrentUrl()">Check Current URL</button>
+        <div id="url-result" class="log"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>Step 3: Test Login (Should Fail)</h3>
+        <p>Try to login with the same credentials - should fail due to unverified email:</p>
+        <input type="email" id="login-email" placeholder="Email" value="debug@example.com">
+        <input type="password" id="login-password" placeholder="Password" value="testpassword123">
+        <br>
+        <button onclick="testLogin()">Test Login</button>
+        <div id="login-result" class="log"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>Step 4: Manual Email Verification</h3>
+        <p>If you have the verification token, you can test it here:</p>
+        <input type="text" id="verify-token" placeholder="Verification Token">
+        <input type="text" id="verify-type" placeholder="Type (signup)" value="signup">
+        <br>
+        <button onclick="testVerification()">Test Verification</button>
+        <div id="verify-result" class="log"></div>
+    </div>
+
+    <script>
+        function log(elementId, message, isError = false) {
+            const element = document.getElementById(elementId);
+            const timestamp = new Date().toLocaleTimeString();
+            const className = isError ? 'error' : 'success';
+            element.innerHTML += `<div class="${className}">[${timestamp}] ${message}</div>`;
+        }
+
+        async function testRegistration() {
+            const resultDiv = document.getElementById('reg-result');
+            resultDiv.innerHTML = 'Testing registration...\n';
+            
+            const email = document.getElementById('reg-email').value;
+            const password = document.getElementById('reg-password').value;
+            const fullName = document.getElementById('reg-name').value;
+
+            try {
+                log('reg-result', '🚀 Starting registration process...');
+                
+                const response = await fetch('http://localhost:3001/api/supabase-auth/signup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email,
+                        password,
+                        full_name: fullName
+                    })
+                });
+
+                const data = await response.json();
+                
+                log('reg-result', `📡 Response status: ${response.status}`);
+                log('reg-result', `📦 Response data: ${JSON.stringify(data, null, 2)}`);
+                
+                if (response.ok) {
+                    log('reg-result', '✅ Registration successful!');
+                    if (data.data?.needsVerification) {
+                        log('reg-result', '📧 Email verification required');
+                        log('reg-result', '🔗 Check your email for verification link');
+                    }
+                } else {
+                    log('reg-result', `❌ Registration failed: ${data.error}`, true);
+                }
+            } catch (error) {
+                log('reg-result', `❌ Registration error: ${error.message}`, true);
+            }
+        }
+
+        function checkCurrentUrl() {
+            const resultDiv = document.getElementById('url-result');
+            resultDiv.innerHTML = `Current URL: ${window.location.href}\n`;
+            resultDiv.innerHTML += `Pathname: ${window.location.pathname}\n`;
+            resultDiv.innerHTML += `Search: ${window.location.search}\n`;
+            resultDiv.innerHTML += `Hash: ${window.location.hash}\n`;
+        }
+
+        async function testLogin() {
+            const resultDiv = document.getElementById('login-result');
+            resultDiv.innerHTML = 'Testing login...\n';
+            
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            try {
+                const response = await fetch('http://localhost:3001/api/supabase-auth/signin', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email,
+                        password
+                    })
+                });
+
+                const data = await response.json();
+                
+                log('login-result', `📡 Response status: ${response.status}`);
+                log('login-result', `📦 Response data: ${JSON.stringify(data, null, 2)}`);
+                
+                if (response.ok) {
+                    log('login-result', '✅ Login successful!');
+                } else {
+                    log('login-result', `❌ Login failed: ${data.error}`, true);
+                }
+            } catch (error) {
+                log('login-result', `❌ Login error: ${error.message}`, true);
+            }
+        }
+
+        async function testVerification() {
+            const resultDiv = document.getElementById('verify-result');
+            resultDiv.innerHTML = 'Testing verification...\n';
+            
+            const token = document.getElementById('verify-token').value;
+            const type = document.getElementById('verify-type').value;
+
+            if (!token) {
+                log('verify-result', '❌ Please enter a verification token', true);
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:3001/api/supabase-auth/verify-email', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        token,
+                        type
+                    })
+                });
+
+                const data = await response.json();
+                
+                log('verify-result', `📡 Response status: ${response.status}`);
+                log('verify-result', `📦 Response data: ${JSON.stringify(data, null, 2)}`);
+                
+                if (response.ok) {
+                    log('verify-result', '✅ Email verification successful!');
+                } else {
+                    log('verify-result', `❌ Verification failed: ${data.error}`, true);
+                }
+            } catch (error) {
+                log('verify-result', `❌ Verification error: ${error.message}`, true);
+            }
+        }
+
+        // Auto-check URL on load
+        window.onload = function() {
+            checkCurrentUrl();
+        };
+    </script>
+</body>
+</html>

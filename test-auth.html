@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auth Test</title>
+</head>
+<body>
+    <h1>Authentication Test</h1>
+    <div id="status"></div>
+    <div id="results"></div>
+    
+    <script>
+        const statusDiv = document.getElementById('status');
+        const resultsDiv = document.getElementById('results');
+        
+        function log(message) {
+            console.log(message);
+            statusDiv.innerHTML += '<p>' + message + '</p>';
+        }
+        
+        function testAuth() {
+            log('Starting authentication test...');
+            
+            // Test 1: Try to sign in with non-existent user
+            log('Test 1: Signing in with non-existent user...');
+            fetch('http://localhost:3001/api/supabase-auth/signin', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    email: 'nonexistent@example.com',
+                    password: 'password123'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    log('✓ Test 1 PASSED: Correctly rejected non-existent user: ' + data.error);
+                } else {
+                    log('✗ Test 1 FAILED: Should have rejected non-existent user');
+                }
+                
+                // Test 2: Try to sign in with unverified user
+                log('Test 2: Signing in with unverified user...');
+                return fetch('http://localhost:3001/api/supabase-auth/signup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: 'unverified@example.com',
+                        password: 'password123'
+                    })
+                });
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    log('✓ Test 2a PASSED: Successfully created unverified user');
+                    
+                    // Now try to sign in with unverified user
+                    return fetch('http://localhost:3001/api/supabase-auth/signin', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            email: 'unverified@example.com',
+                            password: 'password123'
+                        })
+                    });
+                } else {
+                    log('✗ Test 2a FAILED: Failed to create user: ' + data.error);
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error && data.code === 'EMAIL_NOT_VERIFIED') {
+                    log('✓ Test 2b PASSED: Correctly rejected unverified user: ' + data.error);
+                } else {
+                    log('✗ Test 2b FAILED: Should have rejected unverified user');
+                }
+                
+                // Test 3: Verify email and sign in
+                log('Test 3: Verifying email and signing in...');
+                return fetch('http://localhost:3001/api/supabase-auth/verify-email-mock', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: 'unverified@example.com'
+                    })
+                });
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    log('✓ Test 3a PASSED: Successfully verified email');
+                    
+                    // Now try to sign in with verified user
+                    return fetch('http://localhost:3001/api/supabase-auth/signin', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            email: 'unverified@example.com',
+                            password: 'password123'
+                        })
+                    });
+                } else {
+                    log('✗ Test 3a FAILED: Failed to verify email: ' + data.error);
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.data.session) {
+                    log('✓ Test 3b PASSED: Successfully signed in with verified user');
+                    log('Session token: ' + data.data.session.access_token.substring(0, 20) + '...');
+                } else {
+                    log('✗ Test 3b FAILED: Should have signed in successfully: ' + (data.error || 'Unknown error'));
+                }
+                
+                log('All tests completed!');
+            })
+            .catch(error => {
+                log('✗ Test FAILED with error: ' + error.message);
+            });
+        }
+        
+        // Start the test when page loads
+        window.onload = testAuth;
+    </script>
+</body>
+</html>
+

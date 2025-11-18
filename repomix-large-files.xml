@@ -1,0 +1,4110 @@
+This file is a merged representation of a subset of the codebase, containing specifically included files, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of a subset of the repository's contents that is considered the most important context.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Only files matching these patterns are included: **/TripDetail.tsx, **/ChatBot.tsx, **/apiMockData.ts, **/DetailedPreferences.tsx, **/Confirmation.tsx
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+src/
+  components/
+    questionnaire/
+      Confirmation.tsx
+      DetailedPreferences.tsx
+  pages/
+    ChatBot.tsx
+    TripDetail.tsx
+  utils/
+    apiMockData.ts
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path="src/pages/ChatBot.tsx">
+import React, { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Send, Bot, User, MapPin, Phone, Languages as Translate, Camera, Book, Loader } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
+import { apiCall, API_CONFIG, APIError } from '../config/api';
+import { handleAWSError, globalErrorHandler } from '../utils/errorHandler';
+import MockDataNotice from '../components/MockDataNotice';
+
+interface Message {
+  id: string;
+  type: 'user' | 'bot';
+  content: string;
+  timestamp: string;
+  actions?: Array<{
+    label: string;
+    action: () => void;
+  }>;
+}
+
+const ChatBot: React.FC = () => {
+  const { t, currentLanguage } = useLanguage();
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [inputMessage, setInputMessage] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
+  const [isError, setIsError] = useState(false);
+  const [showMockNotice, setShowMockNotice] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Multilingual content
+  const getLocalizedContent = () => {
+    switch (currentLanguage) {
+      case 'en':
+        return {
+          title: 'AI Chat Assistant',
+          subtitle: '24/7 support anytime',
+          quickActions: 'Quick Actions',
+          emergency: 'Emergency Contacts',
+          translation: 'Translation',
+          nearby: 'Nearby Info',
+          weather: 'Weather Info',
+          helpCenter: 'Help Center',
+          inputPlaceholder: 'Type a message...',
+          emergencyContent: `🚨 Emergency Contacts
+
+Police: 110
+Fire/Ambulance: 119
+Tourist Hotline: 050-3816-2787
+
+When reporting your location, please check nearby landmarks or addresses.`,
+          translationContent: 'Translation features are available. Text translation, voice translation, and photo translation are possible.',
+          nearbyContent: 'You can search for tourist attractions, restaurants, and transportation around your current location.',
+          weatherContent: `🌤️ Today's Weather Information
+
+Tokyo: Sunny, 22°C
+Osaka: Cloudy, 20°C
+Kyoto: Sunny, 21°C
+
+※Please check the Japan Meteorological Agency website for the latest weather information.`,
+          greeting: 'Hello! Ask me anything about traveling in Japan.'
+        };
+      case 'zh':
+        return {
+          title: 'AI聊天助手',
+          subtitle: '24小时随时为您服务',
+          quickActions: '快速操作',
+          emergency: '紧急联系方式',
+          translation: '翻译',
+          nearby: '周边信息',
+          weather: '天气信息',
+          helpCenter: '帮助中心',
+          inputPlaceholder: '输入消息...',
+          emergencyContent: `🚨 紧急联系方式
+
+警察: 110
+消防/急救: 119
+旅游热线: 050-3816-2787
+
+报告位置时，请确认附近的地标或地址。`,
+          translationContent: '可以使用翻译功能。支持文本翻译、语音翻译和照片翻译。',
+          nearbyContent: '可以搜索当前位置周围的旅游景点、餐厅和交通工具。',
+          weatherContent: `🌤️ 今日天气信息
+
+东京: 晴天，22°C
+大阪: 多云，20°C
+京都: 晴天，21°C
+
+※请查看日本气象厅网站获取最新天气信息。`,
+          greeting: '您好！请随时询问关于日本旅行的任何问题。'
+        };
+      case 'ko':
+        return {
+          title: 'AI 채팅 어시스턴트',
+          subtitle: '24시간 언제든지 지원',
+          quickActions: '빠른 작업',
+          emergency: '긴급 연락처',
+          translation: '번역',
+          nearby: '주변 정보',
+          weather: '날씨 정보',
+          helpCenter: '도움말 센터',
+          inputPlaceholder: '메시지를 입력하세요...',
+          emergencyContent: `🚨 긴급 연락처
+
+경찰: 110
+소방/응급: 119
+관광 핫라인: 050-3816-2787
+
+위치를 신고할 때는 주변 랜드마크나 주소를 확인해 주세요.`,
+          translationContent: '번역 기능을 이용하실 수 있습니다. 텍스트 번역, 음성 번역, 사진 번역이 가능합니다.',
+          nearbyContent: '현재 위치 주변의 관광 명소, 레스토랑, 교통수단을 검색할 수 있습니다.',
+          weatherContent: `🌤️ 오늘의 날씨 정보
+
+도쿄: 맑음, 22°C
+오사카: 흐림, 20°C
+교토: 맑음, 21°C
+
+※최신 날씨 정보는 일본 기상청 웹사이트에서 확인하세요.`,
+          greeting: '안녕하세요! 일본 여행에 대해 무엇이든 물어보세요.'
+        };
+      case 'es':
+        return {
+          title: 'Asistente de Chat IA',
+          subtitle: 'Soporte 24/7 en cualquier momento',
+          quickActions: 'Acciones Rápidas',
+          emergency: 'Contactos de Emergencia',
+          translation: 'Traducción',
+          nearby: 'Información Cercana',
+          weather: 'Información del Clima',
+          helpCenter: 'Centro de Ayuda',
+          inputPlaceholder: 'Escribe un mensaje...',
+          emergencyContent: `🚨 Contactos de Emergencia
+
+Policía: 110
+Bomberos/Ambulancia: 119
+Línea Turística: 050-3816-2787
+
+Al reportar tu ubicación, verifica puntos de referencia o direcciones cercanas.`,
+          translationContent: 'Las funciones de traducción están disponibles. Es posible traducción de texto, voz y fotos.',
+          nearbyContent: 'Puedes buscar atracciones turísticas, restaurantes y transporte alrededor de tu ubicación actual.',
+          weatherContent: `🌤️ Información del Clima de Hoy
+
+Tokio: Soleado, 22°C
+Osaka: Nublado, 20°C
+Kioto: Soleado, 21°C
+
+※Consulta el sitio web de la Agencia Meteorológica de Japón para información actualizada.`,
+          greeting: '¡Hola! Pregúntame cualquier cosa sobre viajar a Japón.'
+        };
+      case 'fr':
+        return {
+          title: 'Assistant de Chat IA',
+          subtitle: 'Support 24/7 à tout moment',
+          quickActions: 'Actions Rapides',
+          emergency: 'Contacts d\'Urgence',
+          translation: 'Traduction',
+          nearby: 'Infos Proximité',
+          weather: 'Infos Météo',
+          helpCenter: 'Centre d\'Aide',
+          inputPlaceholder: 'Tapez un message...',
+          emergencyContent: `🚨 Contacts d'Urgence
+
+Police: 110
+Pompiers/Ambulance: 119
+Ligne Touristique: 050-3816-2787
+
+Lors du signalement de votre position, vérifiez les points de repère ou adresses à proximité.`,
+          translationContent: 'Les fonctions de traduction sont disponibles. Traduction de texte, vocale et photo possible.',
+          nearbyContent: 'Vous pouvez rechercher des attractions touristiques, restaurants et transports autour de votre position.',
+          weatherContent: `🌤️ Informations Météo d'Aujourd'hui
+
+Tokyo: Ensoleillé, 22°C
+Osaka: Nuageux, 20°C
+Kyoto: Ensoleillé, 21°C
+
+※Consultez le site de l'Agence Météorologique du Japon pour les dernières informations.`,
+          greeting: 'Bonjour! Demandez-moi n\'importe quoi sur les voyages au Japon.'
+        };
+      case 'hi':
+        return {
+          title: 'AI चैट असिस्टेंट',
+          subtitle: '24/7 कभी भी सहायता',
+          quickActions: 'त्वरित कार्य',
+          emergency: 'आपातकालीन संपर्क',
+          translation: 'अनुवाद',
+          nearby: 'आसपास की जानकारी',
+          weather: 'मौसम की जानकारी',
+          helpCenter: 'सहायता केंद्र',
+          inputPlaceholder: 'संदेश टाइप करें...',
+          emergencyContent: `🚨 आपातकालीन संपर्क
+
+पुलिस: 110
+अग्निशमन/एम्बुलेंस: 119
+पर्यटक हॉटलाइन: 050-3816-2787
+
+अपना स्थान बताते समय, आसपास के स्थलचिह्न या पते की जांच करें।`,
+          translationContent: 'अनुवाद सुविधाएं उपलब्ध हैं। टेक्स्ट अनुवाद, आवाज अनुवाद और फोटो अनुवाद संभव है।',
+          nearbyContent: 'आप अपने वर्तमान स्थान के आसपास पर्यटन स्थल, रेस्तरां और परिवहन खोज सकते हैं।',
+          weatherContent: `🌤️ आज की मौसम जानकारी
+
+टोक्यो: धूप, 22°C
+ओसाका: बादल, 20°C
+क्योटो: धूप, 21°C
+
+※नवीनतम मौसम जानकारी के लिए जापान मौसम विज्ञान एजेंसी की वेबसाइट देखें।`,
+          greeting: 'नमस्ते! जापान यात्रा के बारे में कुछ भी पूछें।'
+        };
+      case 'ru':
+        return {
+          title: 'ИИ Чат-Ассистент',
+          subtitle: 'Поддержка 24/7 в любое время',
+          quickActions: 'Быстрые Действия',
+          emergency: 'Экстренные Контакты',
+          translation: 'Перевод',
+          nearby: 'Информация Поблизости',
+          weather: 'Информация о Погоде',
+          helpCenter: 'Центр Помощи',
+          inputPlaceholder: 'Введите сообщение...',
+          emergencyContent: `🚨 Экстренные Контакты
+
+Полиция: 110
+Пожарная/Скорая: 119
+Туристическая Линия: 050-3816-2787
+
+При сообщении о местоположении проверьте ближайшие ориентиры или адреса.`,
+          translationContent: 'Доступны функции перевода. Возможен перевод текста, голоса и фотографий.',
+          nearbyContent: 'Вы можете искать туристические достопримечательности, рестораны и транспорт вокруг вашего местоположения.',
+          weatherContent: `🌤️ Информация о Погоде Сегодня
+
+Токио: Солнечно, 22°C
+Осака: Облачно, 20°C
+Киото: Солнечно, 21°C
+
+※Проверьте сайт Японского Метеорологического Агентства для актуальной информации.`,
+          greeting: 'Привет! Спрашивайте что угодно о путешествиях в Японию.'
+        };
+      case 'ar':
+        return {
+          title: 'مساعد الدردشة بالذكاء الاصطناعي',
+          subtitle: 'دعم 24/7 في أي وقت',
+          quickActions: 'الإجراءات السريعة',
+          emergency: 'جهات الاتصال الطارئة',
+          translation: 'الترجمة',
+          nearby: 'معلومات قريبة',
+          weather: 'معلومات الطقس',
+          helpCenter: 'مركز المساعدة',
+          inputPlaceholder: 'اكتب رسالة...',
+          emergencyContent: `🚨 جهات الاتصال الطارئة
+
+الشرطة: 110
+الإطفاء/الإسعاف: 119
+الخط الساخن السياحي: 050-3816-2787
+
+عند الإبلاغ عن موقعك، تحقق من المعالم أو العناوين القريبة.`,
+          translationContent: 'ميزات الترجمة متاحة. ترجمة النص والصوت والصور ممكنة.',
+          nearbyContent: 'يمكنك البحث عن المعالم السياحية والمطاعم والمواصلات حول موقعك الحالي.',
+          weatherContent: `🌤️ معلومات الطقس اليوم
+
+طوكيو: مشمس، 22°C
+أوساكا: غائم، 20°C
+كيوتو: مشمس، 21°C
+
+※يرجى مراجعة موقع وكالة الأرصاد الجوية اليابانية للحصول على أحدث معلومات الطقس.`,
+          greeting: 'مرحباً! اسألني أي شيء عن السفر إلى اليابان.'
+        };
+      case 'id':
+        return {
+          title: 'Asisten Chat AI',
+          subtitle: 'Dukungan 24/7 kapan saja',
+          quickActions: 'Tindakan Cepat',
+          emergency: 'Kontak Darurat',
+          translation: 'Terjemahan',
+          nearby: 'Info Sekitar',
+          weather: 'Info Cuaca',
+          helpCenter: 'Pusat Bantuan',
+          inputPlaceholder: 'Ketik pesan...',
+          emergencyContent: `🚨 Kontak Darurat
+
+Polisi: 110
+Pemadam Kebakaran/Ambulans: 119
+Hotline Wisata: 050-3816-2787
+
+Saat melaporkan lokasi Anda, periksa landmark atau alamat terdekat.`,
+          translationContent: 'Fitur terjemahan tersedia. Terjemahan teks, suara, dan foto dimungkinkan.',
+          nearbyContent: 'Anda dapat mencari tempat wisata, restoran, dan transportasi di sekitar lokasi Anda.',
+          weatherContent: `🌤️ Informasi Cuaca Hari Ini
+
+Tokyo: Cerah, 22°C
+Osaka: Berawan, 20°C
+Kyoto: Cerah, 21°C
+
+※Silakan periksa situs web Badan Meteorologi Jepang untuk informasi cuaca terbaru.`,
+          greeting: 'Halo! Tanyakan apa saja tentang perjalanan ke Jepang.'
+        };
+      case 'pt':
+        return {
+          title: 'Assistente de Chat IA',
+          subtitle: 'Suporte 24/7 a qualquer momento',
+          quickActions: 'Ações Rápidas',
+          emergency: 'Contatos de Emergência',
+          translation: 'Tradução',
+          nearby: 'Informações Próximas',
+          weather: 'Informações do Tempo',
+          helpCenter: 'Central de Ajuda',
+          inputPlaceholder: 'Digite uma mensagem...',
+          emergencyContent: `🚨 Contatos de Emergência
+
+Polícia: 110
+Bombeiros/Ambulância: 119
+Linha Turística: 050-3816-2787
+
+Ao relatar sua localização, verifique pontos de referência ou endereços próximos.`,
+          translationContent: 'Recursos de tradução estão disponíveis. Tradução de texto, voz e foto são possíveis.',
+          nearbyContent: 'Você pode pesquisar atrações turísticas, restaurantes e transporte ao redor da sua localização.',
+          weatherContent: `🌤️ Informações do Tempo Hoje
+
+Tóquio: Ensolarado, 22°C
+Osaka: Nublado, 20°C
+Quioto: Ensolarado, 21°C
+
+※Consulte o site da Agência Meteorológica do Japão para informações atualizadas.`,
+          greeting: 'Olá! Pergunte-me qualquer coisa sobre viajar para o Japão.'
+        };
+      case 'th':
+        return {
+          title: 'ผู้ช่วยแชท AI',
+          subtitle: 'สนับสนุน 24/7 ตลอดเวลา',
+          quickActions: 'การดำเนินการด่วน',
+          emergency: 'ติดต่อฉุกเฉิน',
+          translation: 'การแปล',
+          nearby: 'ข้อมูลใกล้เคียง',
+          weather: 'ข้อมูลสภาพอากาศ',
+          helpCenter: 'ศูนย์ช่วยเหลือ',
+          inputPlaceholder: 'พิมพ์ข้อความ...',
+          emergencyContent: `🚨 ติดต่อฉุกเฉิน
+
+ตำรวจ: 110
+ดับเพลิง/รถพยาบาล: 119
+สายด่วนท่องเที่ยว: 050-3816-2787
+
+เมื่อรายงานตำแหน่งของคุณ โปรดตรวจสอบสถานที่สำคัญหรือที่อยู่ใกล้เคียง`,
+          translationContent: 'ฟีเจอร์การแปลพร้อมใช้งาน สามารถแปลข้อความ เสียง และรูปภาพได้',
+          nearbyContent: 'คุณสามารถค้นหาสถานที่ท่องเที่ยว ร้านอาหาร และการขนส่งรอบตำแหน่งปัจจุบันของคุณ',
+          weatherContent: `🌤️ ข้อมูลสภาพอากาศวันนี้
+
+โตเกียว: แจ่มใส 22°C
+โอซาก้า: มีเมฆ 20°C
+เกียวโต: แจ่มใส 21°C
+
+※โปรดตรวจสอบเว็บไซต์กรมอุตุนิยมวิทยาญี่ปุ่นสำหรับข้อมูลสภาพอากาศล่าสุด`,
+          greeting: 'สวัสดี! ถามอะไรเกี่ยวกับการเดินทางในญี่ปุ่นได้เลย'
+        };
+      case 'vi':
+        return {
+          title: 'Trợ Lý Chat AI',
+          subtitle: 'Hỗ trợ 24/7 bất cứ lúc nào',
+          quickActions: 'Hành Động Nhanh',
+          emergency: 'Liên Hệ Khẩn Cấp',
+          translation: 'Dịch Thuật',
+          nearby: 'Thông Tin Gần Đây',
+          weather: 'Thông Tin Thời Tiết',
+          helpCenter: 'Trung Tâm Trợ Giúp',
+          inputPlaceholder: 'Nhập tin nhắn...',
+          emergencyContent: `🚨 Liên Hệ Khẩn Cấp
+
+Cảnh sát: 110
+Cứu hỏa/Cấp cứu: 119
+Đường dây nóng du lịch: 050-3816-2787
+
+Khi báo cáo vị trí của bạn, hãy kiểm tra các địa danh hoặc địa chỉ gần đó.`,
+          translationContent: 'Các tính năng dịch thuật có sẵn. Có thể dịch văn bản, giọng nói và ảnh.',
+          nearbyContent: 'Bạn có thể tìm kiếm các điểm tham quan, nhà hàng và phương tiện giao thông xung quanh vị trí hiện tại.',
+          weatherContent: `🌤️ Thông Tin Thời Tiết Hôm Nay
+
+Tokyo: Nắng, 22°C
+Osaka: Có mây, 20°C
+Kyoto: Nắng, 21°C
+
+※Vui lòng kiểm tra trang web Cơ quan Khí tượng Nhật Bản để biết thông tin thời tiết mới nhất.`,
+          greeting: 'Xin chào! Hỏi tôi bất cứ điều gì về du lịch Nhật Bản.'
+        };
+      case 'it':
+        return {
+          title: 'Assistente Chat IA',
+          subtitle: 'Supporto 24/7 in qualsiasi momento',
+          quickActions: 'Azioni Rapide',
+          emergency: 'Contatti di Emergenza',
+          translation: 'Traduzione',
+          nearby: 'Informazioni Vicine',
+          weather: 'Informazioni Meteo',
+          helpCenter: 'Centro Assistenza',
+          inputPlaceholder: 'Scrivi un messaggio...',
+          emergencyContent: `🚨 Contatti di Emergenza
+
+Polizia: 110
+Vigili del Fuoco/Ambulanza: 119
+Linea Turistica: 050-3816-2787
+
+Quando riporti la tua posizione, controlla punti di riferimento o indirizzi vicini.`,
+          translationContent: 'Le funzioni di traduzione sono disponibili. È possibile tradurre testo, voce e foto.',
+          nearbyContent: 'Puoi cercare attrazioni turistiche, ristoranti e trasporti intorno alla tua posizione attuale.',
+          weatherContent: `🌤️ Informazioni Meteo di Oggi
+
+Tokyo: Soleggiato, 22°C
+Osaka: Nuvoloso, 20°C
+Kyoto: Soleggiato, 21°C
+
+※Controlla il sito dell'Agenzia Meteorologica del Giappone per informazioni aggiornate.`,
+          greeting: 'Ciao! Chiedimi qualsiasi cosa sui viaggi in Giappone.'
+        };
+      default: // Japanese
+        return {
+          title: 'AIチャットアシスタント',
+          subtitle: '24時間いつでもサポートします',
+          quickActions: 'クイックアクション',
+          emergency: '緊急連絡先',
+          translation: '翻訳',
+          nearby: '周辺情報',
+          weather: '天気情報',
+          helpCenter: 'ヘルプセンター',
+          inputPlaceholder: 'メッセージを入力...',
+          emergencyContent: `🚨 緊急連絡先
+
+警察: 110
+消防・救急: 119
+観光ホットライン: 050-3816-2787
+
+現在地を伝える際は、近くの目印や住所を確認してください。`,
+          translationContent: '翻訳機能をご利用いただけます。テキスト翻訳、音声翻訳、写真翻訳が可能です。',
+          nearbyContent: '現在地周辺の観光スポット、レストラン、交通機関を検索できます。',
+          weatherContent: `🌤️ 今日の天気情報
+
+東京: 晴れ、気温 22°C
+大阪: 曇り、気温 20°C
+京都: 晴れ、気温 21°C
+
+※最新の天気情報は気象庁のウェブサイトでご確認ください。`,
+          greeting: 'こんにちは！日本旅行について何でもお聞きください。'
+        };
+    }
+  };
+
+const content = getLocalizedContent();
+
+const prevLangRef = useRef<string | null>(null);
+
+useEffect(() => {
+  if (prevLangRef.current !== currentLanguage) {
+    setMessages([]);
+
+    let cancelled = false;
+    const tid = window.setTimeout(() => {
+      if (cancelled) return;
+      addBotMessage(content.greeting);
+      // ★ 実際に挨拶を出したタイミングで更新
+      prevLangRef.current = currentLanguage;
+    }, 100);
+
+    return () => {
+      cancelled = true;  // ★ StrictModeの1回目でキャンセル
+      clearTimeout(tid);
+    };
+  }
+}, [currentLanguage, content.greeting]);
+
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const addBotMessage = (content: string, actions?: Array<{ label: string; action: () => void }>) => {
+    const message: Message = {
+      id: `bot_${Date.now()}`,
+      type: 'bot',
+      content,
+      timestamp: new Date().toISOString(),
+      actions
+    };
+    setMessages(prev => [...prev, message]);
+  };
+
+  const addUserMessage = (content: string) => {
+    const message: Message = {
+      id: `user_${Date.now()}`,
+      type: 'user',
+      content,
+      timestamp: new Date().toISOString()
+    };
+    setMessages(prev => [...prev, message]);
+  };
+
+  const handleSendMessage = async () => {
+    if (!inputMessage.trim()) return;
+
+    const userMessage = inputMessage;
+    setInputMessage('');
+    addUserMessage(userMessage);
+    setIsTyping(true);
+
+    // Reset error state
+    setIsError(false);
+
+    try {
+      const result = await apiCall('/openai-chat', {
+        method: 'POST',
+        body: JSON.stringify({
+          message: userMessage,
+          language: currentLanguage || 'ja',
+          context: 'travel_japan'
+        })
+      });
+
+      console.log('[ChatBot] OpenAI API response:', result);
+      
+      if (result.success && result.response && typeof result.response === 'string' && result.response.trim()) {
+        // Check if this is mock data
+        if (result.isMockData) {
+          setShowMockNotice(true);
+        }
+        
+        addBotMessage(result.response, [
+          {
+            label: t('chat.mapCheck'),
+           action: () => { window.open('/map', '_blank'); }
+          },
+          {
+            label: t('chat.moreInfo'),
+            action: () => console.log('Show details')
+          }
+        ]);
+      } else {
+        console.warn('[ChatBot] Invalid response format:', result);
+        throw new Error(result.message || 'AI応答の生成に失敗しました');
+      }
+    } catch (error) {
+      const apiError = error as APIError;
+      
+      // Log error with context
+      globalErrorHandler.handleError(apiError, {
+        page: 'ChatBot',
+        action: 'sendMessage',
+        userAgent: navigator.userAgent,
+        url: window.location.href
+      });
+      
+      // Handle specific AWS errors
+      const errorInfo = handleAWSError(apiError);
+      
+      console.error('ChatBot API Error:', {
+        message: apiError.message,
+        status: apiError.status,
+        code: apiError.code,
+        endpoint: apiError.endpoint,
+        userMessage: userMessage,
+        language: currentLanguage
+      });
+      
+      setIsError(true);
+      
+      // Show user-friendly error message
+      if (apiError.code === 'NETWORK_OFFLINE') {
+        addBotMessage('インターネット接続がありません。接続を確認してください。');
+      } else if (apiError.code === 'TIMEOUT') {
+        addBotMessage('応答に時間がかかっています。もう一度お試しください。');
+      } else if (apiError.status === 429) {
+        addBotMessage('アクセスが集中しています。しばらく待ってからお試しください。');
+      } else if (apiError.status && apiError.status >= 500) {
+        addBotMessage('サーバーで問題が発生しています。しばらく待ってからお試しください。');
+      } else {
+        addBotMessage(errorInfo.message || 'AIサービスが一時的に利用できません。しばらく待ってからお試しください。');
+      }
+      
+      // Add retry action for retryable errors
+      if (apiError.retryable) {
+        addBotMessage('', [
+          {
+            label: 'もう一度試す',
+            action: () => {
+              setInputMessage(userMessage);
+              handleSendMessage();
+            }
+          }
+        ]);
+      }
+    } finally {
+      setIsTyping(false);
+    }
+  };
+
+  const handleQuickAction = (action: string) => {
+    switch (action) {
+      case 'emergency':
+        addBotMessage(content.emergencyContent);
+        break;
+      case 'translation':
+        addBotMessage(content.translationContent, [
+          {
+            label: currentLanguage === 'en' ? 'Open Translation Tool' :
+                   currentLanguage === 'zh' ? '打开翻译工具' :
+                   currentLanguage === 'ko' ? '번역 도구 열기' :
+                   currentLanguage === 'es' ? 'Abrir Herramienta de Traducción' :
+                   currentLanguage === 'fr' ? 'Ouvrir l\'Outil de Traduction' :
+                   currentLanguage === 'hi' ? 'अनुवाद उपकरण खोलें' :
+                   currentLanguage === 'ru' ? 'Открыть Инструмент Перевода' :
+                   currentLanguage === 'ar' ? 'فتح أداة الترجمة' :
+                   currentLanguage === 'id' ? 'Buka Alat Terjemahan' :
+                   currentLanguage === 'pt' ? 'Abrir Ferramenta de Tradução' :
+                   currentLanguage === 'th' ? 'เปิดเครื่องมือแปล' :
+                   currentLanguage === 'vi' ? 'Mở Công Cụ Dịch' :
+                   currentLanguage === 'it' ? 'Apri Strumento di Traduzione' :
+                   '翻訳ツールを開く',
+            action: () => window.open('/translate', '_blank')
+          }
+        ]);
+        break;
+      case 'nearby':
+        addBotMessage(content.nearbyContent, [
+          {
+            label: currentLanguage === 'en' ? 'Open Map' :
+                   currentLanguage === 'zh' ? '打开地图' :
+                   currentLanguage === 'ko' ? '지도 열기' :
+                   currentLanguage === 'es' ? 'Abrir Mapa' :
+                   currentLanguage === 'fr' ? 'Ouvrir la Carte' :
+                   currentLanguage === 'hi' ? 'मैप खोलें' :
+                   currentLanguage === 'ru' ? 'Открыть Карту' :
+                   currentLanguage === 'ar' ? 'فتح الخريطة' :
+                   currentLanguage === 'id' ? 'Buka Peta' :
+                   currentLanguage === 'pt' ? 'Abrir Mapa' :
+                   currentLanguage === 'th' ? 'เปิดแผนที่' :
+                   currentLanguage === 'vi' ? 'Mở Bản Đồ' :
+                   currentLanguage === 'it' ? 'Apri Mappa' :
+                   '地図を開く',
+            action: () => window.open('/map', '_blank')
+          }
+        ]);
+        break;
+      case 'weather':
+        addBotMessage(content.weatherContent);
+        break;
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 pt-20">
+      <div className="max-w-4xl mx-auto px-6 py-8">
+        {/* Header */}
+        <motion.div
+          className="text-center mb-8"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+        >
+          <h1 className="text-4xl font-bold text-gray-800 mb-4">{content.title}</h1>
+          <p className="text-lg text-gray-600">{content.subtitle}</p>
+        </motion.div>
+
+        <div className="grid lg:grid-cols-4 gap-8">
+          {/* Quick Actions */}
+          <div className="lg:col-span-1 space-y-4">
+            <h3 className="text-lg font-bold text-gray-800">{content.quickActions}</h3>
+            
+            <div className="space-y-3">
+              <button
+                onClick={() => handleQuickAction('emergency')}
+                className="w-full flex items-center space-x-3 p-3 bg-red-100 text-red-700 rounded-xl hover:bg-red-200 transition-colors"
+              >
+                <Phone className="w-5 h-5" />
+                <span>{content.emergency}</span>
+              </button>
+              
+              <button
+                onClick={() => handleQuickAction('translation')}
+                className="w-full flex items-center space-x-3 p-3 bg-blue-100 text-blue-700 rounded-xl hover:bg-blue-200 transition-colors"
+              >
+                <Translate className="w-5 h-5" />
+                <span>{content.translation}</span>
+              </button>
+              
+              <button
+                onClick={() => handleQuickAction('nearby')}
+                className="w-full flex items-center space-x-3 p-3 bg-green-100 text-green-700 rounded-xl hover:bg-green-200 transition-colors"
+              >
+                <MapPin className="w-5 h-5" />
+                <span>{content.nearby}</span>
+              </button>
+              
+              <button
+                onClick={() => handleQuickAction('weather')}
+                className="w-full flex items-center space-x-3 p-3 bg-yellow-100 text-yellow-700 rounded-xl hover:bg-yellow-200 transition-colors"
+              >
+                <Camera className="w-5 h-5" />
+                <span>{content.weather}</span>
+              </button>
+              
+              <button
+                onClick={() => window.open('/help', '_blank')}
+                className="w-full flex items-center space-x-3 p-3 bg-purple-100 text-purple-700 rounded-xl hover:bg-purple-200 transition-colors"
+              >
+                <Book className="w-5 h-5" />
+                <span>{content.helpCenter}</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Chat Interface */}
+          <div className="lg:col-span-3">
+            <motion.div
+              className="bg-white rounded-3xl shadow-lg overflow-hidden"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
+              {/* Messages */}
+              <div className="h-96 overflow-y-auto p-6 space-y-4">
+                <AnimatePresence>
+                  {messages.map((message) => (
+                    <motion.div
+                      key={message.id}
+                      className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -20 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <div className={`flex items-start space-x-3 max-w-xs lg:max-w-md ${message.type === 'user' ? 'flex-row-reverse space-x-reverse' : ''}`}>
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${message.type === 'user' ? 'bg-purple-500' : 'bg-blue-500'}`}>
+                          {message.type === 'user' ? (
+                            <User className="w-4 h-4 text-white" />
+                          ) : (
+                            <Bot className="w-4 h-4 text-white" />
+                          )}
+                        </div>
+                        
+                        <div className={`p-3 rounded-2xl ${message.type === 'user' ? 'bg-purple-500 text-white' : 'bg-gray-100 text-gray-800'}`}>
+                          <p className="whitespace-pre-wrap">{message.content}</p>
+                          
+                          {message.actions && (
+                            <div className="mt-3 space-y-2">
+                              {message.actions.map((action, index) => (
+                                <button
+                                  key={index}
+                                  onClick={action.action}
+                                  className="block w-full text-left px-3 py-2 bg-white/20 hover:bg-white/30 rounded-lg text-sm transition-colors"
+                                >
+                                  {action.label}
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+
+                {isTyping && (
+                  <motion.div
+                    className="flex justify-start"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                  >
+                    <div className="flex items-start space-x-3">
+                      <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                        <Bot className="w-4 h-4 text-white" />
+                      </div>
+                      <div className="bg-gray-100 p-4 rounded-2xl">
+                        <div className="flex space-x-1">
+                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+                
+                {isError && (
+                  <motion.div
+                    className="flex justify-start"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                  >
+                    <div className="flex items-start space-x-3">
+                      <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
+                        <Bot className="w-4 h-4 text-white" />
+                      </div>
+                      <div className="bg-red-100 p-3 rounded-2xl">
+                        <p className="text-red-700">申し訳ございません。一時的にサービスが利用できません。</p>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+
+                <div ref={messagesEndRef} />
+              </div>
+
+              {/* Input */}
+              <div className="border-t border-gray-200 p-4">
+                <div className="flex space-x-3">
+                  <input
+                    type="text"
+                    value={inputMessage}
+                    onChange={(e) => setInputMessage(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                    placeholder={content.inputPlaceholder}
+                    className="flex-1 px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  />
+                  {isTyping ? (
+                    <div className="px-6 py-3 bg-gray-400 text-white rounded-xl">
+                      <Loader className="w-5 h-5 animate-spin" />
+                    </div>
+                  ) : (
+                    <button
+                      onClick={handleSendMessage}
+                      disabled={!inputMessage.trim() || isTyping}
+                      className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <Send className="w-5 h-5" />
+                    </button>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+            
+            {/* Mock Data Notice */}
+            {showMockNotice && (
+              <MockDataNotice 
+                onRetry={() => setShowMockNotice(false)}
+                className="max-w-4xl mx-auto mb-4"
+              />
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ChatBot;
+</file>
+
+<file path="src/pages/TripDetail.tsx">
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useParams, useNavigate } from 'react-router-dom';
+import { ArrowLeft, MapPin, Calendar, Clock, Star, Edit, Share, Download, Info, Users, ExternalLink, Globe, Languages, X, Loader, Sparkles, Lock, Eye } from 'lucide-react';
+import { useTrip } from '../contexts/TripContext';
+import { useLanguage } from '../contexts/LanguageContext';
+import { useAuth } from '../contexts/AuthContext';
+import { apiCall, API_CONFIG, buildApiUrl, APIError } from '../config/api';
+import { handleAWSError, autoRecovery, globalErrorHandler } from '../utils/errorHandler';
+import MockDataNotice from '../components/MockDataNotice';
+
+const TripDetail: React.FC = () => {
+  const { tripId } = useParams();
+  const navigate = useNavigate();
+  const { trips } = useTrip();
+  const { t } = useLanguage();
+  const { isPremium } = useAuth();
+  const [trip, setTrip] = useState<any>(null);
+  const [selectedActivity, setSelectedActivity] = useState<any>(null);
+  const [activityDetails, setActivityDetails] = useState<any>(null);
+  const [isLoadingDetails, setIsLoadingDetails] = useState(false);
+  const [showTranslator, setShowTranslator] = useState(false);
+  const [translatedText, setTranslatedText] = useState('');
+  const [isTranslating, setIsTranslating] = useState(false);
+  const [targetLanguage, setTargetLanguage] = useState('en');
+  const [textToTranslate, setTextToTranslate] = useState('');
+  const [showMockNotice, setShowMockNotice] = useState(false);
+
+  // Mock trip data
+  useEffect(() => {
+    const foundTrip = trips.find(t => t.id === tripId);
+    if (foundTrip) {
+      setTrip(foundTrip);
+    } else {
+      // Fallback to mock data if not found in context
+      const mockTrip = {
+        id: tripId,
+        title: '春の桜旅',
+        destination: '東京・京都',
+        startDate: '2024-04-01',
+        endDate: '2024-04-05',
+        status: 'upcoming',
+        image: 'https://images.pexels.com/photos/2070033/pexels-photo-2070033.jpeg',
+        itinerary: [
+          {
+            day: 1,
+            date: '2024-04-01',
+            title: '東京到着・浅草探索',
+            activities: [
+              { time: '10:00', name: '羽田空港到着', location: '羽田空港', type: 'transport' },
+              { 
+                time: '12:00', 
+                name: '浅草寺参拝', 
+                location: '浅草', 
+                type: 'culture', 
+                rating: 4.8,
+                duration: '90',
+                description: '東京最古の寺院で歴史と文化を感じる',
+                estimatedCost: '0 JPY',
+                tips: '早朝の参拝がおすすめです。混雑を避けられます。'
+              },
+              { 
+                time: '14:00', 
+                name: '仲見世通り散策', 
+                location: '浅草', 
+                type: 'shopping', 
+                rating: 4.6,
+                duration: '120',
+                description: '伝統的なお土産や和菓子を楽しめる商店街',
+                estimatedCost: '3000 JPY',
+                tips: '人形焼きと雷おこしが名物です。'
+              },
+              { 
+                time: '18:00', 
+                name: '天ぷら夕食', 
+                location: '浅草', 
+                type: 'food', 
+                rating: 4.7,
+                duration: '90',
+                description: '老舗天ぷら店で本格的な江戸前天ぷらを堪能',
+                estimatedCost: '4500 JPY',
+                tips: '予約推奨。カウンター席がおすすめです。'
+              }
+            ]
+          },
+          {
+            day: 2,
+            date: '2024-04-02',
+            title: '渋谷・原宿カルチャー体験',
+            activities: [
+              { 
+                time: '09:00', 
+                name: '明治神宮参拝', 
+                location: '原宿', 
+                type: 'culture', 
+                rating: 4.9,
+                duration: '90',
+                description: '東京の心霊的な中心地で静寂なひとときを',
+                estimatedCost: '0 JPY',
+                tips: '早朝の参拝が特におすすめです。'
+              },
+              { 
+                time: '11:00', 
+                name: '竹下通り散策', 
+                location: '原宿', 
+                type: 'shopping', 
+                rating: 4.5,
+                duration: '60',
+                description: '若者文化の発信地でユニークなファッションを体験',
+                estimatedCost: '5000 JPY',
+                tips: '平日の方が混雑が少ないです。'
+              },
+              { 
+                time: '14:00', 
+                name: '渋谷スクランブル交差点', 
+                location: '渋谷', 
+                type: 'sightseeing', 
+                rating: 4.8,
+                duration: '30',
+                description: '世界で最も有名な交差点を体験',
+                estimatedCost: '0 JPY',
+                tips: 'スターバックス2階からの眺めが最高です。'
+              },
+              { 
+                time: '16:00', 
+                name: '渋谷スカイ展望台', 
+                location: '渋谷', 
+                type: 'sightseeing', 
+                rating: 4.7,
+                duration: '60',
+                description: '東京の絶景を360度楽しめる展望台',
+                estimatedCost: '2000 JPY',
+                tips: '夕日の時間帯が特に美しいです。'
+              }
+            ]
+          }
+        ]
+      };
+      setTrip(mockTrip);
+      setShowMockNotice(true);
+    }
+  }, [tripId, trips]);
+  
+  const fetchActivityDetails = async (activity: any) => {
+    setIsLoadingDetails(true);
+    setSelectedActivity(activity);
+    
+    try {
+      const result = await apiCall('/tripadvisor', {
+        method: 'POST',
+        body: JSON.stringify({
+          location: activity.name
+        })
+      });
+      
+      // Check if this is mock data
+      if (result.isMockData) {
+        setShowMockNotice(true);
+      }
+      
+      // Try to get directions data
+      let directionsData = null;
+      try {
+        const directionsResult = await apiCall('/google-maps', {
+          method: 'POST',
+          body: JSON.stringify({
+            origin: activity.location,
+            destination: activity.name,
+            type: 'directions'
+          })
+        });
+        directionsData = directionsResult.data || directionsResult;
+      } catch (error) {
+        console.error('Failed to fetch directions:', error);
+      }
+      
+      setActivityDetails({
+        ...(result.data || result),
+        directions: directionsData
+      });
+    } catch (error) {
+      const apiError = error as APIError;
+      
+      // Log error
+      globalErrorHandler.handleError(apiError, {
+        page: 'TripDetail',
+        action: 'fetchActivityDetails',
+        userAgent: navigator.userAgent,
+        url: window.location.href
+      });
+      
+      console.error('Failed to fetch activity details:', apiError);
+      
+      // Try fallback data
+      try {
+        const fallbackData = await autoRecovery.handleServiceFailure('tripadvisor');
+        setActivityDetails(fallbackData.data || {
+          data: [
+            {
+              name: activity.name,
+              description: 'A popular attraction in Japan.',
+              rating: activity.rating || '4.5',
+              num_reviews: '1000+',
+              photo: {
+                images: {
+                  original: {
+                    url: 'https://images.pexels.com/photos/2070033/pexels-photo-2070033.jpeg'
+                  }
+                }
+              }
+            }
+          ],
+          reviews: {
+            data: [
+              {
+                title: 'Great experience',
+                text: 'Wonderful place to visit. Highly recommended!',
+                rating: 5,
+                user: { username: 'Traveler123' }
+              }
+            ]
+          }
+        });
+      } catch (fallbackError) {
+        console.error('Fallback data failed:', fallbackError);
+        setActivityDetails(null);
+      }
+    } finally {
+      setIsLoadingDetails(false);
+    }
+  };
+
+  // Check if activity should show detailed info for free users
+  const shouldShowDetailedInfo = (day: number, time: string): boolean => {
+    if (isPremium) return true;
+    
+    // Day 1: Always show detailed info
+    if (day === 1) return true;
+    
+    // Day 2: Show detailed info only for morning (before 12:00)
+    if (day === 2) {
+      const hour = parseInt(time.split(':')[0]);
+      return hour < 12;
+    }
+    
+    // Day 3+: No detailed info for free users
+    return false;
+  };
+
+  // Check if activity should be completely hidden for free users
+  const shouldHideActivity = (day: number, time: string): boolean => {
+    if (isPremium) return false;
+    
+    // Day 2 afternoon and beyond: Hide for free users
+    if (day === 2) {
+      const hour = parseInt(time.split(':')[0]);
+      return hour >= 12;
+    }
+    
+    // Day 3+: Hide for free users
+    return day >= 3;
+  };
+
+  const handleTranslate = async () => {
+    if (!textToTranslate.trim()) return;
+    
+    setIsTranslating(true);
+    try {
+      const result = await apiCall('/openai-chat', {
+        method: 'POST',
+        body: JSON.stringify({ 
+          message: `Translate this text to ${targetLanguage}: ${textToTranslate}`,
+          language: targetLanguage,
+          context: 'translation'
+        })
+      });
+
+
+      console.log('[TripDetail] Translation API response:', result);
+      
+      if (result.success && result.response && typeof result.response === 'string' && result.response.trim()) {
+        setTranslatedText(result.response);
+      } else {
+        console.warn('[TripDetail] Invalid translation response:', result);
+        throw new Error(result.message || '翻訳に失敗しました');
+      }
+    } catch (error) {
+      const apiError = error as APIError;
+      
+      globalErrorHandler.handleError(apiError, {
+        page: 'TripDetail',
+        action: 'translate',
+        userAgent: navigator.userAgent,
+        url: window.location.href
+      });
+      
+      console.error('Translation error:', apiError);
+      
+      if (apiError.code === 'NETWORK_OFFLINE') {
+        setTranslatedText('インターネット接続がありません。接続を確認してください。');
+      } else if (apiError.status === 429) {
+        setTranslatedText('翻訳サービスが混雑しています。しばらく待ってからお試しください。');
+      } else {
+        setTranslatedText('翻訳エラーが発生しました。もう一度お試しください。');
+      }
+    } finally {
+      setIsTranslating(false);
+    }
+  };
+
+  const getActivityIcon = (type: string) => {
+    switch (type) {
+      case 'culture': return '⛩️';
+      case 'food': return '🍜';
+      case 'shopping': return '🛍️';
+      case 'transport': return '✈️';
+      case 'sightseeing': return '🏙️';
+      default: return '📍';
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            <button
+              onClick={() => navigate('/dashboard')}
+              className="flex items-center space-x-2 text-gray-600 hover:text-gray-800 transition-colors"
+            >
+              <ArrowLeft className="w-5 h-5" />
+              <span>ダッシュボードに戻る</span>
+            </button>
+            
+            <div className="flex items-center space-x-4">
+              <button className="p-2 text-gray-600 hover:text-gray-800 transition-colors">
+                <Edit className="w-5 h-5" />
+              </button>
+              <button 
+                onClick={() => navigate(`/share/${tripId}`)}
+                className="p-2 text-gray-600 hover:text-gray-800 transition-colors"
+              >
+                <Share className="w-5 h-5" />
+              </button>
+              <button className="p-2 text-gray-600 hover:text-gray-800 transition-colors">
+                <Download className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div className="max-w-6xl mx-auto px-6 py-8">
+        {/* Mock Data Notice */}
+        {showMockNotice && (
+          <MockDataNotice 
+            onRetry={() => setShowMockNotice(false)}
+            className="mb-6"
+          />
+        )}
+        
+        {/* Trip Header */}
+        <motion.div
+          className="bg-white rounded-3xl shadow-lg overflow-hidden mb-8"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+        >
+          <div
+            className="h-64 bg-cover bg-center relative"
+            style={{ backgroundImage: `url(${trip.image})` }}
+          >
+            <div className="absolute inset-0 bg-black bg-opacity-40" />
+            <div className="absolute bottom-6 left-6 text-white">
+              <h1 className="text-4xl font-bold mb-2">{trip.title}</h1>
+              <div className="flex items-center space-x-4 text-lg">
+                <div className="flex items-center space-x-1">
+                  <MapPin className="w-5 h-5" />
+                  <span>{trip.destination}</span>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <Calendar className="w-5 h-5" />
+                  <span>
+                    {new Date(trip.startDate).toLocaleDateString('ja-JP')} - 
+                    {new Date(trip.endDate).toLocaleDateString('ja-JP')}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Itinerary */}
+        <div className="space-y-6">
+          {trip.itinerary.map((day, dayIndex) => (
+            <motion.div
+              key={day.day}
+              className="bg-white rounded-3xl shadow-lg overflow-hidden"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: dayIndex * 0.1 }}
+            >
+              <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-6">
+                <h2 className="text-2xl font-bold">Day {day.day}</h2>
+                <p className="text-blue-100">{day.title}</p>
+                <p className="text-sm text-blue-200">
+                  {new Date(day.date).toLocaleDateString('ja-JP', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    weekday: 'long'
+                  })}
+                </p>
+              </div>
+
+              <div className="p-6">
+                {day.activities.map((activity, actIndex) => {
+                  // Check if activity should be hidden for free users
+                  const shouldHide = shouldHideActivity(day.day, activity.time);
+                  const showDetailed = shouldShowDetailedInfo(day.day, activity.time);
+                  
+                  if (shouldHide) {
+                    return null;
+                  }
+                  
+                  return (
+                  <motion.div
+                    key={actIndex}
+                    className={`flex items-start space-x-4 py-4 cursor-pointer hover:bg-gray-50 rounded-xl transition-colors ${
+                      actIndex !== day.activities.length - 1 ? 'border-b border-gray-100' : ''
+                    }`}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.3, delay: (dayIndex * 0.1) + (actIndex * 0.05) }}
+                    onClick={() => fetchActivityDetails(activity)}
+                  >
+                    <div className="flex-shrink-0">
+                      <div className="w-12 h-12 bg-gradient-to-br from-purple-100 to-blue-100 rounded-full flex items-center justify-center text-xl">
+                        {getActivityIcon(activity.type)}
+                      </div>
+                    </div>
+                    
+                    <div className="flex-1">
+                      <div className="flex items-center space-x-2 mb-1">
+                        <Clock className="w-4 h-4 text-gray-400" />
+                        <span className="text-sm font-medium text-gray-600">{activity.time}</span>
+                        {showDetailed && activity.duration && (
+                          <>
+                            <span className="text-gray-400">•</span>
+                            <span className="text-sm text-gray-600">{activity.duration}分</span>
+                          </>
+                        )}
+                      </div>
+                      <h3 className="font-semibold text-gray-800 mb-1">{activity.name}</h3>
+                      
+                      {/* Show description for detailed view */}
+                      {showDetailed && activity.description && (
+                        <p className="text-sm text-gray-600 mb-2">{activity.description}</p>
+                      )}
+                      
+                      <div className="flex items-center space-x-4 text-sm text-gray-600">
+                        <div className="flex items-center space-x-1">
+                          <MapPin className="w-4 h-4" />
+                          <span>{activity.location}</span>
+                        </div>
+                        {activity.rating && (
+                          <div className="flex items-center space-x-1">
+                            <Star className="w-4 h-4 text-yellow-500" />
+                            <span>{activity.rating}</span>
+                          </div>
+                        )}
+                        {showDetailed && activity.estimatedCost && (
+                          <>
+                            <span className="text-gray-400">•</span>
+                            <span className="text-sm text-gray-600">{activity.estimatedCost}</span>
+                          </>
+                        )}
+                        {/* Navigation Button */}
+                        {showDetailed && activity.coordinates && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${activity.coordinates.lat},${activity.coordinates.lng}&travelmode=transit`;
+                              window.open(googleMapsUrl, '_blank');
+                            }}
+                            className="flex items-center space-x-1 px-2 py-1 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors text-xs"
+                          >
+                            <MapPin className="w-3 h-3" />
+                            <span>向かう</span>
+                          </button>
+                        )}
+                      </div>
+                      
+                      {/* Transport Details */}
+                      {showDetailed && activity.transportDetails && (
+                        <div className="mt-2 p-2 bg-green-50 rounded-lg">
+                          <div className="flex items-center space-x-3 text-xs text-green-700">
+                            <span>🚃 {activity.transportDetails.method}</span>
+                            <span>📍 {activity.transportDetails.distance || activity.transportDetails.line}</span>
+                            {activity.transportDetails.transfers !== undefined && (
+                              <span>🔄 乗換{activity.transportDetails.transfers}回</span>
+                            )}
+                            <span>🚶 徒歩{activity.transportDetails.walkingTime}</span>
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* Reviews */}
+                      {showDetailed && activity.reviews && activity.reviews.length > 0 && (
+                        <div className="mt-2 p-2 bg-yellow-50 rounded-lg">
+                          <div className="flex items-start space-x-2">
+                            <Star className="w-3 h-3 text-yellow-500 mt-0.5" />
+                            <div>
+                              <p className="text-xs text-yellow-800">"{activity.reviews[0].text}"</p>
+                              <p className="text-xs text-yellow-600 mt-1">- {activity.reviews[0].author}</p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* Show tips for detailed view */}
+                      {showDetailed && activity.tips && (
+                        <div className="mt-2 p-2 bg-blue-50 rounded-lg">
+                          <p className="text-xs text-blue-700">💡 {activity.tips}</p>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex flex-col space-y-2">
+                      {showDetailed ? (
+                        <button className="p-2 text-blue-600 hover:text-blue-700 transition-colors">
+                          <Eye className="w-4 h-4" />
+                        </button>
+                      ) : (
+                        <button className="p-2 text-gray-400 hover:text-gray-600 transition-colors">
+                          <Lock className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+                  </motion.div>
+                  );
+                })}
+                
+                {/* プレミアム制限メッセージ（2日目の午後以降のアクティビティがある場合） */}
+                {!isPremium && day.day === 2 && day.activities.some((activity: any) => {
+                  const hour = parseInt(activity.time.split(':')[0]);
+                  return hour >= 12;
+                }) && (
+                  <div className="mt-6 p-6 bg-gradient-to-r from-purple-100 to-pink-100 rounded-xl border-2 border-dashed border-purple-300">
+                    <div className="text-center">
+                      <Sparkles className="w-12 h-12 text-purple-600 mx-auto mb-4" />
+                      <h3 className="text-lg font-bold text-purple-800 mb-2">
+                        午後のプラン詳細はプレミアム限定
+                      </h3>
+                      <p className="text-sm text-purple-600 mb-4">
+                        2日目の午後以降（12:00以降）の詳細情報を見るには、プレミアムプランにアップグレードしてください。
+                      </p>
+                      <div className="mb-4 text-xs text-purple-500">
+                        ✨ 午前中（12:00まで）の詳細は無料でご利用いただけます
+                      </div>
+                      <button
+                        onClick={() => navigate('/checkout')}
+                        className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all"
+                      >
+                        プレミアムにアップグレード
+                      </button>
+                    </div>
+                  </div>
+                )}
+                
+                {/* 3日目以降の制限表示 */}
+                {!isPremium && day.day >= 3 && day.activities.length > 0 && (
+                  <div className="p-6 bg-gradient-to-r from-gray-100 to-purple-100 rounded-xl border-2 border-dashed border-gray-300">
+                    <div className="text-center">
+                      <Lock className="w-8 h-8 text-gray-600 mx-auto mb-2" />
+                      <p className="text-sm font-medium text-gray-800">
+                        {day.day}日目のプランはプレミアム限定です
+                      </p>
+                      <p className="text-xs text-gray-600 mt-1">
+                        アップグレードして完全な旅程をご覧ください
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          ))}
+          
+          {/* 残りの日程がある場合の制限表示 */}
+          {!isPremium && trip.itinerary.length > 2 && trip.itinerary.slice(2).some((day: any) => day.activities.length > 0) && (
+            <motion.div
+              className="bg-white rounded-3xl shadow-lg p-8 text-center"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+            >
+              <Sparkles className="w-16 h-16 text-purple-600 mx-auto mb-4" />
+              <h2 className="text-2xl font-bold text-gray-800 mb-4">
+                残り{trip.itinerary.length - 2}日間のプランがあります
+              </h2>
+              <p className="text-gray-600 mb-6">
+                プレミアムプランにアップグレードして、完全な{trip.itinerary.length}日間の旅程をご覧ください。
+              </p>
+              <div className="mb-6 p-4 bg-blue-50 rounded-xl">
+                <p className="text-sm text-blue-700">
+                  ✨ 現在、1日目と2日目の午前中（12:00まで）の詳細をご覧いただけます
+                </p>
+              </div>
+              <button
+                onClick={() => navigate('/checkout')}
+                className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-3 rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all"
+              >
+                プレミアムにアップグレード
+              </button>
+            </motion.div>
+          )}
+        </div>
+
+        {/* Action Buttons */}
+        <motion.div
+          className="mt-8 flex justify-center space-x-4"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.5 }}
+        >
+          <button 
+            onClick={() => navigate(`/trip/${tripId}/edit`)}
+            className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all"
+          >
+            プランを編集
+          </button>
+          <button 
+            onClick={() => setShowTranslator(true)}
+            className="px-6 py-3 bg-white text-gray-700 font-medium rounded-xl border border-gray-300 hover:bg-gray-50 transition-all"
+          >
+            <Languages className="w-4 h-4 mr-2 inline-block" />
+            翻訳する
+          </button>
+          <button 
+            className="px-6 py-3 bg-white text-gray-700 font-medium rounded-xl border border-gray-300 hover:bg-gray-50 transition-all"
+          >
+            PDFダウンロード
+          </button>
+        </motion.div>
+      </div>
+      
+      {/* Activity Details Modal */}
+      <AnimatePresence>
+        {selectedActivity && (
+          <motion.div
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => {
+              setSelectedActivity(null);
+              setActivityDetails(null);
+            }}
+          >
+            <motion.div
+              className="bg-white rounded-3xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {isLoadingDetails ? (
+                <div className="py-12 text-center">
+                  <div className="w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                  <p className="text-gray-600">詳細を読み込み中...</p>
+                </div>
+              ) : activityDetails ? (
+                <>
+                  {/* Header */}
+                  <div className="mb-6">
+                    {activityDetails.data?.[0]?.photo?.images?.original?.url && (
+                      <div 
+                        className="h-48 bg-cover bg-center rounded-xl mb-4"
+                        style={{ backgroundImage: `url(${activityDetails.data[0].photo.images.original.url})` }}
+                      />
+                    )}
+                    <h2 className="text-2xl font-bold text-gray-800">{selectedActivity.name}</h2>
+                    <div className="flex items-center space-x-2 mt-2">
+                      <div className="flex items-center">
+                        <Star className="w-4 h-4 text-yellow-500" />
+                        <span className="ml-1 text-gray-700">{activityDetails.data?.[0]?.rating || selectedActivity.rating || '4.5'}</span>
+                      </div>
+                      <span className="text-gray-500">•</span>
+                      <div className="flex items-center">
+                        <MapPin className="w-4 h-4 text-gray-500" />
+                        <span className="ml-1 text-gray-700">{selectedActivity.location}</span>
+                      </div>
+                      <span className="text-gray-500">•</span>
+                      <div className="flex items-center">
+                        <Clock className="w-4 h-4 text-gray-500" />
+                        <span className="ml-1 text-gray-700">{selectedActivity.time}</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Description */}
+                  <div className="mb-6">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-2">説明</h3>
+                    <p className="text-gray-700">
+                      {activityDetails.data?.[0]?.description || selectedActivity.description || '詳細情報がありません。'}
+                    </p>
+                    
+                    {/* Show additional details if available */}
+                    {selectedActivity.estimatedCost && (
+                      <div className="mt-4 grid md:grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <span className="font-medium text-gray-700">予算目安:</span>
+                          <br />
+                          <span className="text-gray-600">{selectedActivity.estimatedCost}</span>
+                        </div>
+                        {selectedActivity.duration && (
+                          <div>
+                            <span className="font-medium text-gray-700">所要時間:</span>
+                            <br />
+                            <span className="text-gray-600">{selectedActivity.duration}分</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    
+                    {/* Show tips if available */}
+                    {selectedActivity.tips && (
+                      <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+                        <h4 className="font-medium text-blue-800 mb-1">💡 おすすめポイント</h4>
+                        <p className="text-sm text-blue-700">{selectedActivity.tips}</p>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Access Information */}
+                  {activityDetails.directions?.routes?.[0]?.legs?.[0]?.steps && (
+                    <div className="mb-6">
+                      <h3 className="text-lg font-semibold text-gray-800 mb-2">アクセス方法</h3>
+                      <div className="bg-gray-50 rounded-xl p-4">
+                        {activityDetails.directions.routes[0].legs[0].steps.map((step: any, index: number) => (
+                          <div key={index} className="mb-2 last:mb-0">
+                            <div dangerouslySetInnerHTML={{ __html: step.html_instructions }} className="text-gray-700" />
+                            <div className="flex items-center space-x-4 text-sm text-gray-500 mt-1">
+                              <span>{step.distance?.text}</span>
+                              <span>{step.duration?.text}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Reviews */}
+                  {activityDetails.reviews?.data && activityDetails.reviews.data.length > 0 && (
+                    <div className="mb-6">
+                      <h3 className="text-lg font-semibold text-gray-800 mb-2">レビュー</h3>
+                      <div className="space-y-4">
+                        {activityDetails.reviews.data.slice(0, 3).map((review: any, index: number) => (
+                          <div key={index} className="bg-gray-50 rounded-xl p-4">
+                            <div className="flex items-center justify-between mb-2">
+                              <div className="flex items-center space-x-2">
+                                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                                  <Users className="w-4 h-4 text-blue-600" />
+                                </div>
+                                <span className="font-medium text-gray-800">{review.user?.username || 'Anonymous'}</span>
+                              </div>
+                              <div className="flex">
+                                {Array.from({ length: review.rating || 5 }).map((_, i) => (
+                                  <Star key={i} className="w-4 h-4 text-yellow-500" fill="currentColor" />
+                                ))}
+                              </div>
+                            </div>
+                            <h4 className="font-medium text-gray-800">{review.title || 'Review'}</h4>
+                            <p className="text-gray-600 text-sm">{review.text}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* External Links */}
+                  {activityDetails.data?.[0]?.web_url && (
+                    <div className="flex justify-end">
+                      <a
+                        href={activityDetails.data[0].web_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center space-x-2 text-blue-600 hover:text-blue-700"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                        <span>TripAdvisorで詳細を見る</span>
+                      </a>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="py-12 text-center">
+                  <p className="text-gray-600">詳細情報を取得できませんでした。</p>
+                </div>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      
+      {/* Translation Modal */}
+      <AnimatePresence>
+        {showTranslator && (
+          <motion.div
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div
+              className="bg-white rounded-3xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-2xl font-bold text-gray-800">翻訳ツール</h2>
+                <button
+                  onClick={() => setShowTranslator(false)}
+                  className="p-2 text-gray-500 hover:text-gray-700 rounded-full hover:bg-gray-100"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              
+              <div className="space-y-4">
+                {/* Language Selection */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    翻訳先言語:
+                  </label>
+                  <div className="flex items-center space-x-2">
+                    <Globe className="w-5 h-5 text-gray-400" />
+                    <select
+                      value={targetLanguage}
+                      onChange={(e) => setTargetLanguage(e.target.value)}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    >
+                      <option value="en">English</option>
+                      <option value="zh">中文</option>
+                      <option value="ko">한국어</option>
+                      <option value="es">Español</option>
+                      <option value="fr">Français</option>
+                      <option value="de">Deutsch</option>
+                    </select>
+                  </div>
+                </div>
+                
+                {/* Input */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    翻訳するテキスト:
+                  </label>
+                  <textarea
+                    value={textToTranslate}
+                    onChange={(e) => setTextToTranslate(e.target.value)}
+                    placeholder="翻訳したいテキストを入力してください..."
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+                    rows={5}
+                  />
+                </div>
+                
+                <button
+                  onClick={handleTranslate}
+                  disabled={!textToTranslate.trim() || isTranslating}
+                  className="w-full flex items-center justify-center space-x-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all disabled:opacity-50"
+                >
+                  {isTranslating ? (
+                    <>
+                      <Loader className="w-5 h-5 animate-spin" />
+                      <span>翻訳中...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Languages className="w-5 h-5" />
+                      <span>翻訳する</span>
+                    </>
+                  )}
+                </button>
+                
+                {/* Output */}
+                {translatedText && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      翻訳結果:
+                    </label>
+                    <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
+                      <p className="whitespace-pre-wrap">{translatedText}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
+export default TripDetail;
+</file>
+
+<file path="src/utils/apiMockData.ts">
+// Mock data for API fallbacks when services are unavailable
+export interface MockDataResponse {
+  success: boolean;
+  data: any;
+  isMockData: boolean;
+  message: string;
+}
+
+// OpenAI Chat Mock Data
+export const mockChatResponse = (): MockDataResponse => ({
+  success: true,
+  data: {
+    response: "申し訳ございませんが、現在AIサービスが利用できません。こちらは事前に準備された回答です。日本旅行について基本的な情報をお手伝いできます。"
+  },
+  isMockData: true,
+  message: "通信に失敗したため、モックデータを表示しています。"
+});
+
+// OpenAI Vision Mock Data
+export const mockVisionResponse = (): MockDataResponse => ({
+  success: true,
+  data: {
+    translation: "画像翻訳サービスが現在利用できません。インターネット接続を確認してください。"
+  },
+  isMockData: true,
+  message: "通信に失敗したため、モックデータを表示しています。"
+});
+
+// OpenAI Generate Mock Data
+export const mockGenerateResponse = (): MockDataResponse => {
+  const plans = [
+    {
+      theme: "文化・歴史重視プラン",
+      description: "伝統的な寺院と歴史的建造物を中心とした文化体験",
+      destination: "東京",
+      duration: "3日間",
+      totalEstimatedCost: "¥85,000",
+      itinerary: [
+        {
+          day: 1,
+          date: new Date().toISOString().split('T')[0],
+          title: "東京到着・浅草文化探索",
+          activities: [
+            {
+              id: "cultural_act_1",
+              time: "10:00",
+              name: "羽田空港到着",
+              location: "羽田空港",
+              coordinates: { lat: 35.5494, lng: 139.7798 },
+              type: "transport",
+              description: "東京への玄関口、国際線ターミナル",
+              estimatedCost: "0 JPY",
+              duration: "30",
+              rating: 4.0,
+              tips: "到着後、京急線で浅草方面へ向かいます。ICカードの購入をお忘れなく。"
+            },
+            {
+              id: "cultural_transport_1",
+              time: "10:30",
+              name: "羽田空港 → 浅草駅",
+              location: "京急線・都営浅草線",
+              coordinates: { lat: 35.7101, lng: 139.7956 },
+              type: "transport",
+              description: "京急線・都営浅草線で浅草駅まで約45分の電車移動",
+              estimatedCost: "410 JPY",
+              duration: "45",
+              rating: 4.2,
+              tips: "ICカード（Suica/PASMO）が便利です。乗り換えは1回です。",
+              transportDetails: {
+                method: "電車",
+                line: "京急線→都営浅草線",
+                transfers: 1,
+                walkingTime: "5分"
+              }
+            },
+            {
+              id: "cultural_act_2",
+              time: "11:30",
+              name: "浅草寺参拝",
+              location: "浅草",
+              coordinates: { lat: 35.7148, lng: 139.7967 },
+              type: "culture",
+              description: "645年創建の東京最古の寺院。雷門（風雷神門）は浅草のシンボルで、高さ3.9m、重さ700kgの大提灯が有名。本堂では観音様に参拝し、おみくじを引くことができます。",
+              estimatedCost: "0 JPY",
+              duration: "90",
+              rating: 4.8,
+              tips: "雷門での記念撮影は必須！本堂でのお参りは二礼二拍手一礼で。おみくじは日本語・英語対応です。",
+              reviews: [
+                {
+                  rating: 5,
+                  text: "雷門の迫力に圧倒されました。本堂での参拝は心が洗われる思いでした。",
+                  author: "文化愛好家"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      theme: "グルメ・食べ歩きプラン",
+      description: "東京の美味しいグルメを中心とした食文化体験",
+      destination: "東京",
+      duration: "3日間", 
+      totalEstimatedCost: "¥95,000",
+      itinerary: [
+        {
+          day: 1,
+          date: new Date().toISOString().split('T')[0],
+          title: "東京到着・築地グルメ探索",
+          activities: [
+            {
+              id: "gourmet_act_1",
+              time: "10:00",
+              name: "羽田空港到着",
+              location: "羽田空港",
+              coordinates: { lat: 35.5494, lng: 139.7798 },
+              type: "transport",
+              description: "東京への玄関口",
+              estimatedCost: "0 JPY",
+              duration: "30",
+              rating: 4.0,
+              tips: "到着後、東京モノレールで新橋経由築地方面へ。"
+            },
+            {
+              id: "gourmet_act_2",
+              time: "11:30",
+              name: "築地場外市場",
+              location: "築地",
+              coordinates: { lat: 35.6654, lng: 139.7707 },
+              type: "food",
+              description: "新鮮な海鮮とグルメの聖地。マグロの解体ショーや職人の技を間近で見学できます。",
+              estimatedCost: "3500 JPY",
+              duration: "120",
+              rating: 4.7,
+              tips: "朝早い時間（6:00-9:00）が最も活気があります。玉子焼きの「山長」は必食！"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      theme: "現代カルチャー・エンタメプラン", 
+      description: "最新の日本ポップカルチャーとエンターテイメント体験",
+      destination: "東京",
+      duration: "3日間",
+      totalEstimatedCost: "¥78,000",
+      itinerary: [
+        {
+          day: 1,
+          date: new Date().toISOString().split('T')[0],
+          title: "東京到着・秋葉原アニメ文化",
+          activities: [
+            {
+              id: "anime_act_1",
+              time: "10:00",
+              name: "羽田空港到着",
+              location: "羽田空港",
+              coordinates: { lat: 35.5494, lng: 139.7798 },
+              type: "transport",
+              description: "東京への玄関口",
+              estimatedCost: "0 JPY",
+              duration: "30",
+              rating: 4.0,
+              tips: "到着後、京急線で秋葉原方面へ。"
+            },
+            {
+              id: "anime_act_2",
+              time: "11:30",
+              name: "秋葉原電気街",
+              location: "秋葉原",
+              coordinates: { lat: 35.7022, lng: 139.7744 },
+              type: "shopping",
+              description: "世界最大の電気街。アニメ、マンガ、ゲーム、フィギュアなどオタク文化の聖地。",
+              estimatedCost: "5000 JPY",
+              duration: "150",
+              rating: 4.6,
+              tips: "ヨドバシカメラ、ビックカメラで最新ガジェット。メイドカフェ体験も！"
+            }
+          ]
+        }
+      ]
+    }
+  ];
+
+  return {
+    success: true,
+    data: {
+      plans,
+      itinerary: [
+        {
+          day: 1,
+          date: new Date().toISOString().split('T')[0],
+          title: "東京到着・浅草探索",
+          activities: [
+            {
+              id: "act_1",
+              time: "10:00",
+              name: "羽田空港到着",
+              location: "羽田空港",
+              coordinates: { lat: 35.5494, lng: 139.7798 },
+              type: "transport",
+              description: "東京への玄関口",
+              estimatedCost: "0 JPY",
+              duration: "30",
+              rating: 4.0,
+              tips: "到着後、京急線で浅草方面へ向かいます。"
+            },
+            {
+              id: "act_1_transport",
+              time: "10:30",
+              name: "羽田空港 → 浅草駅",
+              location: "京急線・都営浅草線",
+              coordinates: { lat: 35.7101, lng: 139.7956 },
+              type: "transport",
+              description: "京急線・都営浅草線で浅草駅まで約45分の電車移動",
+              estimatedCost: "410 JPY",
+              duration: "45",
+              rating: 4.2,
+              tips: "IC カード（Suica/PASMO）が便利です。乗り換えは1回です。",
+              transportDetails: {
+                method: "電車",
+                line: "京急線→都営浅草線",
+                transfers: 1,
+                walkingTime: "5分"
+              }
+            },
+            {
+              id: "act_2", 
+              time: "11:30",
+              name: "浅草寺参拝",
+              location: "浅草",
+              coordinates: { lat: 35.7148, lng: 139.7967 },
+              type: "culture",
+              description: "645年創建の東京最古の寺院。雷門（風雷神門）は浅草のシンボルで、高さ3.9m、重さ700kgの大提灯が有名。本堂では観音様に参拝し、おみくじを引くことができます。",
+              estimatedCost: "0 JPY",
+              duration: "90",
+              rating: 4.8,
+              tips: "雷門での記念撮影は必須！本堂でのお参りは二礼二拍手一礼で。おみくじは日本語・英語対応です。",
+              reviews: [
+                {
+                  rating: 5,
+                  text: "雷門の迫力に圧倒されました。本堂での参拝は心が洗われる思いでした。",
+                  author: "文化愛好家"
+                }
+              ]
+            },
+            {
+              id: "act_2_lunch",
+              time: "13:00",
+              name: "浅草今半（昼食）",
+              location: "浅草",
+              coordinates: { lat: 35.7142, lng: 139.7965 },
+              type: "food",
+              description: "明治28年創業の老舗すき焼き店。最高級の黒毛和牛を使った絶品すき焼きで、浅草の伝統の味を堪能できます。ランチセットは比較的リーズナブル。",
+              estimatedCost: "3,500 JPY",
+              duration: "60",
+              rating: 4.7,
+              tips: "ランチの「すき焼き御膳」がおすすめ。夜より手頃な価格で本格的な味を楽しめます。",
+              reviews: [
+                {
+                  rating: 5,
+                  text: "お肉が口の中でとろけました。老舗の格式と味に感動！",
+                  author: "グルメ探検家"
+                }
+              ]
+            },
+            {
+              id: "act_3",
+              time: "14:00", 
+              name: "仲見世通り散策",
+              location: "浅草",
+              coordinates: { lat: 35.7148, lng: 139.7967 },
+              type: "shopping",
+              description: "江戸時代から続く日本最古の商店街（約250m）。89店舗が軒を連ね、人形焼き、雷おこし、扇子、手ぬぐいなど伝統的な和雑貨とグルメが楽しめます。",
+              estimatedCost: "2,500 JPY",
+              duration: "120",
+              rating: 4.6,
+              tips: "人形焼きは「木村家本店」、雷おこしは「常盤堂」が老舗。食べ歩きしながら宝蔵門まで歩きましょう。",
+              reviews: [
+                {
+                  rating: 4,
+                  text: "人形焼きの出来立てが最高！お土産選びも楽しかったです。",
+                  author: "お土産ハンター"
+                }
+              ]
+            },
+            {
+              id: "act_4",
+              time: "16:30",
+              name: "隅田川クルーズ",
+              location: "浅草",
+              coordinates: { lat: 35.7101, lng: 139.8107 },
+              type: "sightseeing", 
+              description: "浅草〜お台場間の水上バス。隅田川から見る東京スカイツリー（634m）、レインボーブリッジ、12の歴史的な橋梁を水上から眺める40分の船旅。",
+              estimatedCost: "1040 JPY",
+              duration: "40",
+              rating: 4.7,
+              tips: "右側の席がおすすめ！東京スカイツリーがよく見えます。船内アナウンスは日英対応。",
+              reviews: [
+                {
+                  rating: 5,
+                  text: "水上から見る東京は別世界！スカイツリーの迫力に感動しました。",
+                  author: "クルーズ愛好家"
+                }
+              ]
+            },
+            {
+              id: "act_4_transport",
+              time: "17:30",
+              name: "お台場 → 浅草駅",
+              location: "ゆりかもめ・都営浅草線",
+              coordinates: { lat: 35.7101, lng: 139.7956 },
+              type: "transport",
+              description: "ゆりかもめ新橋駅経由で浅草駅まで約35分の電車移動",
+              estimatedCost: "320 JPY",
+              duration: "35",
+              rating: 4.1,
+              tips: "ゆりかもめは無人運転で景色が良く見えます。",
+              transportDetails: {
+                method: "電車",
+                line: "ゆりかもめ→JR山手線→都営浅草線",
+                transfers: 2,
+                walkingTime: "8分"
+              }
+            },
+            {
+              id: "act_5",
+              time: "18:30",
+              name: "老舗天ぷら「大黒家」（夕食）",
+              location: "浅草",
+              coordinates: { lat: 35.7145, lng: 139.7962 },
+              type: "food",
+              description: "1887年創業、137年の歴史を誇る江戸前天ぷらの老舗。4代目が守り続ける伝統の技法で、車海老、穴子、野菜の天ぷらを胡麻油でカラッと揚げます。",
+              estimatedCost: "4500 JPY", 
+              duration: "90",
+              rating: 4.8,
+              tips: "カウンター席で職人の技を間近で！海老天（1,200円）と穴子天（1,000円）は絶対注文。天つゆは甘めの江戸前スタイル。",
+              reviews: [
+                {
+                  rating: 5,
+                  text: "137年の伝統を感じる本格的な江戸前天ぷら。職人さんの技術に感動しました。",
+                  author: "天ぷら愛好家"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          day: 2,
+          date: new Date(Date.now() + 86400000).toISOString().split('T')[0],
+          title: "渋谷・原宿カルチャー体験",
+          activities: [
+            {
+              id: "act_6",
+              time: "09:00",
+              name: "明治神宮参拝",
+              location: "原宿",
+              coordinates: { lat: 35.6763, lng: 139.6993 },
+              type: "culture",
+              description: "1920年創建、明治天皇と昭憲皇太后を祀る神社。70万㎡の人工林「明治神宮の森」に囲まれ、都心とは思えない静寂な空間。年間参拝者数は日本一の約1000万人。",
+              estimatedCost: "0 JPY",
+              duration: "90",
+              rating: 4.9,
+              tips: "南参道（原宿駅側）から入るのが一般的。大鳥居は木造では日本一の大きさ。御朱印は500円です。",
+              reviews: [
+                {
+                  rating: 5,
+                  text: "都心にこんな静寂な森があるとは！心が洗われる神聖な体験でした。",
+                  author: "スピリチュアル探求者"
+                }
+              ]
+            },
+            {
+              id: "act_6_transport",
+              time: "10:45",
+              name: "明治神宮前 → 竹下通り",
+              location: "徒歩移動",
+              coordinates: { lat: 35.6702, lng: 139.7016 },
+              type: "transport",
+              description: "明治神宮前駅から竹下通り入口まで徒歩3分の短距離移動",
+              estimatedCost: "0 JPY",
+              duration: "3",
+              rating: 4.0,
+              tips: "JR原宿駅の竹下口が最寄りです。",
+              transportDetails: {
+                method: "徒歩",
+                distance: "200m",
+                walkingTime: "3分"
+              }
+            },
+            {
+              id: "act_7",
+              time: "11:00",
+              name: "竹下通り散策",
+              location: "原宿",
+              coordinates: { lat: 35.6702, lng: 139.7016 },
+              type: "shopping",
+              description: "全長350mの日本ポップカルチャーの聖地。原宿系ファッション、キャラクターグッズ、クレープ店など約400店舗が密集。週末は歩行者天国になります。",
+              estimatedCost: "3,500 JPY",
+              duration: "120",
+              rating: 4.5,
+              tips: "「マリオンクレープ」の原宿クレープ（500円）は必食！「DAISO原宿店」は100円ショップの聖地です。",
+              reviews: [
+                {
+                  rating: 4,
+                  text: "カラフルで楽しい！クレープが美味しくて、若者の文化を感じられました。",
+                  author: "ポップカルチャーファン"
+                }
+              ]
+            },
+            {
+              id: "act_7_lunch",
+              time: "13:00",
+              name: "bills 表参道（昼食）",
+              location: "表参道",
+              coordinates: { lat: 35.6657, lng: 139.7085 },
+              type: "food",
+              description: "シドニー発祥の「世界一の朝食」で有名なカフェレストラン。ふわふわのリコッタパンケーキとオーガニック食材を使った料理が自慢。",
+              estimatedCost: "2,800 JPY",
+              duration: "60",
+              rating: 4.6,
+              tips: "名物のリコッタパンケーキ（1,400円）は絶対注文！平日ランチは比較的空いています。",
+              reviews: [
+                {
+                  rating: 5,
+                  text: "パンケーキがふわふわで感動！オーストラリアの味を東京で楽しめました。",
+                  author: "パンケーキ愛好家"
+                }
+              ]
+            },
+            {
+              id: "act_7_transport",
+              time: "14:15",
+              name: "表参道 → 表参道ヒルズ",
+              location: "徒歩移動",
+              coordinates: { lat: 35.6657, lng: 139.7085 },
+              type: "transport",
+              description: "表参道駅から表参道ヒルズまで徒歩2分の短距離移動",
+              estimatedCost: "0 JPY",
+              duration: "2",
+              rating: 4.0,
+              tips: "表参道の美しいケヤキ並木を楽しみながら歩けます。",
+              transportDetails: {
+                method: "徒歩",
+                distance: "150m",
+                walkingTime: "2分"
+              }
+            },
+            {
+              id: "act_8",
+              time: "14:00",
+              name: "表参道ヒルズ",
+              location: "表参道",
+              coordinates: { lat: 35.6657, lng: 139.7085 },
+              type: "shopping",
+              description: "建築家・安藤忠雄設計の螺旋スロープが美しいショッピング施設。地下3階〜地上3階に約100店舗。同潤会青山アパートの歴史を受け継ぐ文化的建築物。",
+              estimatedCost: "6,000 JPY",
+              duration: "120", 
+              rating: 4.6,
+              tips: "螺旋スロープは建築美の傑作！屋上テラス「スペース オー」からの表参道ケヤキ並木の眺めは絶景です。",
+              reviews: [
+                {
+                  rating: 5,
+                  text: "安藤忠雄の建築美に感動！ショッピングしながら芸術作品の中を歩いている気分。",
+                  author: "建築愛好家"
+                }
+              ]
+            },
+            {
+              id: "act_8_transport",
+              time: "16:45",
+              name: "表参道 → 渋谷",
+              location: "JR山手線",
+              coordinates: { lat: 35.6581, lng: 139.7016 },
+              type: "transport",
+              description: "JR山手線で表参道から渋谷まで約7分の電車移動",
+              estimatedCost: "160 JPY",
+              duration: "7",
+              rating: 4.3,
+              tips: "山手線は2-4分間隔で運行。ラッシュ時間を避けているので比較的空いています。",
+              transportDetails: {
+                method: "電車",
+                line: "JR山手線",
+                transfers: 0,
+                walkingTime: "3分"
+              }
+            },
+            {
+              id: "act_9",
+              time: "16:30", 
+              name: "渋谷スカイ展望台",
+              location: "渋谷",
+              coordinates: { lat: 35.6581, lng: 139.7016 },
+              type: "sightseeing",
+              description: "渋谷スカイビル屋上の360度パノラマ展望台（地上230m）。世界最大級のスクランブル交差点を上から見下ろし、晴天時は富士山、東京スカイツリーまで一望。",
+              estimatedCost: "2000 JPY",
+              duration: "60",
+              rating: 4.7,
+              tips: "夕日タイム（17:00-18:30）がベスト！スクランブル交差点の人の流れは圧巻。写真撮影スポット多数。",
+              reviews: [
+                {
+                  rating: 5,
+                  text: "スクランブル交差点を上から見る体験は唯一無二！夕日と東京の夜景が最高でした。",
+                  author: "絶景ハンター"
+                }
+              ]
+            },
+            {
+              id: "act_9_dinner",
+              time: "19:00",
+              name: "渋谷「鳥貴族」（夕食）",
+              location: "渋谷",
+              coordinates: { lat: 35.6598, lng: 139.7006 },
+              type: "food",
+              description: "全品298円（税抜）の焼き鳥居酒屋チェーン。新鮮な国産鶏を使った焼き鳥と豊富なドリンクメニューで、日本の居酒屋文化を気軽に体験できます。",
+              estimatedCost: "2,500 JPY",
+              duration: "90",
+              rating: 4.4,
+              tips: "「もも貴族焼」と「つくね」は定番！乾杯は「カンパイ！」で。ハイボールが人気です。",
+              reviews: [
+                {
+                  rating: 4,
+                  text: "リーズナブルで美味しい！地元の人たちと一緒に楽しい時間を過ごせました。",
+                  author: "居酒屋探検家"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    isMockData: true,
+    message: "通信に失敗したため、モックデータを表示しています。"
+  };
+};
+
+// TripAdvisor Mock Data
+export const mockTripAdvisorResponse = (): MockDataResponse => ({
+  success: true,
+  data: [
+    {
+      name: "浅草寺",
+      description: "645年創建の東京最古の寺院。雷門、仲見世通り、本堂など見どころ満載。年間約3000万人が訪れる東京屈指の観光名所です。",
+      rating: "4.5",
+      num_reviews: "15,000+",
+      photo: {
+        images: {
+          original: {
+            url: "https://images.pexels.com/photos/161251/senso-ji-temple-asakusa-tokyo-japan-161251.jpeg"
+          }
+        }
+      },
+      web_url: "https://www.tripadvisor.com/Attraction_Review-g1066451-d320046-Reviews-Senso_ji_Temple-Taito_Tokyo_Tokyo_Prefecture_Kanto.html"
+    },
+    {
+      name: "明治神宮",
+      description: "明治天皇と昭憲皇太后を祀る神社。都心にありながら70万平方メートルの深い森に囲まれた神聖な空間です。",
+      rating: "4.9",
+      num_reviews: "12,000+",
+      photo: {
+        images: {
+          original: {
+            url: "https://images.pexels.com/photos/2070033/pexels-photo-2070033.jpeg"
+          }
+        }
+      },
+      web_url: "https://www.tripadvisor.com/Attraction_Review-g1066456-d320047-Reviews-Meiji_Shrine-Shibuya_Tokyo_Tokyo_Prefecture_Kanto.html"
+    }
+  ],
+  reviews: {
+    data: [
+      {
+        title: "早朝参拝が最高でした",
+        text: "朝6時に訪れましたが、観光客も少なく静寂な雰囲気の中で参拝できました。雷門から本堂までの道のりで日本の歴史を感じることができます。",
+        rating: 5,
+        user: { username: "TokyoMorningWalker" }
+      },
+      {
+        title: "仲見世通りのグルメが最高",
+        text: "人形焼きと雷おこしを食べ歩きしました。どちらも出来立てで美味しく、お土産にも最適です。外国人観光客にも優しいお店が多いです。",
+        rating: 4,
+        user: { username: "FoodieExplorer" }
+      },
+      {
+        title: "夜のライトアップも美しい",
+        text: "昼間とは違った幻想的な雰囲気を楽しめます。五重塔のライトアップは特に印象的でした。",
+        rating: 5,
+        user: { username: "NightPhotographer" }
+      }
+    ]
+  },
+  isMockData: true,
+  message: "通信に失敗したため、モックデータを表示しています。"
+});
+
+// Google Maps Mock Data
+export const mockGoogleMapsResponse = (): MockDataResponse => ({
+  success: true,
+  data: [
+    {
+      id: "place_1",
+      name: "浅草寺",
+      nameEn: "Senso-ji Temple",
+      category: "temple",
+      rating: 4.8,
+      distance: "0.5km",
+      address: "東京都台東区浅草2-3-1",
+      phone: "03-3842-0181",
+      hours: "6:00-17:00",
+      description: "東京最古の寺院",
+      image: "https://images.pexels.com/photos/161251/senso-ji-temple-asakusa-tokyo-japan-161251.jpeg"
+    },
+    {
+      id: "place_2",
+      name: "東京スカイツリー",
+      nameEn: "Tokyo Skytree", 
+      category: "landmark",
+      rating: 4.7,
+      distance: "1.2km",
+      address: "東京都墨田区押上1-1-2",
+      phone: "0570-55-0634",
+      hours: "8:00-22:00",
+      description: "世界一高い電波塔",
+      image: "https://images.pexels.com/photos/2070033/pexels-photo-2070033.jpeg"
+    }
+  ],
+  predictions: [
+    {
+      structured_formatting: { main_text: "浅草寺" },
+      description: "東京都台東区浅草2-3-1, 日本",
+      place_id: "mock_asakusa_temple",
+      types: ["place_of_worship", "tourist_attraction"]
+    },
+    {
+      structured_formatting: { main_text: "東京スカイツリー" },
+      description: "東京都墨田区押上1-1-2, 日本", 
+      place_id: "mock_tokyo_skytree",
+      types: ["tourist_attraction", "point_of_interest"]
+    }
+  ],
+  isMockData: true,
+  message: "通信に失敗したため、モックデータを表示しています。"
+});
+
+// eSIM Mock Data
+export const mockESIMResponse = (): MockDataResponse => ({
+  success: true,
+  data: [
+    {
+      id: "esim_plan_1",
+      name: "Japan 3GB - 15 Days",
+      description: "日本全国で使える15日間3GBプラン",
+      dataAmount: "3GB",
+      validity: "15日",
+      price: { amount: 3500, currency: "JPY" },
+      coverage: "日本全国",
+      network: "NTT Docomo"
+    },
+    {
+      id: "esim_plan_2", 
+      name: "Japan 10GB - 30 Days",
+      description: "日本全国で使える30日間10GBプラン",
+      dataAmount: "10GB",
+      validity: "30日",
+      price: { amount: 8500, currency: "JPY" },
+      coverage: "日本全国",
+      network: "NTT Docomo"
+    },
+    {
+      id: "esim_plan_3",
+      name: "Japan 1GB - 7 Days", 
+      description: "短期滞在向け7日間1GBプラン",
+      dataAmount: "1GB",
+      validity: "7日",
+      price: { amount: 1500, currency: "JPY" },
+      coverage: "日本全国",
+      network: "SoftBank"
+    }
+  ],
+  isMockData: true,
+  message: "通信に失敗したため、モックデータを表示しています。"
+});
+
+// Amadeus Mock Data
+export const mockAmadeusResponse = (): MockDataResponse => ({
+  success: true,
+  data: {
+    flights: [
+      {
+        id: "flight_1",
+        airline: "JAL",
+        flightNumber: "JL123",
+        departure: {
+          airport: "NRT",
+          city: "Tokyo",
+          time: "09:30"
+        },
+        arrival: {
+          airport: "KIX", 
+          city: "Osaka",
+          time: "11:00"
+        },
+        price: { amount: 15000, currency: "JPY" },
+        duration: "1h 30m"
+      }
+    ],
+    hotels: [
+      {
+        id: "hotel_1",
+        name: "グランドホテル東京",
+        location: "東京駅周辺",
+        rating: 4.5,
+        price: { amount: 25000, currency: "JPY" },
+        amenities: ["WiFi", "朝食", "温泉", "ジム"]
+      }
+    ]
+  },
+  isMockData: true,
+  message: "通信に失敗したため、モックデータを表示しています。"
+});
+
+// Currency Convert Mock Data
+export const mockCurrencyResponse = (): MockDataResponse => ({
+  success: true,
+  data: {
+    rates: {
+      "USD": 0.0067,
+      "EUR": 0.0063,
+      "GBP": 0.0054,
+      "CNY": 0.048,
+      "KRW": 9.2,
+      "THB": 0.23
+    },
+    base: "JPY",
+    date: new Date().toISOString().split('T')[0]
+  },
+  isMockData: true,
+  message: "通信に失敗したため、モックデータを表示しています。"
+});
+
+// Stripe Mock Data
+export const mockStripeResponse = (): MockDataResponse => ({
+  success: true,
+  data: {
+    sessionUrl: "#mock-checkout-session",
+    sessionId: "mock_session_123"
+  },
+  isMockData: true,
+  message: "通信に失敗したため、モックデータを表示しています。決済機能は現在利用できません。"
+});
+
+// Get mock data by endpoint
+export const getMockDataByEndpoint = (endpoint: string): MockDataResponse => {
+  switch (endpoint) {
+    case '/openai-chat':
+      return mockChatResponse();
+    case '/openai-vision':
+      return mockVisionResponse();
+    case '/openai-generate':
+      return mockGenerateResponse();
+    case '/tripadvisor':
+      return mockTripAdvisorResponse();
+    case '/google-maps':
+    case '/google-places':
+      return mockGoogleMapsResponse();
+    case '/esim':
+      return mockESIMResponse();
+    case '/amadeus':
+      return mockAmadeusResponse();
+    case '/currency-convert':
+      return mockCurrencyResponse();
+    case '/create-checkout-session':
+    case '/verify-payment':
+      return mockStripeResponse();
+    default:
+      return {
+        success: false,
+        data: null,
+        isMockData: true,
+        message: "通信に失敗したため、モックデータを表示しています。"
+      };
+  }
+};
+</file>
+
+<file path="src/components/questionnaire/Confirmation.tsx">
+import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
+import { CheckCircle, ArrowRight, ArrowLeft, Edit, Sparkles, Calendar, MapPin, Users, DollarSign, Clock, Settings, Smartphone } from 'lucide-react';
+import { useLanguage } from '../../contexts/LanguageContext';
+
+const Confirmation: React.FC = () => {
+  const navigate = useNavigate();
+  const { t } = useLanguage();
+  const [formData, setFormData] = useState<any>({});
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  // Define all possible interests and dietary restrictions with icons
+  const allInterests = [
+    { id: 'history-culture', icon: '🏯', category: 'culture', name: '歴史・文化' },
+    { id: 'temples-shrines', icon: '⛩️', category: 'culture', name: '寺院・神社' },
+    { id: 'traditional-experience', icon: '🎎', category: 'culture', name: '伝統体験' },
+    { id: 'castles-historic-sites', icon: '🏰', category: 'culture', name: '城・史跡' },
+    { id: 'museums-galleries', icon: '📚', category: 'culture', name: '博物館・美術館' },
+    { id: 'nature-scenery', icon: '🌸', category: 'nature', name: '自然・景色' },
+    { id: 'hiking-trekking', icon: '🥾', category: 'nature', name: 'ハイキング' },
+    { id: 'beach-swimming', icon: '🏖️', category: 'nature', name: 'ビーチ・海水浴' },
+    { id: 'forest-mountain-camping', icon: '🌲', category: 'nature', name: '森林・山岳キャンプ' },
+    { id: 'national-parks', icon: '🏞️', category: 'nature', name: '国立公園' },
+    { id: 'cycling', icon: '🚴', category: 'nature', name: 'サイクリング' },
+    { id: 'anime-manga', icon: '🎌', category: 'entertainment', name: 'アニメ・マンガ' },
+    { id: 'nightlife', icon: '🌃', category: 'entertainment', name: 'ナイトライフ' },
+    { id: 'shopping', icon: '🛍️', category: 'entertainment', name: 'ショッピング' },
+    { id: 'urban-architecture', icon: '🏙️', category: 'entertainment', name: '都市建築' },
+    { id: 'cafe-bar-hopping', icon: '🍹', category: 'entertainment', name: 'カフェ・バー巡り' },
+    { id: 'food-gourmet', icon: '🍜', category: 'food', name: 'グルメ' },
+    { id: 'local-street-food', icon: '🍣', category: 'food', name: '地元グルメ' },
+    { id: 'wine-sake-tasting', icon: '🍷', category: 'food', name: 'お酒の試飲' },
+    { id: 'sweets-cafe', icon: '🍫', category: 'food', name: 'スイーツ・カフェ' },
+    { id: 'festivals-events', icon: '🎆', category: 'events', name: 'フェスティバル' },
+    { id: 'gaming-esports', icon: '🎮', category: 'events', name: 'ゲーム・eスポーツ' },
+    { id: 'performance-live', icon: '🤹‍♂️', category: 'events', name: 'パフォーマンス' },
+    { id: 'theater-musical', icon: '🎭', category: 'events', name: '演劇・ミュージカル' },
+    { id: 'hot-springs', icon: '♨️', category: 'wellness', name: '温泉' },
+    { id: 'massage-spa', icon: '💆‍♂️', category: 'wellness', name: 'マッサージ・スパ' },
+    { id: 'fitness-activities', icon: '🏋️‍♂️', category: 'wellness', name: 'フィットネス' },
+    { id: 'yoga-meditation', icon: '🧘‍♀️', category: 'wellness', name: 'ヨガ・瞑想' },
+    { id: 'technology', icon: '🤖', category: 'tech', name: 'テクノロジー' },
+    { id: 'vr-ar-experience', icon: '🛸', category: 'tech', name: 'VR・AR体験' },
+    { id: 'science-tech-facilities', icon: '🚀', category: 'tech', name: '科学技術施設' },
+    { id: 'fashion', icon: '👘', category: 'fashion', name: 'ファッション' },
+    { id: 'brand-outlet', icon: '👜', category: 'fashion', name: 'ブランド・アウトレット' },
+    { id: 'online-shopping', icon: '🛒', category: 'fashion', name: 'オンラインショッピング' },
+    { id: 'halal', icon: '🕋', category: 'dietary', name: 'ハラル' },
+    { id: 'vegetarian', icon: '🌱', category: 'dietary', name: 'ベジタリアン' },
+    { id: 'vegan', icon: '🥬', category: 'dietary', name: 'ビーガン' },
+    { id: 'dairy-free', icon: '🥛', category: 'dietary', name: '乳製品不使用' },
+    { id: 'egg-free', icon: '🍳', category: 'dietary', name: '卵不使用' },
+    { id: 'gluten-free', icon: '🌾', category: 'dietary', name: 'グルテンフリー' },
+    { id: 'no-seafood', icon: '🐟', category: 'dietary', name: '魚介類なし' },
+    { id: 'meat-restrictions', icon: '🥩', category: 'dietary', name: '肉類制限' },
+    { id: 'mild-spice', icon: '🌶️', category: 'dietary', name: '辛さ控えめ' },
+    { id: 'allergy-friendly', icon: '🍫', category: 'dietary', name: 'アレルギー対応' },
+    { id: 'organic-preference', icon: '🍃', category: 'dietary', name: 'オーガニック好み' }
+  ];
+
+  const transportationOptions = [
+    { id: 'shinkansen', name: '新幹線', icon: '🚄' },
+    { id: 'local-train', name: '在来線', icon: '🚃' },
+    { id: 'bus', name: 'バス', icon: '🚌' },
+    { id: 'rental-car', name: 'レンタカー', icon: '🚗' },
+    { id: 'taxi', name: 'タクシー', icon: '🚕' },
+    { id: 'bicycle', name: '自転車', icon: '🚲' },
+    { id: 'ferry', name: 'フェリー', icon: '⛴️' },
+    { id: 'airplane', name: '飛行機', icon: '✈️' }
+  ];
+
+  const accommodationOptions = [
+    { id: 'hotel', name: 'ホテル', icon: '🏨' },
+    { id: 'ryokan', name: '旅館', icon: '🏯' },
+    { id: 'hostel', name: 'ホステル', icon: '🏠' },
+    { id: 'airbnb', name: 'Airbnb', icon: '🏡' },
+    { id: 'capsule', name: 'カプセルホテル', icon: '🛏️' },
+    { id: 'minshuku', name: '民宿', icon: '🏘️' },
+    { id: 'luxury-resort', name: '高級リゾート', icon: '🏖️' },
+    { id: 'camping', name: 'キャンプ', icon: '⛺' },
+    { id: 'unnecessary', name: '必要ないオプション', icon: '❌' }
+  ];
+
+  useEffect(() => {
+    console.log('🎯 Confirmation component mounted!');
+    console.log('📍 Current URL:', window.location.pathname);
+    
+    // Load all form data from localStorage
+    const basicInfo = JSON.parse(localStorage.getItem('trippin-basic-info') || '{}');
+    const travelStyle = JSON.parse(localStorage.getItem('trippin-travel-style') || '{}');
+    const detailedPreferences = localStorage.getItem('trippin-detailed-preferences');
+    
+    console.log('📊 localStorage check:');
+    console.log('- basicInfo:', basicInfo);
+    console.log('- travelStyle:', travelStyle);
+    console.log('- detailedPreferences:', detailedPreferences);
+    
+    // If detailed preferences don't exist, redirect to details page
+    if (!detailedPreferences) {
+      console.log('❌ No detailed preferences found, redirecting to details page');
+      navigate('/questionnaire/details');
+      return;
+    }
+    
+    console.log('✅ All data found, loading confirmation page');
+    const parsedDetailedPreferences = JSON.parse(detailedPreferences);
+    
+    setFormData({
+      basicInfo,
+      travelStyle,
+      detailedPreferences: parsedDetailedPreferences
+    });
+  }, [navigate]);
+
+  // Prepare data for OpenAI
+  const prepareDataForOpenAI = () => {
+    const selectedInterests = formData.travelStyle?.interests || [];
+    const selectedTransportation = formData.detailedPreferences?.transportation || [];
+    const selectedAccommodation = formData.detailedPreferences?.accommodation || [];
+    
+    // Get interest details with names and categories
+    const interestDetails = selectedInterests.map((interestId: string) => {
+      const interest = allInterests.find(i => i.id === interestId);
+      return interest ? { id: interestId, name: interest.name, category: interest.category, icon: interest.icon } : null;
+    }).filter(Boolean);
+
+    // Get transportation details
+    const transportationDetails = selectedTransportation.map((transportId: string) => {
+      const transport = transportationOptions.find(t => t.id === transportId);
+      return transport ? { id: transportId, name: transport.name, icon: transport.icon } : null;
+    }).filter(Boolean);
+
+    // Get accommodation details
+    const accommodationDetails = selectedAccommodation.map((accommodationId: string) => {
+      const accommodation = accommodationOptions.find(a => a.id === accommodationId);
+      return accommodation ? { id: accommodationId, name: accommodation.name, icon: accommodation.icon } : null;
+    }).filter(Boolean);
+
+    const openAIData = {
+      trip: {
+        title: formData.basicInfo?.tripTitle || '日本旅行',
+        destination: formData.basicInfo?.destination,
+        startDate: formData.basicInfo?.startDate,
+        endDate: formData.basicInfo?.endDate,
+        travelers: formData.basicInfo?.travelers,
+        budget: {
+          amount: formData.travelStyle?.budget,
+          currency: formData.travelStyle?.currency
+        }
+      },
+      preferences: {
+        interests: interestDetails,
+        transportation: transportationDetails,
+        accommodation: accommodationDetails,
+        esim: formData.detailedPreferences?.esim || false
+      },
+      categories: {
+        culture: interestDetails.filter((i: any) => i.category === 'culture'),
+        nature: interestDetails.filter((i: any) => i.category === 'nature'),
+        entertainment: interestDetails.filter((i: any) => i.category === 'entertainment'),
+        food: interestDetails.filter((i: any) => i.category === 'food'),
+        events: interestDetails.filter((i: any) => i.category === 'events'),
+        wellness: interestDetails.filter((i: any) => i.category === 'wellness'),
+        tech: interestDetails.filter((i: any) => i.category === 'tech'),
+        fashion: interestDetails.filter((i: any) => i.category === 'fashion'),
+        dietary: interestDetails.filter((i: any) => i.category === 'dietary')
+      }
+    };
+
+    return openAIData;
+  };
+
+  const handleGeneratePlan = async () => {
+    setIsGenerating(true);
+    
+    // Prepare complete data for OpenAI
+    const openAIData = prepareDataForOpenAI();
+    
+    console.log('🚀 Sending to OpenAI:', openAIData);
+    
+    // Save complete data
+    localStorage.setItem('trippin-complete-data', JSON.stringify(openAIData));
+    
+    // Simulate API call delay
+    setTimeout(() => {
+      setIsGenerating(false);
+      navigate('/plan-generation');
+    }, 2000);
+  };
+
+  const handleBack = () => {
+    navigate('/questionnaire/details');
+  };
+
+  const formatDate = (dateString: string) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('ja-JP', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
+  const getDuration = () => {
+    if (!formData.basicInfo?.startDate || !formData.basicInfo?.endDate) return '';
+    const start = new Date(formData.basicInfo.startDate);
+    const end = new Date(formData.basicInfo.endDate);
+    const diffTime = Math.abs(end.getTime() - start.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return `${diffDays}日間`;
+  };
+
+  const getSelectedTransportation = () => {
+    const selectedTransportation = formData.detailedPreferences?.transportation || [];
+    return transportationOptions.filter(transport => 
+      selectedTransportation.includes(transport.id)
+    );
+  };
+
+  const getSelectedAccommodation = () => {
+    const selectedAccommodation = formData.detailedPreferences?.accommodation || [];
+    return accommodationOptions.filter(accommodation => 
+      selectedAccommodation.includes(accommodation.id)
+    );
+  };
+
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        type: "spring",
+        damping: 12,
+        stiffness: 200
+      }
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 relative overflow-hidden">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <motion.div
+          className="absolute top-10 left-10 w-72 h-72 bg-gradient-to-r from-green-300 to-emerald-300 rounded-full opacity-20 blur-3xl"
+          animate={{
+            x: [0, 100, 0],
+            y: [0, -50, 0],
+          }}
+          transition={{
+            duration: 20,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
+        <motion.div
+          className="absolute top-1/2 right-10 w-96 h-96 bg-gradient-to-r from-teal-300 to-cyan-300 rounded-full opacity-15 blur-3xl"
+          animate={{
+            x: [0, -80, 0],
+            y: [0, 60, 0],
+          }}
+          transition={{
+            duration: 25,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
+      </div>
+
+      <motion.div
+        className="max-w-6xl w-full relative z-10"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+      >
+        {/* Header */}
+        <div className="text-center mb-8">
+          <motion.div
+            className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full mb-6 relative shadow-xl"
+            initial={{ scale: 0, rotate: -180 }}
+            animate={{ scale: 1, rotate: 0 }}
+            transition={{ 
+              type: "spring",
+              damping: 10,
+              stiffness: 200,
+              delay: 0.2 
+            }}
+            whileHover={{ 
+              scale: 1.1,
+              boxShadow: "0 20px 40px rgba(16, 185, 129, 0.3)"
+            }}
+          >
+            <CheckCircle className="w-8 h-8 text-white" />
+            <motion.div
+              className="absolute -top-2 -right-2 w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center"
+              animate={{ 
+                rotate: [0, 360],
+                scale: [1, 1.2, 1]
+              }}
+              transition={{
+                duration: 3,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+            >
+              <Sparkles className="w-3 h-3 text-white" />
+            </motion.div>
+          </motion.div>
+          
+          <motion.h1
+            className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent mb-4"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+          >
+            旅行プラン確認
+          </motion.h1>
+          
+          <motion.p
+            className="text-lg text-gray-600"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+          >
+            あなたの理想の旅行プランを生成する準備が整いました
+          </motion.p>
+        </div>
+
+        <motion.div
+          className="bg-white/80 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-white/20 space-y-8"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.5 }}
+        >
+          {/* Trip Overview */}
+          <div className="bg-gradient-to-r from-blue-50 to-emerald-50 rounded-2xl p-6">
+            <h2 className="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-3">
+              <Calendar className="w-6 h-6 text-emerald-600" />
+              {formData.basicInfo?.tripTitle || '日本旅行'}
+            </h2>
+            <div className="grid md:grid-cols-2 gap-4 text-gray-700">
+              <div className="flex items-center space-x-2">
+                <MapPin className="w-4 h-4 text-gray-500" />
+                <span className="font-medium">目的地:</span> {formData.basicInfo?.destination}
+              </div>
+              <div className="flex items-center space-x-2">
+                <Clock className="w-4 h-4 text-gray-500" />
+                <span className="font-medium">期間:</span> {getDuration()}
+              </div>
+              <div className="flex items-center space-x-2">
+                <Calendar className="w-4 h-4 text-gray-500" />
+                <span className="font-medium">出発日:</span> {formatDate(formData.basicInfo?.startDate)}
+              </div>
+              <div className="flex items-center space-x-2">
+                <Calendar className="w-4 h-4 text-gray-500" />
+                <span className="font-medium">帰国日:</span> {formatDate(formData.basicInfo?.endDate)}
+              </div>
+              <div className="flex items-center space-x-2">
+                <Users className="w-4 h-4 text-gray-500" />
+                <span className="font-medium">旅行者数:</span> {formData.basicInfo?.travelers}人
+              </div>
+              <div className="flex items-center space-x-2">
+                <DollarSign className="w-4 h-4 text-gray-500" />
+                <span className="font-medium">予算:</span> {formData.travelStyle?.budget} {formData.travelStyle?.currency}
+              </div>
+            </div>
+          </div>
+
+          {/* Selected Interests */}
+          {formData.travelStyle?.interests?.length > 0 && (
+            <motion.div 
+              className="space-y-4"
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
+                  <span className="text-2xl">❤️</span>
+                  興味・関心事項
+                </h3>
+                <button
+                  onClick={() => navigate('/questionnaire/style')}
+                  className="text-emerald-600 hover:text-emerald-700 flex items-center space-x-1"
+                >
+                  <Edit className="w-4 h-4" />
+                  <span>編集</span>
+                </button>
+              </div>
+              <motion.div 
+                className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+                variants={containerVariants}
+              >
+                {formData.travelStyle.interests.map((interestId: string) => {
+                  const interest = allInterests.find(i => i.id === interestId);
+                  if (!interest) return null;
+                  
+                  return (
+                    <motion.div
+                      key={interest.id}
+                      className="p-4 rounded-2xl border-2 border-emerald-200 bg-gradient-to-br from-emerald-50 to-green-50 text-emerald-700 shadow-sm relative overflow-hidden group"
+                      variants={itemVariants}
+                      whileHover={{ 
+                        scale: 1.05,
+                        boxShadow: "0 10px 30px rgba(0,0,0,0.1)"
+                      }}
+                    >
+                      <div className="text-3xl mb-2">{interest.icon}</div>
+                      <div className="text-sm font-medium">{interest.name}</div>
+                      <div className="absolute top-2 right-2 w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center">
+                        <div className="w-3 h-3 bg-white rounded-full" />
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </motion.div>
+            </motion.div>
+          )}
+
+          {/* Transportation */}
+          {getSelectedTransportation().length > 0 && (
+            <motion.div 
+              className="space-y-4"
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
+                  <Settings className="w-6 h-6 text-purple-600" />
+                  交通手段
+                </h3>
+                <button
+                  onClick={() => navigate('/questionnaire/details')}
+                  className="text-purple-600 hover:text-purple-700 flex items-center space-x-1"
+                >
+                  <Edit className="w-4 h-4" />
+                  <span>編集</span>
+                </button>
+              </div>
+              <motion.div 
+                className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+                variants={containerVariants}
+              >
+                {getSelectedTransportation().map((transport) => (
+                  <motion.div
+                    key={transport.id}
+                    className="p-4 rounded-2xl border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-purple-100 text-purple-700 shadow-sm relative overflow-hidden group"
+                    variants={itemVariants}
+                    whileHover={{ 
+                      scale: 1.05,
+                      boxShadow: "0 10px 30px rgba(0,0,0,0.1)"
+                    }}
+                  >
+                    <div className="text-3xl mb-2">{transport.icon}</div>
+                    <div className="text-sm font-medium">{transport.name}</div>
+                    <div className="absolute top-2 right-2 w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center">
+                      <div className="w-3 h-3 bg-white rounded-full" />
+                    </div>
+                  </motion.div>
+                ))}
+              </motion.div>
+            </motion.div>
+          )}
+
+          {/* Accommodation */}
+          {getSelectedAccommodation().length > 0 && (
+            <motion.div 
+              className="space-y-4"
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
+                  <span className="text-2xl">🏨</span>
+                  宿泊施設
+                </h3>
+                <button
+                  onClick={() => navigate('/questionnaire/details')}
+                  className="text-blue-600 hover:text-blue-700 flex items-center space-x-1"
+                >
+                  <Edit className="w-4 h-4" />
+                  <span>編集</span>
+                </button>
+              </div>
+              <motion.div 
+                className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+                variants={containerVariants}
+              >
+                {getSelectedAccommodation().map((accommodation) => (
+                  <motion.div
+                    key={accommodation.id}
+                    className={`p-4 rounded-2xl border-2 shadow-sm relative overflow-hidden group ${
+                      accommodation.id === 'unnecessary'
+                        ? 'border-red-200 bg-gradient-to-br from-red-50 to-red-100 text-red-700'
+                        : 'border-blue-200 bg-gradient-to-br from-blue-50 to-blue-100 text-blue-700'
+                    }`}
+                    variants={itemVariants}
+                    whileHover={{ 
+                      scale: 1.05,
+                      boxShadow: "0 10px 30px rgba(0,0,0,0.1)"
+                    }}
+                  >
+                    <div className="text-3xl mb-2">{accommodation.icon}</div>
+                    <div className="text-sm font-medium">{accommodation.name}</div>
+                    <div className={`absolute top-2 right-2 w-6 h-6 rounded-full flex items-center justify-center ${
+                      accommodation.id === 'unnecessary' ? 'bg-red-500' : 'bg-blue-500'
+                    }`}>
+                      <div className="w-3 h-3 bg-white rounded-full" />
+                    </div>
+                  </motion.div>
+                ))}
+              </motion.div>
+            </motion.div>
+          )}
+
+          {/* eSIM */}
+          {formData.detailedPreferences?.esim && (
+            <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center">
+                    <Smartphone className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-800">eSIMデータプラン</h3>
+                    <div className="text-gray-600">
+                      <p>1GB ¥800</p>
+                      <p className="text-sm text-purple-600 font-medium">プレミアムプラン契約で3GB無料</p>
+                    </div>
+                  </div>
+                </div>
+                <button
+                  onClick={() => navigate('/questionnaire/details')}
+                  className="text-purple-600 hover:text-purple-700 flex items-center space-x-1"
+                >
+                  <Edit className="w-4 h-4" />
+                  <span>編集</span>
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* OpenAI Data Summary */}
+          <motion.div 
+            className="bg-gradient-to-r from-gray-50 to-gray-100 rounded-2xl p-6"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.0 }}
+          >
+            <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+              <span className="text-2xl">🤖</span>
+              AI生成用データサマリー
+            </h3>
+            <div className="bg-white rounded-xl p-4 font-mono text-sm text-gray-700 max-h-40 overflow-y-auto">
+              <pre>{JSON.stringify(prepareDataForOpenAI(), null, 2)}</pre>
+            </div>
+          </motion.div>
+
+          {/* Navigation */}
+          <div className="flex justify-between pt-6">
+            <motion.button
+              onClick={handleBack}
+              className="flex items-center space-x-2 px-6 py-3 text-gray-600 hover:text-gray-800 transition-colors rounded-xl hover:bg-gray-100"
+              whileHover={{ x: -5, scale: 1.02 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <ArrowLeft className="w-5 h-5" />
+              <span>戻る</span>
+            </motion.button>
+            
+            <motion.button
+              onClick={handleGeneratePlan}
+              disabled={isGenerating}
+              className={`flex items-center space-x-2 px-8 py-3 rounded-xl font-medium transition-all relative overflow-hidden ${
+                isGenerating
+                  ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                  : 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg hover:shadow-xl'
+              }`}
+              whileHover={!isGenerating ? { scale: 1.05, y: -2 } : {}}
+              whileTap={!isGenerating ? { scale: 0.98 } : {}}
+            >
+              {!isGenerating && (
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-r from-green-400 to-emerald-400 opacity-20"
+                  animate={{ 
+                    x: ['-100%', '100%'],
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
+                />
+              )}
+              
+              {isGenerating ? (
+                <>
+                  <motion.div
+                    className="w-5 h-5 border-2 border-gray-300 border-t-gray-600 rounded-full"
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                  />
+                  <span className="relative z-10">生成中...</span>
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-5 h-5 relative z-10" />
+                  <span className="relative z-10">旅行プラン生成</span>
+                  <ArrowRight className="w-5 h-5 relative z-10" />
+                </>
+              )}
+            </motion.button>
+          </div>
+        </motion.div>
+
+        {/* Progress Indicator */}
+        <motion.div
+          className="mt-8 flex justify-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8, delay: 1.2 }}
+        >
+          <div className="flex space-x-2">
+            {[0, 1, 2, 3, 4].map((index) => (
+              <motion.div
+                key={index}
+                className="w-3 h-3 bg-green-500 rounded-full"
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 1.2 + index * 0.1 }}
+                whileHover={{ scale: 1.2 }}
+              />
+            ))}
+          </div>
+        </motion.div>
+      </motion.div>
+    </div>
+  );
+};
+
+export default Confirmation;
+</file>
+
+<file path="src/components/questionnaire/DetailedPreferences.tsx">
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
+import { Settings, ArrowRight, ArrowLeft, Plane, Hotel, Smartphone, Car, Check, Plus, Minus, Sparkles, Crown, Gift } from 'lucide-react';
+import { useLanguage } from '../../contexts/LanguageContext';
+
+// Premium Plan Button Component
+const PremiumPlanButton: React.FC = () => {
+  const [isHovered, setIsHovered] = useState(false);
+  const [isCharging, setIsCharging] = useState(false);
+  const [isClicked, setIsClicked] = useState(false);
+
+  const handleClick = () => {
+    setIsCharging(true);
+    setIsClicked(true);
+    setTimeout(() => {
+      setIsCharging(false);
+      // Handle premium plan contract logic here
+      alert('プレミアムプラン契約画面に移動します！');
+    }, 2000);
+  };
+
+  return (
+    <div className="relative">
+      {/* Floating sparkles */}
+      <div className="absolute inset-0 pointer-events-none" style={{ width: '300px', height: '120px', left: '-50px', top: '-30px' }}>
+        {[...Array(8)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute"
+            style={{
+              left: `${15 + (i * 10)}%`,
+              top: `${20 + (i * 8)}%`,
+            }}
+            animate={{
+              y: [-10, -20, -10],
+              opacity: [0.3, 1, 0.3],
+              scale: [0.5, 1.2, 0.5],
+              rotate: [0, 180, 360],
+            }}
+            transition={{
+              duration: 2 + (i * 0.2),
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          >
+            <Sparkles className={`w-3 h-3 ${i % 3 === 0 ? 'text-yellow-400' : i % 3 === 1 ? 'text-pink-400' : 'text-purple-400'}`} />
+          </motion.div>
+        ))}
+      </div>
+
+      {/* Energy rings */}
+      {isCharging && (
+        <div className="absolute inset-0 pointer-events-none">
+          {[...Array(3)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute border-2 border-gradient-to-r from-yellow-400 to-pink-400 rounded-full"
+              style={{
+                width: `${80 + i * 20}px`,
+                height: `${80 + i * 20}px`,
+                left: '50%',
+                top: '50%',
+                transform: 'translate(-50%, -50%)',
+                borderImage: 'linear-gradient(45deg, #fbbf24, #ec4899) 1',
+              }}
+              initial={{ scale: 0, opacity: 1 }}
+              animate={{
+                scale: [0, 1.5],
+                opacity: [1, 0]
+              }}
+              transition={{
+                duration: 1.5,
+                repeat: Infinity,
+                delay: i * 0.3,
+                ease: "easeOut"
+              }}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Premium Plan Button */}
+      <motion.button
+        className="relative cursor-pointer group px-8 py-4 rounded-2xl overflow-hidden"
+        onHoverStart={() => setIsHovered(true)}
+        onHoverEnd={() => setIsHovered(false)}
+        onClick={handleClick}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        disabled={isCharging}
+        style={{
+          background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 30%, #ec4899 70%, #be185d 100%)',
+          boxShadow: isHovered 
+            ? '0 20px 40px -12px rgba(251, 191, 36, 0.4), 0 10px 20px -8px rgba(236, 72, 153, 0.3)'
+            : '0 10px 25px -12px rgba(0, 0, 0, 0.3)'
+        }}
+      >
+        {/* Enhanced Button Shadow */}
+        <motion.div
+          className="absolute inset-0 bg-gradient-to-br from-yellow-400/40 to-pink-600/40 rounded-2xl blur-xl"
+          animate={{
+            scale: isHovered ? 1.2 : 0.8,
+            opacity: isHovered ? 0.8 : 0.4,
+          }}
+          transition={{ duration: 0.4 }}
+        />
+        
+        {/* Magical Glow */}
+        <motion.div
+          className="absolute inset-0 bg-gradient-to-r from-yellow-300/30 via-pink-300/20 to-purple-300/30 rounded-2xl"
+          animate={{
+            opacity: isHovered ? 1 : 0.6,
+            rotate: [0, 5, -5, 0],
+          }}
+          transition={{ 
+            opacity: { duration: 0.3 },
+            rotate: { duration: 3, repeat: Infinity }
+          }}
+        />
+
+        {/* Button Content */}
+        <div className="flex items-center space-x-3 relative z-10">
+          {/* Crown Icon with energy effect */}
+          <motion.div
+            className="relative"
+            animate={{
+              scale: isHovered ? 1.2 : 1,
+              rotate: isCharging ? 360 : 0,
+            }}
+            transition={{ 
+              scale: { duration: 0.3 },
+              rotate: { duration: isCharging ? 2 : 0.3, repeat: isCharging ? Infinity : 0 }
+            }}
+          >
+            {/* Energy glow behind crown */}
+            <motion.div
+              className="absolute inset-0 bg-white/40 rounded-full blur-md"
+              animate={{
+                scale: isCharging ? [1, 1.5, 1] : 1,
+                opacity: isCharging ? [0.4, 0.8, 0.4] : 0.4,
+              }}
+              transition={{
+                duration: 1,
+                repeat: isCharging ? Infinity : 0
+              }}
+            />
+            
+            <Crown className="w-6 h-6 text-white relative z-10" />
+            
+            {/* Electric sparks for crown */}
+            {isCharging && (
+              <>
+                {[...Array(4)].map((_, i) => (
+                  <motion.div
+                    key={i}
+                    className="absolute w-1 h-1 bg-yellow-200 rounded-full"
+                    style={{
+                      left: '50%',
+                      top: '50%',
+                    }}
+                    animate={{
+                      x: Math.cos((i * 90) * Math.PI / 180) * 25,
+                      y: Math.sin((i * 90) * Math.PI / 180) * 25,
+                      scale: [0, 1, 0],
+                      opacity: [1, 1, 0],
+                    }}
+                    transition={{
+                      duration: 0.8,
+                      repeat: Infinity,
+                      delay: i * 0.1,
+                      ease: "easeOut"
+                    }}
+                  />
+                ))}
+              </>
+            )}
+          </motion.div>
+
+          {/* Button Text */}
+          <motion.div 
+            className="flex flex-col"
+            animate={{
+              scale: isCharging ? [1, 1.05, 1] : 1,
+            }}
+            transition={{
+              duration: 0.5,
+              repeat: isCharging ? Infinity : 0
+            }}
+          >
+            <span className="text-white font-bold text-lg tracking-wide">
+              プレミアムプラン
+            </span>
+            <motion.span 
+              className="text-yellow-100 text-xs font-medium"
+              animate={{
+                opacity: isHovered ? 1 : 0.8,
+              }}
+            >
+              3GB無料 + 特別特典
+            </motion.span>
+          </motion.div>
+
+          {/* Gift Icon */}
+          <motion.div
+            animate={{
+              scale: isHovered ? 1.1 : 1,
+              rotate: isCharging ? [0, 10, -10, 0] : 0,
+            }}
+            transition={{
+              scale: { duration: 0.3 },
+              rotate: { duration: 1, repeat: isCharging ? Infinity : 0 }
+            }}
+          >
+            <Gift className="w-5 h-5 text-yellow-200" />
+          </motion.div>
+        </div>
+
+        {/* Loading state */}
+        {isCharging && (
+          <motion.div
+            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+            animate={{
+              x: ['-100%', '100%'],
+            }}
+            transition={{
+              duration: 1.5,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+          />
+        )}
+
+        {/* Inner highlight */}
+        <motion.div
+          className="absolute inset-1 bg-gradient-to-br from-white/20 to-transparent rounded-xl"
+          animate={{
+            opacity: isHovered ? 0.8 : 0.4,
+          }}
+          transition={{ duration: 0.3 }}
+        />
+
+        {/* Opening Effect */}
+        {isClicked && (
+          <motion.div
+            className="absolute inset-0 pointer-events-none"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+          >
+            {/* Explosion particles */}
+            {[...Array(12)].map((_, i) => (
+              <motion.div
+                key={i}
+                className={`absolute w-2 h-2 rounded-full ${
+                  i % 3 === 0 ? 'bg-yellow-300' :
+                  i % 3 === 1 ? 'bg-pink-300' : 'bg-purple-300'
+                }`}
+                style={{
+                  left: '50%',
+                  top: '50%',
+                }}
+                animate={{
+                  x: Math.cos((i * 30) * Math.PI / 180) * (80 + Math.random() * 40),
+                  y: Math.sin((i * 30) * Math.PI / 180) * (80 + Math.random() * 40),
+                  opacity: [1, 0],
+                  scale: [0, 1.2, 0],
+                  rotate: [0, 360],
+                }}
+                transition={{
+                  duration: 1.5,
+                  ease: "easeOut",
+                  delay: i * 0.1,
+                }}
+              />
+            ))}
+          </motion.div>
+        )}
+      </motion.button>
+    </div>
+  );
+};
+
+const DetailedPreferences: React.FC = () => {
+  const navigate = useNavigate();
+  const { t } = useLanguage();
+  const [preferences, setPreferences] = useState({
+    transportation: [] as string[],
+    accommodation: [] as string[],
+    esim: false,
+    activities: [] as string[],
+    support: [] as string[]
+  });
+  const [showAllTransportation, setShowAllTransportation] = useState(false);
+  const [showAllAccommodation, setShowAllAccommodation] = useState(false);
+
+  const transportationOptions = [
+    { id: 'shinkansen', name: '新幹線', icon: '🚄', nameEn: 'Shinkansen' },
+    { id: 'local-train', name: '在来線', icon: '🚃', nameEn: 'Local Train' },
+    { id: 'bus', name: 'バス', icon: '🚌', nameEn: 'Bus' },
+    { id: 'rental-car', name: 'レンタカー', icon: '🚗', nameEn: 'Rental Car' },
+    { id: 'taxi', name: 'タクシー', icon: '🚕', nameEn: 'Taxi' },
+    { id: 'bicycle', name: '自転車', icon: '🚲', nameEn: 'Bicycle' },
+    { id: 'ferry', name: 'フェリー', icon: '⛴️', nameEn: 'Ferry' },
+    { id: 'airplane', name: '飛行機', icon: '✈️', nameEn: 'Airplane' }
+  ];
+
+  const accommodationOptions = [
+    { id: 'hotel', name: 'ホテル', icon: '🏨', nameEn: 'Hotel' },
+    { id: 'ryokan', name: '旅館', icon: '🏯', nameEn: 'Ryokan' },
+    { id: 'hostel', name: 'ホステル', icon: '🏠', nameEn: 'Hostel' },
+    { id: 'airbnb', name: 'Airbnb', icon: '🏡', nameEn: 'Airbnb' },
+    { id: 'capsule', name: 'カプセルホテル', icon: '🛏️', nameEn: 'Capsule Hotel' },
+    { id: 'minshuku', name: '民宿', icon: '🏘️', nameEn: 'Minshuku' },
+    { id: 'luxury-resort', name: '高級リゾート', icon: '🏖️', nameEn: 'Luxury Resort' },
+    { id: 'camping', name: 'キャンプ', icon: '⛺', nameEn: 'Camping' },
+    { id: 'unnecessary', name: '必要ないオプション', icon: '❌', nameEn: 'Not Needed' }
+  ];
+
+  const displayedTransportation = showAllTransportation ? transportationOptions : transportationOptions.slice(0, 6);
+  const displayedAccommodation = showAllAccommodation ? accommodationOptions : accommodationOptions.slice(0, 6);
+  
+  const remainingTransportation = transportationOptions.length - 6;
+  const remainingAccommodation = accommodationOptions.length - 6;
+
+  const toggleOption = (category: keyof typeof preferences, optionId: string) => {
+    setPreferences(prev => ({
+      ...prev,
+      [category]: prev[category].includes(optionId)
+        ? prev[category].filter(id => id !== optionId)
+        : [...prev[category], optionId]
+    }));
+  };
+
+  const handleNext = () => {
+    console.log('🔍 DetailedPreferences handleNext called');
+    console.log('🚗 Transportation:', preferences.transportation);
+    console.log('🏨 Accommodation:', preferences.accommodation);
+    console.log('📱 eSIM:', preferences.esim);
+    
+    localStorage.setItem('trippin-detailed-preferences', JSON.stringify(preferences));
+    console.log('💾 DetailedPreferences saved to localStorage');
+    console.log('🚀 About to navigate to: /questionnaire/confirmation');
+    
+    navigate('/questionnaire/confirmation');
+    console.log('✅ Navigation executed');
+  };
+
+  const handleBack = () => {
+    navigate('/questionnaire/style');
+  };
+
+  // Animation variants for staggered children
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        type: "spring",
+        damping: 12,
+        stiffness: 200
+      }
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-purple-50 via-indigo-50 to-blue-50 relative overflow-hidden">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <motion.div
+          className="absolute top-10 left-10 w-72 h-72 bg-gradient-to-r from-purple-300 to-indigo-300 rounded-full opacity-20 blur-3xl"
+          animate={{
+            x: [0, 100, 0],
+            y: [0, -50, 0],
+          }}
+          transition={{
+            duration: 20,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
+        <motion.div
+          className="absolute top-1/2 right-10 w-96 h-96 bg-gradient-to-r from-blue-300 to-cyan-300 rounded-full opacity-15 blur-3xl"
+          animate={{
+            x: [0, -80, 0],
+            y: [0, 60, 0],
+          }}
+          transition={{
+            duration: 25,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
+        <motion.div
+          className="absolute bottom-10 left-1/3 w-64 h-64 bg-gradient-to-r from-indigo-300 to-purple-300 rounded-full opacity-10 blur-3xl"
+          animate={{
+            scale: [1, 1.2, 1],
+            rotate: [0, 180, 360],
+          }}
+          transition={{
+            duration: 30,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
+      </div>
+
+      <motion.div
+        className="max-w-4xl w-full relative z-10"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+      >
+        {/* Header */}
+        <div className="text-center mb-8">
+          <motion.div
+            className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-full mb-6 relative shadow-xl"
+            initial={{ scale: 0, rotate: -180 }}
+            animate={{ scale: 1, rotate: 0 }}
+            transition={{ 
+              type: "spring",
+              damping: 10,
+              stiffness: 200,
+              delay: 0.2 
+            }}
+            whileHover={{ 
+              scale: 1.1,
+              boxShadow: "0 20px 40px rgba(124, 58, 237, 0.3)"
+            }}
+          >
+            <Settings className="w-8 h-8 text-white" />
+            <motion.div
+              className="absolute -top-2 -right-2 w-6 h-6 bg-cyan-400 rounded-full flex items-center justify-center"
+              animate={{ 
+                rotate: [0, 360],
+                scale: [1, 1.2, 1]
+              }}
+              transition={{
+                duration: 3,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+            >
+              <Sparkles className="w-3 h-3 text-white" />
+            </motion.div>
+          </motion.div>
+          
+          <motion.h1
+            className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent mb-4"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+          >
+            {t('questionnaire.details')}
+          </motion.h1>
+        </div>
+
+        <motion.div
+          className="bg-white/80 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-white/20"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.5 }}
+        >
+          {/* Transportation */}
+          <div className="mb-8">
+            <motion.h3 
+              className="text-xl font-semibold text-gray-800 mb-4"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.6 }}
+            >
+              交通手段
+            </motion.h3>
+            
+            <motion.div 
+              className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-6"
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+            >
+              {displayedTransportation.map((option, index) => (
+                <motion.button
+                  key={option.id}
+                  onClick={() => toggleOption('transportation', option.id)}
+                  className={`p-4 rounded-2xl border-2 transition-all duration-300 relative overflow-hidden group ${
+                    preferences.transportation.includes(option.id)
+                      ? 'border-purple-500 bg-gradient-to-br from-purple-50 to-purple-100 text-purple-700 shadow-lg'
+                      : 'border-gray-200 hover:border-purple-300 hover:bg-gradient-to-br hover:from-purple-50 hover:to-white bg-white/50 backdrop-blur-sm'
+                  }`}
+                  variants={itemVariants}
+                  whileHover={{ 
+                    scale: 1.05,
+                    boxShadow: "0 10px 30px rgba(0,0,0,0.1)"
+                  }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  {/* Animated background effect */}
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-r from-purple-400 to-indigo-400 opacity-0 group-hover:opacity-10 transition-opacity duration-300"
+                    initial={false}
+                    animate={preferences.transportation.includes(option.id) ? { opacity: 0.1 } : { opacity: 0 }}
+                  />
+                  
+                  <motion.div 
+                    className="text-3xl mb-2 relative z-10"
+                    animate={preferences.transportation.includes(option.id) ? { scale: [1, 1.2, 1] } : { scale: 1 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    {option.icon}
+                  </motion.div>
+                  <div className="text-sm font-medium relative z-10">{option.name}</div>
+                  
+                  {/* Selected indicator */}
+                  {preferences.transportation.includes(option.id) && (
+                    <motion.div
+                      className="absolute top-2 right-2 w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center"
+                      initial={{ scale: 0, rotate: -180 }}
+                      animate={{ scale: 1, rotate: 0 }}
+                      transition={{ type: "spring", damping: 15 }}
+                    >
+                      <motion.div
+                        className="w-3 h-3 bg-white rounded-full"
+                        animate={{ scale: [1, 1.2, 1] }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                      />
+                    </motion.div>
+                  )}
+                </motion.button>
+              ))}
+            </motion.div>
+            
+            {remainingTransportation > 0 && (
+              <div className="text-center">
+                <motion.button
+                  onClick={() => setShowAllTransportation(!showAllTransportation)}
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white rounded-full font-medium transition-all duration-300 shadow-lg hover:shadow-xl"
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  {showAllTransportation ? (
+                    <>
+                      <Minus className="w-4 h-4" />
+                      {t('common.showLess')}
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="w-4 h-4" />
+                      {t('common.showMore').replace('{count}', remainingTransportation.toString())}
+                    </>
+                  )}
+                </motion.button>
+              </div>
+            )}
+          </div>
+
+          {/* Accommodation */}
+          <div className="mb-8">
+            <motion.h3 
+              className="text-xl font-semibold text-gray-800 mb-4"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.7 }}
+            >
+              宿泊施設
+            </motion.h3>
+            
+            <motion.div 
+              className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-6"
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+            >
+              {displayedAccommodation.map((option, index) => (
+                <motion.button
+                  key={option.id}
+                  onClick={() => toggleOption('accommodation', option.id)}
+                  className={`p-4 rounded-2xl border-2 transition-all duration-300 relative overflow-hidden group ${
+                    preferences.accommodation.includes(option.id)
+                      ? option.id === 'unnecessary' 
+                        ? 'border-red-500 bg-gradient-to-br from-red-50 to-red-100 text-red-700 shadow-lg'
+                        : 'border-blue-500 bg-gradient-to-br from-blue-50 to-blue-100 text-blue-700 shadow-lg'
+                      : 'border-gray-200 hover:border-blue-300 hover:bg-gradient-to-br hover:from-blue-50 hover:to-white bg-white/50 backdrop-blur-sm'
+                  }`}
+                  variants={itemVariants}
+                  whileHover={{ 
+                    scale: 1.05,
+                    boxShadow: "0 10px 30px rgba(0,0,0,0.1)"
+                  }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  {/* Animated background effect */}
+                  <motion.div
+                    className={`absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-300 ${
+                      option.id === 'unnecessary' 
+                        ? 'bg-gradient-to-r from-red-400 to-pink-400'
+                        : 'bg-gradient-to-r from-blue-400 to-cyan-400'
+                    }`}
+                    initial={false}
+                    animate={preferences.accommodation.includes(option.id) ? { opacity: 0.1 } : { opacity: 0 }}
+                  />
+                  
+                  <motion.div 
+                    className="text-3xl mb-2 relative z-10"
+                    animate={preferences.accommodation.includes(option.id) ? { scale: [1, 1.2, 1] } : { scale: 1 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    {option.icon}
+                  </motion.div>
+                  <div className="text-sm font-medium relative z-10">{option.name}</div>
+                  
+                  {/* Selected indicator */}
+                  {preferences.accommodation.includes(option.id) && (
+                    <motion.div
+                      className={`absolute top-2 right-2 w-6 h-6 rounded-full flex items-center justify-center ${
+                        option.id === 'unnecessary' ? 'bg-red-500' : 'bg-blue-500'
+                      }`}
+                      initial={{ scale: 0, rotate: -180 }}
+                      animate={{ scale: 1, rotate: 0 }}
+                      transition={{ type: "spring", damping: 15 }}
+                    >
+                      <motion.div
+                        className="w-3 h-3 bg-white rounded-full"
+                        animate={{ scale: [1, 1.2, 1] }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                      />
+                    </motion.div>
+                  )}
+                </motion.button>
+              ))}
+            </motion.div>
+            
+            {remainingAccommodation > 0 && (
+              <div className="text-center">
+                <motion.button
+                  onClick={() => setShowAllAccommodation(!showAllAccommodation)}
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white rounded-full font-medium transition-all duration-300 shadow-lg hover:shadow-xl"
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  {showAllAccommodation ? (
+                    <>
+                      <Minus className="w-4 h-4" />
+                      {t('common.showLess')}
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="w-4 h-4" />
+                      {t('common.showMore').replace('{count}', remainingAccommodation.toString())}
+                    </>
+                  )}
+                </motion.button>
+              </div>
+            )}
+          </div>
+
+          {/* Quick Actions */}
+          <motion.div 
+            className="mb-8 bg-gradient-to-r from-gray-50 to-gray-100 rounded-2xl p-4"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8 }}
+          >
+            <div className="flex justify-between items-center">
+              <motion.button
+                onClick={() => setPreferences(prev => ({
+                  ...prev,
+                  transportation: transportationOptions.map(t => t.id),
+                  accommodation: accommodationOptions.map(a => a.id)
+                }))}
+                className="flex items-center gap-2 px-4 py-2 text-sm bg-purple-100 hover:bg-purple-200 text-purple-700 rounded-full transition-all duration-300 font-medium"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Plus className="w-4 h-4" />
+                すべて選択
+              </motion.button>
+              
+              <div className="text-sm text-gray-600 font-medium bg-white px-4 py-2 rounded-full shadow-sm">
+                {preferences.transportation.length + preferences.accommodation.length} / {transportationOptions.length + accommodationOptions.length}
+              </div>
+              
+              <motion.button
+                onClick={() => setPreferences(prev => ({
+                  ...prev,
+                  transportation: [],
+                  accommodation: []
+                }))}
+                className="flex items-center gap-2 px-4 py-2 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full transition-all duration-300 font-medium"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Minus className="w-4 h-4" />
+                すべて解除
+              </motion.button>
+            </div>
+          </motion.div>
+
+          {/* eSIM */}
+          <motion.div 
+            className="mb-8"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.9 }}
+          >
+            <h3 className="text-xl font-semibold text-gray-800 mb-4">
+              eSIMデータプラン
+            </h3>
+            <motion.button
+              onClick={() => setPreferences(prev => ({ ...prev, esim: !prev.esim }))}
+              className={`w-full p-6 rounded-2xl border-2 transition-all duration-300 relative overflow-hidden group ${
+                preferences.esim
+                  ? 'border-purple-500 bg-gradient-to-br from-purple-50 to-purple-100'
+                  : 'border-gray-200 hover:border-purple-300 hover:bg-gradient-to-br hover:from-purple-50 hover:to-white bg-white/50 backdrop-blur-sm'
+              }`}
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.99 }}
+            >
+              {/* Animated background effect */}
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-purple-400 to-pink-400 opacity-0 group-hover:opacity-10 transition-opacity duration-300"
+                initial={false}
+                animate={preferences.esim ? { opacity: 0.1 } : { opacity: 0 }}
+              />
+              
+              <div className="flex items-center justify-between relative z-10">
+                <div className="flex items-center space-x-4">
+                  <motion.div
+                    animate={preferences.esim ? { scale: [1, 1.1, 1] } : { scale: 1 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <Smartphone className="w-8 h-8 text-purple-600" />
+                  </motion.div>
+                  <div className="text-left">
+                    <div className="font-semibold text-gray-800">eSIMデータプラン</div>
+                    <div className="text-sm text-gray-600">
+                      <p>1GB ¥800</p>
+                      <p className="text-purple-600 font-medium">プレミアムプラン契約で3GB無料</p>
+                    </div>
+                  </div>
+                </div>
+                <motion.div 
+                  className={`w-8 h-8 rounded-full border-2 transition-all flex items-center justify-center ${
+                    preferences.esim
+                      ? 'border-purple-500 bg-purple-500'
+                      : 'border-gray-300'
+                  }`}
+                  animate={preferences.esim ? { scale: [1, 1.1, 1] } : { scale: 1 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  {preferences.esim && (
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ type: "spring", damping: 15 }}
+                    >
+                      <Check className="w-5 h-5 text-white" />
+                    </motion.div>
+                  )}
+                </motion.div>
+              </div>
+            </motion.button>
+
+            {/* Premium Plan Contract Button */}
+            <motion.div
+              className="mt-6 flex justify-center"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.0 }}
+            >
+              <PremiumPlanButton />
+            </motion.div>
+          </motion.div>
+
+          {/* Navigation */}
+          <div className="flex justify-between">
+            <motion.button
+              onClick={handleBack}
+              className="flex items-center space-x-2 px-6 py-3 text-gray-600 hover:text-gray-800 transition-colors rounded-xl hover:bg-gray-100"
+              whileHover={{ x: -5, scale: 1.02 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <ArrowLeft className="w-5 h-5" />
+              <span>{t('common.back')}</span>
+            </motion.button>
+            
+            <motion.button
+              onClick={handleNext}
+              className="flex items-center space-x-2 px-8 py-3 rounded-xl font-medium transition-all relative overflow-hidden bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl"
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-purple-400 to-indigo-400 opacity-20"
+                animate={{ 
+                  x: ['-100%', '100%'],
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+              />
+              <span className="relative z-10">{t('common.next')}</span>
+              <ArrowRight className="w-5 h-5 relative z-10" />
+            </motion.button>
+          </div>
+        </motion.div>
+
+        {/* Progress Indicator */}
+        <motion.div
+          className="mt-8 flex justify-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8, delay: 1 }}
+        >
+          <div className="flex space-x-2">
+            {[0, 1, 2, 3, 4].map((index) => (
+              <motion.div
+                key={index}
+                className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                  index < 4 ? 'bg-purple-500' : 'bg-gray-300'
+                }`}
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 1 + index * 0.1 }}
+                whileHover={{ scale: 1.2 }}
+              />
+            ))}
+          </div>
+        </motion.div>
+      </motion.div>
+    </div>
+  );
+};
+
+export default DetailedPreferences;
+</file>
+
+</files>

@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="/trippin-logo.png" />
+    <link rel="apple-touch-icon" href="/trippin-logo.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TRIPPIN - AIが作る、あなただけの日本旅行</title>
+    <meta name="description" content="Plan your perfect Japan trip with AI-powered itinerary generation, eSIM support, and 24/7 travel assistance." />
+    <meta name="keywords" content="Japan travel, AI travel planner, trip planning, Japan tourism, eSIM, travel assistant" />
+    <meta property="og:title" content="TRIPPIN - AIが作る、あなただけの日本旅行" />
+    <meta property="og:description" content="Plan your perfect Japan trip with AI-powered itinerary generation" />
+    <meta property="og:image" content="/trippin-logo.png" />
+    <meta property="og:type" content="website" />
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json" />
+    
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/trippin-logo.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="/trippin-logo.png" />
+    <link rel="apple-touch-icon" sizes="144x144" href="/trippin-logo.png" />
+    <link rel="apple-touch-icon" sizes="120x120" href="/trippin-logo.png" />
+    <link rel="apple-touch-icon" sizes="114x114" href="/trippin-logo.png" />
+    <link rel="apple-touch-icon" sizes="76x76" href="/trippin-logo.png" />
+    <link rel="apple-touch-icon" sizes="72x72" href="/trippin-logo.png" />
+    <link rel="apple-touch-icon" sizes="60x60" href="/trippin-logo.png" />
+    <link rel="apple-touch-icon" sizes="57x57" href="/trippin-logo.png" />
+    
+    <!-- Microsoft Tiles -->
+    <meta name="msapplication-TileImage" content="/trippin-logo.png" />
+    <meta name="msapplication-TileColor" content="#8b5cf6" />
+    <meta name="msapplication-config" content="/browserconfig.xml" />
+    
+    <!-- Theme Colors -->
+    <meta name="theme-color" content="#8b5cf6" />
+    <meta name="msapplication-navbutton-color" content="#8b5cf6" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+    
+    <!-- Service Worker Registration (disabled on localhost) -->
+    <script>
+      (function(){
+        const isLocalhost = ['localhost', '127.0.0.1'].includes(location.hostname);
+        if ('serviceWorker' in navigator && !isLocalhost) {
+          window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js')
+              .then((registration) => {
+                console.log('SW registered: ', registration);
+              })
+              .catch((registrationError) => {
+                console.log('SW registration failed: ', registrationError);
+              });
+          });
+        }
+      })();
+    </script>
+  </body>
+</html>

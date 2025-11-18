@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test URL Fix</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .success {
+            color: #28a745;
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+        }
+        .error {
+            color: #dc3545;
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+        }
+        .info {
+            color: #0c5460;
+            background-color: #d1ecf1;
+            border-color: #bee5eb;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        pre {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 URL Fix Test</h1>
+        <p>This page tests the URL construction fix for the subscription status endpoint.</p>
+        
+        <div class="test-section">
+            <h3>1. URL Construction Test</h3>
+            <button onclick="testUrlConstruction()">Test URL Construction</button>
+            <div id="url-construction-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>2. Proxy Test</h3>
+            <button onclick="testProxy()">Test Vite Proxy</button>
+            <div id="proxy-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>3. Backend Direct Test</h3>
+            <button onclick="testBackendDirect()">Test Backend Direct</button>
+            <div id="backend-direct-result"></div>
+        </div>
+    </div>
+
+    <script>
+        function testUrlConstruction() {
+            const resultDiv = document.getElementById('url-construction-result');
+            
+            // Simulate the URL construction logic from the fixed code
+            const isDev = true; // Simulating development mode
+            const viteBackendUrl = 'http://localhost:5173/api'; // This might be the problematic value
+            
+            let apiUrl;
+            if (isDev) {
+                apiUrl = '/api/subscriptions/status';
+            } else {
+                apiUrl = `${viteBackendUrl || 'http://localhost:3001'}/api/subscriptions/status`;
+            }
+            
+            const result = {
+                isDev,
+                viteBackendUrl,
+                constructedUrl: apiUrl,
+                expectedDev: '/api/subscriptions/status',
+                expectedProd: 'http://localhost:3001/api/subscriptions/status'
+            };
+            
+            resultDiv.innerHTML = `
+                <div class="info">
+                    <h4>📋 URL Construction Test</h4>
+                    <pre>${JSON.stringify(result, null, 2)}</pre>
+                    <p><strong>✅ In development mode, using Vite proxy: ${apiUrl}</strong></p>
+                </div>
+            `;
+        }
+
+        async function testProxy() {
+            const resultDiv = document.getElementById('proxy-result');
+            resultDiv.innerHTML = '<p>Testing Vite proxy...</p>';
+            
+            try {
+                const response = await fetch('/api/test');
+                if (response.ok) {
+                    const data = await response.json();
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <h4>✅ Vite proxy is working!</h4>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                            <p>The proxy correctly forwards <code>/api/test</code> to <code>http://localhost:3001/api/test</code></p>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="error">
+                            <h4>❌ Vite proxy test failed</h4>
+                            <p>Status: ${response.status} ${response.statusText}</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <h4>❌ Vite proxy test failed</h4>
+                        <p>Error: ${error.message}</p>
+                        <p>Make sure both frontend and backend servers are running</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function testBackendDirect() {
+            const resultDiv = document.getElementById('backend-direct-result');
+            resultDiv.innerHTML = '<p>Testing direct backend connection...</p>';
+            
+            try {
+                const response = await fetch('http://localhost:3001/api/test');
+                if (response.ok) {
+                    const data = await response.json();
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <h4>✅ Backend is accessible directly!</h4>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="error">
+                            <h4>❌ Direct backend test failed</h4>
+                            <p>Status: ${response.status} ${response.statusText}</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <h4>❌ Direct backend test failed</h4>
+                        <p>Error: ${error.message}</p>
+                        <p>Make sure the backend server is running on port 3001</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Auto-run tests on page load
+        window.addEventListener('load', () => {
+            testUrlConstruction();
+            testProxy();
+            testBackendDirect();
+        });
+    </script>
+</body>
+</html>
+

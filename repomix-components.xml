@@ -1,0 +1,4938 @@
+This file is a merged representation of a subset of the codebase, containing specifically included files and files not matching ignore patterns, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of a subset of the repository's contents that is considered the most important context.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Only files matching these patterns are included: src/components/**/*.{js,jsx,ts,tsx}
+- Files matching these patterns are excluded: **/DetailedPreferences.tsx, **/Confirmation.tsx
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+src/
+  components/
+    auth/
+      Login.tsx
+      Register.tsx
+    questionnaire/
+      BasicInfo.tsx
+      LanguageSelection.tsx
+      TravelStyle.tsx
+    BookingOptions.tsx
+    CookieBanner.tsx
+    GooglePlacesAutocomplete.tsx
+    Header.tsx
+    ImageUpload.tsx
+    LanguageSelector.tsx
+    MagicBox.tsx
+    MockDataNotice.tsx
+    PWAInstallPrompt.tsx
+    SEOHead.tsx
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path="src/components/auth/Login.tsx">
+import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { Link, useNavigate } from 'react-router-dom';
+import { LogIn, Github, Mail, AlertCircle } from 'lucide-react';
+import { useAuth } from '../../contexts/AuthContext';
+import { useLanguage } from '../../contexts/LanguageContext';
+
+const Login = () => {
+  const { login } = useAuth();
+  const { t } = useLanguage();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [hasAttemptedAutoLogin, setHasAttemptedAutoLogin] = useState(false);
+
+  useEffect(() => {
+    // Only attempt auto-login once when component mounts
+    if (!hasAttemptedAutoLogin) {
+      setHasAttemptedAutoLogin(true);
+      handleAutoLogin();
+    }
+  }, []);
+
+  const handleAutoLogin = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      console.log('[Login] Attempting auto-login to Auth0...');
+      await login();
+    } catch (error) {
+      console.error('[Login] Auto-login failed:', error);
+      setError('自動ログインに失敗しました。手動でログインしてください。');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleManualLogin = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      console.log('[Login] Manual login attempt...');
+      await login();
+    } catch (error) {
+      console.error('[Login] Manual login failed:', error);
+      setError('ログインに失敗しました。もう一度お試しください。');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDirectAuth0Login = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      console.log('[Login] Direct Auth0 login attempt...');
+      // Force Auth0 login with explicit parameters
+      await login('Username-Password-Authentication');
+    } catch (error) {
+      console.error('[Login] Direct Auth0 login failed:', error);
+      setError('Auth0ログインに失敗しました。ページを更新してお試しください。');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center p-6">
+      <motion.div
+        className="max-w-md w-full"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+      >
+        {/* Header */}
+        <div className="text-center mb-8">
+          <motion.div
+            className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full mb-6"
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
+            <LogIn className="w-8 h-8 text-white" />
+          </motion.div>
+          
+          <motion.h1
+            className="text-3xl font-bold text-gray-800 mb-2"
+          >
+            {t('auth.welcome')}
+          </motion.h1>
+          
+          <motion.p
+            className="text-gray-600"
+          >
+            {t('auth.loginSubtitle')}
+          </motion.p>
+        </div>
+
+        {/* Form */}
+        <motion.form
+          className="bg-white rounded-3xl p-8 shadow-xl"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.5 }}
+        >
+          <div className="text-center">
+            {isLoading ? (
+              <>
+                <div className="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
+                <p className="text-gray-600 mb-4">{t('auth.redirectingToAuth0')}</p>
+                <p className="text-sm text-gray-500">{t('auth.redirectingToAuth0')}</p>
+              </>
+            ) : (
+              <>
+                <LogIn className="w-16 h-16 text-purple-600 mx-auto mb-6" />
+                <h2 className="text-xl font-bold text-gray-800 mb-4">{t('auth.loginRequired')}</h2>
+                <p className="text-gray-600 mb-4">{t('auth.loginRequiredDescription')}</p>
+              </>
+            )}
+            
+            {/* Error Message */}
+            {error && (
+              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl">
+                <div className="flex items-center space-x-2">
+                  <AlertCircle className="w-5 h-5 text-red-600" />
+                  <p className="text-red-700">{error}</p>
+                </div>
+              </div>
+            )}
+            
+            {/* Login Buttons */}
+            <div className="mt-8 pt-6 border-t border-gray-200">
+              <div className="space-y-4">
+                <motion.button
+                  onClick={handleManualLogin}
+                  disabled={isLoading}
+                  className="w-full flex items-center justify-center space-x-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-3 px-6 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  whileHover={{ scale: isLoading ? 1 : 1.02 }}
+                  whileTap={{ scale: isLoading ? 1 : 0.98 }}
+                >
+                  <LogIn className="w-5 h-5" />
+                  <span>{t('auth.loginWithAuth0')}</span>
+                </motion.button>
+                
+                <motion.button
+                  onClick={handleDirectAuth0Login}
+                  disabled={isLoading}
+                  className="w-full flex items-center justify-center space-x-3 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  whileHover={{ scale: isLoading ? 1 : 1.02 }}
+                  whileTap={{ scale: isLoading ? 1 : 0.98 }}
+                >
+                  <Mail className="w-5 h-5" />
+                  <span>{t('auth.loginWithEmail')}</span>
+                </motion.button>
+                
+                <p className="text-xs text-gray-500 text-center">
+                  {t('auth.manualLoginInstruction')}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Links */}
+          <div className="mt-6 text-center space-y-4">
+            <Link
+              to="/auth/forgot-password"
+              className="text-sm text-blue-600 hover:text-blue-700 transition-colors"
+            >
+              {t('auth.forgotPassword')}
+            </Link>
+            
+            <div className="text-sm text-gray-600">
+              {t('auth.noAccount')}{' '}
+              <Link
+                to="/auth/register"
+                className="text-blue-600 hover:text-blue-700 font-medium transition-colors"
+              >
+                {t('auth.register')}
+              </Link>
+            </div>
+            
+            {/* Debug Info */}
+            {process.env.NODE_ENV === 'development' && (
+              <div className="mt-4 p-3 bg-gray-100 rounded-lg text-xs text-gray-600">
+                <p>Debug Info:</p>
+                <p>Auth0 Domain: {import.meta.env.VITE_AUTH0_DOMAIN}</p>
+                <p>Auth0 Client ID: {import.meta.env.VITE_AUTH0_CLIENT_ID}</p>
+                <p>Has attempted auto-login: {hasAttemptedAutoLogin.toString()}</p>
+              </div>
+            )}
+          </div>
+        </motion.form>
+      </motion.div>
+    </div>
+  );
+};
+
+export default Login;
+</file>
+
+<file path="src/components/auth/Register.tsx">
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
+import { Link, useNavigate } from 'react-router-dom';
+import { Mail, Lock, User, Eye, EyeOff, UserPlus } from 'lucide-react';
+import { useAuth } from '../../contexts/AuthContext';
+import { useLanguage } from '../../contexts/LanguageContext';
+
+const Register: React.FC = () => {
+  const navigate = useNavigate();
+  const { register } = useAuth();
+  const { t } = useLanguage();
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: ''
+  });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (formData.password !== formData.confirmPassword) {
+      alert('パスワードが一致しません');
+      return;
+    }
+
+    setIsLoading(true);
+    
+    try {
+      await register();
+      // Auth0 will handle the redirect, so we don't need to navigate here
+    } catch (error) {
+      console.error('Registration failed:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center p-6">
+      <motion.div
+        className="max-w-md w-full"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+      >
+        {/* Header */}
+        <div className="text-center mb-8">
+          <motion.div
+            className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-green-500 to-blue-600 rounded-full mb-6"
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
+            <UserPlus className="w-8 h-8 text-white" />
+          </motion.div>
+          
+          <motion.h1
+            className="text-3xl font-bold text-gray-800 mb-2"
+          >
+            {t('auth.createAccount')}
+          </motion.h1>
+          
+          <motion.p
+            className="text-gray-600"
+          >
+            {t('auth.registerSubtitle')}
+          </motion.p>
+        </div>
+
+        {/* Form */}
+        <motion.div
+          className="bg-white rounded-3xl p-8 shadow-xl"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.5 }}
+        >
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Name */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {t('auth.name')}
+              </label>
+              <div className="relative">
+                <User className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  placeholder={t('auth.namePlaceholder')}
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Email */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {t('auth.email')}
+              </label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  placeholder={t('auth.emailPlaceholder')}
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Password */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {t('auth.password')}
+              </label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  placeholder={t('auth.passwordPlaceholder')}
+                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                  required
+                  minLength={8}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+                >
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
+              </div>
+            </div>
+
+            {/* Confirm Password */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {t('auth.confirmPassword')}
+              </label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+                <input
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  value={formData.confirmPassword}
+                  onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                  placeholder={t('auth.confirmPasswordPlaceholder')}
+                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+                >
+                  {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
+              </div>
+            </div>
+
+            {/* Submit Button */}
+            <motion.button
+              type="submit"
+              disabled={isLoading}
+              className="w-full bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white font-bold py-3 px-6 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              whileHover={{ scale: isLoading ? 1 : 1.02 }}
+              whileTap={{ scale: isLoading ? 1 : 0.98 }}
+            >
+              {isLoading ? t('auth.creating') : t('auth.register')}
+            </motion.button>
+          </form>
+
+          {/* Links */}
+          <div className="mt-6 text-center">
+            <div className="text-sm text-gray-600">
+              {t('auth.hasAccount')}{' '}
+              <Link
+                to="/auth/login"
+                className="text-green-600 hover:text-green-700 font-medium transition-colors"
+              >
+                {t('auth.login')}
+              </Link>
+            </div>
+          </div>
+
+          {/* Terms */}
+          <div className="mt-6 text-xs text-gray-500 text-center">
+            {t('auth.agreeToTermsRegister')}
+          </div>
+        </motion.div>
+      </motion.div>
+    </div>
+  );
+};
+
+export default Register;
+</file>
+
+<file path="src/components/BookingOptions.tsx">
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
+import { Building2 as Hotel, Plane, Car, Check, X } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
+
+interface BookingOptionsProps {
+  onComplete: () => void;
+}
+
+const BookingOptions: React.FC<BookingOptionsProps> = ({ onComplete }) => {
+  const { t } = useLanguage();
+  const navigate = useNavigate();
+  const [selectedOptions, setSelectedOptions] = useState<string[]>(
+    JSON.parse(localStorage.getItem('trippin-booking-needs') || '[]')
+  );
+
+  const bookingOptions = [
+    { id: 'hotel', name: t('booking.hotel'), icon: Hotel, description: t('booking.hotelDescription') },
+    { id: 'flight', name: t('booking.flight'), icon: Plane, description: t('booking.flightDescription') },
+    { id: 'car', name: t('booking.car'), icon: Car, description: t('booking.carDescription') }
+  ];
+
+  const toggleOption = (optionId: string) => {
+    setSelectedOptions(prev =>
+      prev.includes(optionId)
+        ? prev.filter(id => id !== optionId)
+        : [...prev, optionId]
+    );
+  };
+
+  const handleContinue = () => {
+    // Save selected booking options
+    localStorage.setItem('trippin-booking-options', JSON.stringify(selectedOptions));
+    localStorage.removeItem('trippin-booking-needs');
+    
+    // Redirect based on selection
+    if (selectedOptions.includes('hotel')) {
+      navigate('/bookings');
+    } else {
+      // If no hotel booking, go to dashboard
+      onComplete();
+    }
+  };
+
+  const handleSkip = () => {
+    // Skip booking and go to dashboard
+    onComplete();
+  };
+
+  return (
+    <motion.div
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+    >
+      <motion.div
+        className="bg-white rounded-3xl p-8 max-w-2xl w-full"
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 0.3 }}
+      >
+        <h2 className="text-2xl font-bold text-gray-800 mb-4">{t('booking.title')}</h2>
+        <p className="text-gray-600 mb-6">{t('booking.subtitle')}</p>
+        
+        <div className="space-y-4 mb-8">
+          {bookingOptions.map((option) => (
+            <motion.div
+              key={option.id}
+              className={`p-4 border-2 rounded-xl cursor-pointer transition-all ${
+                selectedOptions.includes(option.id)
+                  ? 'border-purple-500 bg-purple-50'
+                  : 'border-gray-200 hover:border-purple-300 hover:bg-purple-50'
+              }`}
+              onClick={() => toggleOption(option.id)}
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.99 }}
+            >
+              <div className="flex items-center space-x-4">
+                <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                  selectedOptions.includes(option.id)
+                    ? 'bg-purple-100 text-purple-600'
+                    : 'bg-gray-100 text-gray-500'
+                }`}>
+                  <option.icon className="w-6 h-6" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-gray-800">{option.name}</h3>
+                  <p className="text-sm text-gray-600">{option.description}</p>
+                </div>
+                <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                  selectedOptions.includes(option.id)
+                    ? 'border-purple-500 bg-purple-500 text-white'
+                    : 'border-gray-300'
+                }`}>
+                  {selectedOptions.includes(option.id) && <Check className="w-4 h-4" />}
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+        
+        <div className="flex space-x-4">
+          <button
+            onClick={handleSkip}
+            className="flex-1 flex items-center justify-center space-x-2 px-6 py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors"
+          >
+            <X className="w-5 h-5" />
+            <span>{t('booking.skip')}</span>
+          </button>
+          <button
+            onClick={handleContinue}
+            className="flex-1 flex items-center justify-center space-x-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all"
+          >
+            <Check className="w-5 h-5" />
+            <span>{t('booking.continue')}</span>
+          </button>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+};
+
+export default BookingOptions;
+</file>
+
+<file path="src/components/CookieBanner.tsx">
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Cookie, X, Settings, Check } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { useLanguage } from '../contexts/LanguageContext';
+
+interface CookiePreferences {
+  necessary: boolean;
+  functional: boolean;
+  analytics: boolean;
+  marketing: boolean;
+}
+
+const CookieBanner: React.FC = () => {
+  const { t } = useLanguage();
+  const [showBanner, setShowBanner] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [preferences, setPreferences] = useState<CookiePreferences>({
+    necessary: true, // Always true, cannot be disabled
+    functional: true,
+    analytics: false,
+    marketing: false
+  });
+
+  useEffect(() => {
+    // Check if user has already made a choice
+    const cookieConsent = localStorage.getItem('trippin-cookie-consent');
+    if (!cookieConsent) {
+      // Show banner after a short delay
+      setTimeout(() => setShowBanner(true), 2000);
+    } else {
+      // Load saved preferences
+      const savedPreferences = JSON.parse(cookieConsent);
+      setPreferences(savedPreferences);
+      applyCookieSettings(savedPreferences);
+    }
+  }, []);
+
+  const applyCookieSettings = (prefs: CookiePreferences) => {
+    // Apply Google Analytics based on analytics preference
+    if (prefs.analytics && import.meta.env.VITE_GA_ID) {
+      // Enable Google Analytics
+      (window as any).gtag = (window as any).gtag || function() {
+        ((window as any).dataLayer = (window as any).dataLayer || []).push(arguments);
+      };
+      (window as any).gtag('js', new Date());
+      (window as any).gtag('config', import.meta.env.VITE_GA_ID, {
+        anonymize_ip: true,
+        cookie_flags: 'SameSite=None;Secure'
+      });
+    }
+
+    // Apply marketing cookies
+    if (prefs.marketing) {
+      // Enable marketing tracking
+      localStorage.setItem('trippin-marketing-enabled', 'true');
+    } else {
+      localStorage.removeItem('trippin-marketing-enabled');
+    }
+
+    // Apply functional cookies
+    if (prefs.functional) {
+      // Enable enhanced functionality
+      localStorage.setItem('trippin-functional-enabled', 'true');
+    } else {
+      localStorage.removeItem('trippin-functional-enabled');
+    }
+  };
+
+  const acceptAll = () => {
+    const allAccepted: CookiePreferences = {
+      necessary: true,
+      functional: true,
+      analytics: true,
+      marketing: true
+    };
+    
+    setPreferences(allAccepted);
+    localStorage.setItem('trippin-cookie-consent', JSON.stringify(allAccepted));
+    applyCookieSettings(allAccepted);
+    setShowBanner(false);
+  };
+
+  const acceptNecessaryOnly = () => {
+    const necessaryOnly: CookiePreferences = {
+      necessary: true,
+      functional: false,
+      analytics: false,
+      marketing: false
+    };
+    
+    setPreferences(necessaryOnly);
+    localStorage.setItem('trippin-cookie-consent', JSON.stringify(necessaryOnly));
+    applyCookieSettings(necessaryOnly);
+    setShowBanner(false);
+  };
+
+  const saveCustomPreferences = () => {
+    localStorage.setItem('trippin-cookie-consent', JSON.stringify(preferences));
+    applyCookieSettings(preferences);
+    setShowBanner(false);
+    setShowSettings(false);
+  };
+
+  const updatePreference = (key: keyof CookiePreferences, value: boolean) => {
+    if (key === 'necessary') return; // Cannot disable necessary cookies
+    setPreferences(prev => ({ ...prev, [key]: value }));
+  };
+
+  return (
+    <AnimatePresence>
+      {showBanner && (
+        <motion.div
+          className="fixed bottom-0 left-0 right-0 z-50 p-4"
+          initial={{ opacity: 0, y: 100 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 100 }}
+          transition={{ duration: 0.3 }}
+        >
+          <div className="max-w-6xl mx-auto">
+            <div className="bg-white rounded-2xl shadow-2xl border border-gray-200 p-6">
+              {!showSettings ? (
+                // Main Banner
+                <div className="flex flex-col lg:flex-row items-start lg:items-center space-y-4 lg:space-y-0 lg:space-x-6">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+                      <Cookie className="w-6 h-6 text-purple-600" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-lg font-bold text-gray-800 mb-1">
+                        {t('cookies.title') || 'クッキーの使用について'}
+                      </h3>
+                      <p className="text-gray-600 text-sm">
+                        {t('cookies.description') || 'より良いサービス提供のためクッキーを使用しています。'}
+                        <Link to="/legal/cookies" className="text-purple-600 hover:text-purple-700 ml-1">
+                          {t('cookies.learnMore') || '詳細を見る'}
+                        </Link>
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex flex-wrap gap-3">
+                    <button
+                      onClick={() => setShowSettings(true)}
+                      className="flex items-center space-x-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors"
+                    >
+                      <Settings className="w-4 h-4" />
+                      <span>{t('cookies.customize') || 'カスタマイズ'}</span>
+                    </button>
+                    <button
+                      onClick={acceptNecessaryOnly}
+                      className="px-6 py-2 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors"
+                    >
+                      {t('cookies.necessary') || '必須のみ'}
+                    </button>
+                    <button
+                      onClick={acceptAll}
+                      className="px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all"
+                    >
+                      {t('cookies.acceptAll') || 'すべて許可'}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                // Settings Panel
+                <div>
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-xl font-bold text-gray-800">
+                      {t('cookies.preferences') || 'クッキー設定'}
+                    </h3>
+                    <button
+                      onClick={() => setShowSettings(false)}
+                      className="p-2 text-gray-500 hover:text-gray-700 rounded-full hover:bg-gray-100"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+
+                  <div className="space-y-6">
+                    {/* Necessary Cookies */}
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1 pr-4">
+                        <h4 className="font-semibold text-gray-800 mb-1">
+                          {t('cookies.necessary') || '必須クッキー'}
+                        </h4>
+                        <p className="text-sm text-gray-600">
+                          {t('cookies.necessaryDescription') || 'ウェブサイトの基本機能に必要です'}
+                        </p>
+                      </div>
+                      <div className="flex items-center">
+                        <input
+                          type="checkbox"
+                          checked={preferences.necessary}
+                          disabled={true}
+                          className="w-5 h-5 text-purple-600 rounded focus:ring-purple-500 opacity-50"
+                        />
+                        <span className="ml-2 text-sm text-gray-500">常に有効</span>
+                      </div>
+                    </div>
+
+                    {/* Functional Cookies */}
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1 pr-4">
+                        <h4 className="font-semibold text-gray-800 mb-1">
+                          {t('cookies.functional') || '機能性クッキー'}
+                        </h4>
+                        <p className="text-sm text-gray-600">
+                          {t('cookies.functionalDescription') || 'ユーザー設定の保存に使用'}
+                        </p>
+                      </div>
+                      <input
+                        type="checkbox"
+                        checked={preferences.functional}
+                        onChange={(e) => updatePreference('functional', e.target.checked)}
+                        className="w-5 h-5 text-purple-600 rounded focus:ring-purple-500"
+                      />
+                    </div>
+
+                    {/* Analytics Cookies */}
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1 pr-4">
+                        <h4 className="font-semibold text-gray-800 mb-1">
+                          {t('cookies.analytics') || '分析クッキー'}
+                        </h4>
+                        <p className="text-sm text-gray-600">
+                          {t('cookies.analyticsDescription') || 'サイト利用状況の分析に使用'}
+                        </p>
+                      </div>
+                      <input
+                        type="checkbox"
+                        checked={preferences.analytics}
+                        onChange={(e) => updatePreference('analytics', e.target.checked)}
+                        className="w-5 h-5 text-purple-600 rounded focus:ring-purple-500"
+                      />
+                    </div>
+
+                    {/* Marketing Cookies */}
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1 pr-4">
+                        <h4 className="font-semibold text-gray-800 mb-1">
+                          {t('cookies.marketing') || 'マーケティングクッキー'}
+                        </h4>
+                        <p className="text-sm text-gray-600">
+                          {t('cookies.marketingDescription') || 'パーソナライズされた広告の表示'}
+                        </p>
+                      </div>
+                      <input
+                        type="checkbox"
+                        checked={preferences.marketing}
+                        onChange={(e) => updatePreference('marketing', e.target.checked)}
+                        className="w-5 h-5 text-purple-600 rounded focus:ring-purple-500"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end space-x-3 mt-6 pt-6 border-t border-gray-200">
+                    <button
+                      onClick={acceptNecessaryOnly}
+                      className="px-6 py-2 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors"
+                    >
+                      {t('cookies.necessary') || '必須のみ'}
+                    </button>
+                    <button
+                      onClick={saveCustomPreferences}
+                      className="flex items-center space-x-2 px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all"
+                    >
+                      <Check className="w-4 h-4" />
+                      <span>{t('cookies.save') || '保存'}</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+};
+
+export default CookieBanner;
+</file>
+
+<file path="src/components/GooglePlacesAutocomplete.tsx">
+import React, { useState, useEffect, useRef } from 'react';
+import { MapPin, Search, Loader } from 'lucide-react';
+import { apiCall, API_CONFIG, buildApiUrl, APIError } from '../config/api';
+import { handleAWSError, globalErrorHandler } from '../utils/errorHandler';
+
+interface PlaceData {
+  name: string;
+  formatted_address: string;
+  place_id?: string;
+  geometry?: {
+    location: {
+      lat: number;
+      lng: number;
+    }
+  };
+  rating?: number;
+  types?: string[];
+  photos?: Array<{
+    photo_reference: string;
+    height: number;
+    width: number;
+  }>;
+}
+
+interface GooglePlacesAutocompleteProps {
+  value: string;
+  onChange: (value: string) => void;
+  onPlaceSelect: (place: PlaceData) => void;
+  placeholder?: string;
+  className?: string;
+  types?: string[];
+  country?: string;
+}
+
+const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
+  value,
+  onChange,
+  onPlaceSelect,
+  placeholder = 'Search for a place',
+  className = '',
+  types = ['establishment', 'geocode'],
+  country = 'jp'
+}) => {
+  const [predictions, setPredictions] = useState<PlaceData[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showPredictions, setShowPredictions] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const predictionsRef = useRef<HTMLDivElement>(null);
+  const debounceRef = useRef<NodeJS.Timeout>();
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        predictionsRef.current && 
+        !predictionsRef.current.contains(event.target as Node) &&
+        inputRef.current && 
+        !inputRef.current.contains(event.target as Node)
+      ) {
+        setShowPredictions(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
+    };
+  }, []);
+
+  const fetchPredictions = async (query: string) => {
+    console.log(`[GooglePlacesAutocomplete] fetchPredictions called with query: "${query}"`);
+    
+    console.log(`[GooglePlacesAutocomplete] fetchPredictions called with query: "${query}"`);
+    
+    if (!query.trim() || query.length < 2) {
+      console.log(`[GooglePlacesAutocomplete] Query too short, clearing predictions`);
+      console.log(`[GooglePlacesAutocomplete] Query too short, clearing predictions`);
+      setPredictions([]);
+      setShowPredictions(false);
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+    console.log(`[GooglePlacesAutocomplete] Starting API call to /google-maps`);
+    console.log(`[GooglePlacesAutocomplete] Starting API call to /google-maps`);
+    
+    try {
+      const result = await apiCall('/google-maps', {
+        method: 'POST',
+        body: JSON.stringify({
+          input: query,
+          types: types.join('|'),
+          components: `country:${country}`,
+          language: 'ja'
+        })
+      });
+      
+      console.log(`[GooglePlacesAutocomplete] API result for Google Maps:`, result);
+      
+      console.log(`[GooglePlacesAutocomplete] API result for Google Maps:`, result);
+      
+      if (result.success && result.predictions && Array.isArray(result.predictions)) {
+        console.log(`[GooglePlacesAutocomplete] Found ${result.predictions.length} predictions`);
+        console.log(`[GooglePlacesAutocomplete] Found ${result.predictions.length} predictions`);
+        const formattedPredictions: PlaceData[] = result.predictions.map((prediction: any) => ({
+          name: prediction.structured_formatting?.main_text || prediction.description,
+          formatted_address: prediction.description,
+          place_id: prediction.place_id,
+          types: prediction.types
+        }));
+        
+        console.log(`[GooglePlacesAutocomplete] Formatted predictions:`, formattedPredictions);
+        console.log(`[GooglePlacesAutocomplete] Formatted predictions:`, formattedPredictions);
+        setPredictions(formattedPredictions);
+        setShowPredictions(true);
+      } else if (result.candidates && Array.isArray(result.candidates)) {
+        console.log(`[GooglePlacesAutocomplete] Found ${result.candidates.length} candidates`);
+        console.log(`[GooglePlacesAutocomplete] Found ${result.candidates.length} candidates`);
+        // Handle text search results
+        const formattedCandidates: PlaceData[] = result.candidates.map((candidate: any) => ({
+          name: candidate.name,
+          formatted_address: candidate.formatted_address,
+          place_id: candidate.place_id,
+          geometry: candidate.geometry,
+          rating: candidate.rating,
+          types: candidate.types
+        }));
+        
+        console.log(`[GooglePlacesAutocomplete] Formatted candidates:`, formattedCandidates);
+        console.log(`[GooglePlacesAutocomplete] Formatted candidates:`, formattedCandidates);
+        setPredictions(formattedCandidates);
+        setShowPredictions(true);
+      } else {
+        console.warn('[GooglePlacesAutocomplete] Invalid API response format:', result);
+        console.log(`[GooglePlacesAutocomplete] No predictions or candidates found in result`);
+        console.log(`[GooglePlacesAutocomplete] No predictions or candidates found in result`);
+        setPredictions([]);
+        setShowPredictions(false);
+      }
+    } catch (error) {
+      const apiError = error as APIError;
+      
+      globalErrorHandler.handleError(apiError, {
+        page: 'GooglePlacesAutocomplete',
+        action: 'fetchPredictions',
+        userAgent: navigator.userAgent,
+        url: window.location.href
+      });
+      
+      console.error('[GooglePlacesAutocomplete] Places API error:', apiError);
+      
+      // Provide fallback suggestions for common Japan destinations
+      if (query.length >= 2) {
+        const fallbackPlaces = getFallbackPlaces(query);
+        console.log(`[GooglePlacesAutocomplete] Using fallback places:`, fallbackPlaces);
+        console.log(`[GooglePlacesAutocomplete] Using fallback places:`, fallbackPlaces);
+        setPredictions(fallbackPlaces);
+        setShowPredictions(fallbackPlaces.length > 0);
+        
+        if (apiError.status === 403) {
+          setError('Places APIの利用制限に達しました。基本的な場所候補を表示しています。');
+        } else if (apiError.code === 'NETWORK_OFFLINE') {
+          setError('オフラインです。保存された場所候補を表示しています。');
+        }
+      } else {
+        console.log(`[GooglePlacesAutocomplete] Query too short for fallback, clearing predictions`);
+        console.log(`[GooglePlacesAutocomplete] Query too short for fallback, clearing predictions`);
+        setPredictions([]);
+        setShowPredictions(false);
+      }
+    } finally {
+      setIsLoading(false);
+      console.log(`[GooglePlacesAutocomplete] Final state - predictions:`, predictions.length, 'showPredictions:', showPredictions);
+      console.log(`[GooglePlacesAutocomplete] Final state - predictions:`, predictions.length, 'showPredictions:', showPredictions);
+    }
+  };
+
+  const getFallbackPlaces = (query: string): PlaceData[] => {
+    const commonPlaces = [
+      { name: '東京', formatted_address: '東京都, 日本', place_id: 'tokyo_fallback' },
+      { name: '大阪', formatted_address: '大阪府, 日本', place_id: 'osaka_fallback' },
+      { name: '京都', formatted_address: '京都府, 日本', place_id: 'kyoto_fallback' },
+      { name: '浅草', formatted_address: '東京都台東区浅草, 日本', place_id: 'asakusa_fallback' },
+      { name: '渋谷', formatted_address: '東京都渋谷区, 日本', place_id: 'shibuya_fallback' },
+      { name: '新宿', formatted_address: '東京都新宿区, 日本', place_id: 'shinjuku_fallback' },
+      { name: '銀座', formatted_address: '東京都中央区銀座, 日本', place_id: 'ginza_fallback' },
+      { name: '原宿', formatted_address: '東京都渋谷区原宿, 日本', place_id: 'harajuku_fallback' },
+      { name: '道頓堀', formatted_address: '大阪府大阪市中央区道頓堀, 日本', place_id: 'dotonbori_fallback' },
+      { name: '清水寺', formatted_address: '京都府京都市東山区清水, 日本', place_id: 'kiyomizu_fallback' },
+      { name: '金閣寺', formatted_address: '京都府京都市北区金閣寺町, 日本', place_id: 'kinkaku_fallback' },
+      { name: '嵐山', formatted_address: '京都府京都市右京区嵯峨, 日本', place_id: 'arashiyama_fallback' }
+    ];
+
+    return commonPlaces.filter(place => 
+      place.name.toLowerCase().includes(query.toLowerCase()) ||
+      place.formatted_address.toLowerCase().includes(query.toLowerCase())
+    );
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+    console.log(`[GooglePlacesAutocomplete] Input changed to: "${newValue}"`);
+    console.log(`[GooglePlacesAutocomplete] Input changed to: "${newValue}"`);
+    onChange(newValue);
+    
+    // Clear previous debounce
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+    
+    // Debounce API calls
+    debounceRef.current = setTimeout(() => {
+      console.log(`[GooglePlacesAutocomplete] Debounce timeout triggered, calling fetchPredictions`);
+      console.log(`[GooglePlacesAutocomplete] Debounce timeout triggered, calling fetchPredictions`);
+      fetchPredictions(newValue);
+    }, 300);
+  };
+
+  const handlePredictionClick = async (place: PlaceData) => {
+    console.log(`[GooglePlacesAutocomplete] Prediction clicked:`, place);
+    console.log(`[GooglePlacesAutocomplete] Prediction clicked:`, place);
+    onChange(place.name);
+    setShowPredictions(false);
+    
+    // If we have a place_id, fetch detailed information
+    if (place.place_id && !place.place_id.includes('fallback')) {
+      try {
+        const detailResult = await apiCall('/google-maps', {
+          method: 'POST',
+          body: JSON.stringify({
+            place_id: place.place_id,
+            fields: 'name,formatted_address,geometry,rating,photos,types'
+          })
+        });
+        
+        if (detailResult.success && detailResult.result) {
+          onPlaceSelect({
+            ...place,
+            ...detailResult.result
+          });
+        } else {
+          onPlaceSelect(place);
+        }
+      } catch (error) {
+        console.error('Failed to fetch place details:', error);
+        onPlaceSelect(place);
+      }
+    } else {
+      onPlaceSelect(place);
+    }
+  };
+
+  const handleFocus = () => {
+    console.log(`[GooglePlacesAutocomplete] Input focused with value: "${value}"`);
+    console.log(`[GooglePlacesAutocomplete] Input focused with value: "${value}"`);
+    if (value && value.length >= 2) {
+      console.log(`[GooglePlacesAutocomplete] Value length >= 2, calling fetchPredictions`);
+      console.log(`[GooglePlacesAutocomplete] Value length >= 2, calling fetchPredictions`);
+      fetchPredictions(value);
+    }
+  };
+
+  return (
+    <div className="relative">
+      <div className="relative">
+        <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+        <input
+          ref={inputRef}
+          type="text"
+          value={value}
+          onChange={handleInputChange}
+          onFocus={handleFocus}
+          placeholder={placeholder}
+          className={`pl-10 pr-10 ${className}`}
+          autoComplete="off"
+        />
+        
+        {isLoading && (
+          <div className="absolute right-3 top-3">
+            <Loader className="w-5 h-5 text-gray-400 animate-spin" />
+          </div>
+        )}
+      </div>
+      
+      {error && (
+        <div className="mt-1 text-xs text-yellow-600 bg-yellow-50 px-2 py-1 rounded">
+          {error}
+        </div>
+      )}
+      
+      {showPredictions && predictions.length > 0 && (
+        <div 
+          ref={predictionsRef}
+          className="absolute z-50 mt-1 w-full bg-white rounded-xl shadow-lg border border-gray-200 max-h-60 overflow-y-auto"
+        >
+          {predictions.map((place, index) => (
+            <div
+              key={place.place_id || index}
+              className="px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0 transition-colors"
+              onClick={() => handlePredictionClick(place)}
+            >
+              <div className="flex items-start space-x-3">
+                <MapPin className="w-4 h-4 text-gray-400 mt-1 flex-shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <div className="font-medium text-gray-800 truncate">{place.name}</div>
+                  <div className="text-sm text-gray-500 truncate">{place.formatted_address}</div>
+                  {place.rating && (
+                    <div className="flex items-center space-x-1 mt-1">
+                      <div className="flex">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <span
+                            key={i}
+                            className={`text-xs ${
+                              i < Math.floor(place.rating!) ? 'text-yellow-400' : 'text-gray-300'
+                            }`}
+                          >
+                            ★
+                          </span>
+                        ))}
+                      </div>
+                      <span className="text-xs text-gray-500">{place.rating}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default GooglePlacesAutocomplete;
+</file>
+
+<file path="src/components/Header.tsx">
+import React from 'react';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Menu, X, User, Settings, LogOut, Globe, Home, Calendar, MapPin, MessageCircle, HelpCircle, Languages, Smartphone, Star, FileText, Shield, Cookie, Users, CreditCard, Bookmark, Share2, BookTemplate as TemplateIcon, Zap, Edit, CheckCircle, AlertTriangle } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
+import { useAuth } from '../contexts/AuthContext';
+import LanguageSelector from './LanguageSelector';
+
+const Header: React.FC = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { t } = useLanguage();
+  const { isAuthenticated, user, logout } = useAuth();
+  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+
+  // Helper function to get menu label with translation
+  const getMenuLabel = (path: string, fallbackLabel?: string): string => {
+    // Convert path to translation key
+    const key = path
+      .replace(/^\//, '') // Remove leading slash
+      .replace(/\//g, '.') // Replace slashes with dots
+     .replace(/-/g, ''); // Remove hyphens
+    
+   // Handle special cases for menu translation keys
+   let translationKey = '';
+   if (!key) {
+     translationKey = 'menu.home';
+   } else if (key === 'questionnaire.language') {
+     translationKey = 'menu.questionnaire';
+   } else if (key === 'auth.login') {
+     translationKey = 'menu.login';
+   } else if (key === 'auth.register') {
+     translationKey = 'menu.register';
+   } else if (key === 'legal.terms') {
+     translationKey = 'menu.terms';
+   } else if (key === 'legal.privacy') {
+     translationKey = 'menu.privacy';
+   } else if (key === 'legal.cookies') {
+     translationKey = 'menu.cookies';
+   } else {
+     translationKey = `menu.${key}`;
+   }
+   
+    const translated = t(translationKey);
+    
+    // If translation is the same as the key (not found), use fallback
+    if (translated === translationKey && fallbackLabel) {
+      return fallbackLabel;
+    }
+    
+    return translated;
+  };
+
+  const publicPages = [
+    { path: '/', key: 'home', icon: Home },
+    { path: '/dashboard', key: 'dashboard', icon: Calendar },
+    { path: '/questionnaire/language', key: 'questionnaire', icon: Calendar },
+    { path: '/checkout', key: 'checkout', icon: CreditCard },
+    { path: '/chat', key: 'chat', icon: MessageCircle },
+    { path: '/translate', key: 'translate', icon: Languages },
+    { path: '/map', key: 'map', icon: MapPin },
+    { path: '/templates', key: 'templates', icon: TemplateIcon },
+    { path: '/reviews', key: 'reviews', icon: Star },
+    { path: '/help', key: 'help', icon: HelpCircle },
+    { path: '/offline', key: 'offline', icon: Zap }
+  ];
+
+  const protectedPages = [
+    { path: '/esim', key: 'esim', icon: Smartphone },
+    { path: '/profile', key: 'profile', icon: User },
+    { path: '/settings/notifications', key: 'notifications', icon: Settings },
+    { path: '/settings/locale', key: 'locale', icon: Globe },
+    { path: '/billing', key: 'billing', icon: CreditCard },
+    { path: '/bookings', key: 'bookings', icon: Bookmark }
+  ];
+
+  const legalPages = [
+    { path: '/legal', key: 'legal', icon: FileText },
+    { path: '/legal/terms', key: 'terms', icon: FileText },
+    { path: '/legal/privacy', key: 'privacy', icon: Shield },
+    { path: '/legal/cookies', key: 'cookies', icon: Cookie }
+  ];
+
+  const adminPages = [
+    { path: '/admin', key: 'admin', icon: Users }
+  ];
+
+  const authPages = [
+    { path: '/auth/login', key: 'login', icon: User },
+    { path: '/auth/register', key: 'register', icon: User }
+  ];
+
+  return (
+    <>
+      <motion.header
+        className={`fixed top-0 left-0 right-0 z-40 border-b shadow-sm ${
+          location.pathname === '/' 
+            ? 'bg-black/20 backdrop-blur-md border-white/20' 
+            : 'bg-white/95 backdrop-blur-md border-gray-200'
+        }`}
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <div className="max-w-7xl mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            {/* ロゴ */}
+            <motion.button
+              onClick={() => navigate(isAuthenticated ? '/dashboard' : '/')}
+              className="flex items-center space-x-3 hover:opacity-80 transition-opacity"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <img 
+                src="/trippin-logo.png" 
+                alt="TRIPPIN Logo" 
+                className="w-10 h-10 rounded-full shadow-lg"
+              />
+              <span className={`text-2xl font-bold ${
+                location.pathname === '/' 
+                  ? 'text-white' 
+                  : 'bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent'
+              }`}>
+                TRIPPIN
+              </span>
+            </motion.button>
+
+            {/* 右側のナビゲーション */}
+            <div className="flex items-center space-x-4">
+              {/* 言語選択（デスクトップのみ） */}
+              <div className="block">
+                <LanguageSelector />
+              </div>
+              
+              {/* ハンバーガーメニューボタン */}
+              <button
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className={`p-2 transition-colors ${
+                  location.pathname === '/' 
+                    ? 'text-white hover:text-gray-300' 
+                    : 'text-gray-600 hover:text-gray-800'
+                }`}
+              >
+                {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              </button>
+            </div>
+          </div>
+        </div>
+      </motion.header>
+
+      {/* サイドバーメニュー */}
+      <AnimatePresence>
+        {isMenuOpen && (
+          <>
+            {/* オーバーレイ */}
+            <motion.div
+              className="fixed inset-0 bg-black bg-opacity-50 z-50"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsMenuOpen(false)}
+            />
+            
+            {/* サイドバー */}
+            <motion.div
+              className="fixed top-0 right-0 h-full w-80 bg-white shadow-2xl z-50 overflow-y-auto"
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+            >
+              {/* サイドバーヘッダー */}
+              <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white p-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <img 
+                      src="/trippin-logo.png" 
+                      alt="TRIPPIN Logo" 
+                      className="w-8 h-8 rounded-full"
+                    />
+                    <span className="text-xl font-bold">TRIPPIN</span>
+                  </div>
+                  <button
+                    onClick={() => setIsMenuOpen(false)}
+                    className="p-2 hover:bg-white/20 rounded-full transition-colors"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+                
+                {/* ユーザー情報 */}
+                {isAuthenticated && user && (
+                  <div className="mt-4 pt-4 border-t border-white/20">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                        <User className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <p className="font-medium">{user.name}</p>
+                        <p className="text-sm text-white/80">{user.email}</p>
+                        {user.isPremium && (
+                          <span className="inline-block px-2 py-1 bg-yellow-400 text-yellow-900 text-xs rounded-full mt-1">
+                            プレミアム
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              {/* メニューコンテンツ */}
+              <div className="p-6 space-y-6">
+                {/* 言語選択（メニュー上部） */}
+                <div className="lg:hidden">
+                  <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-500 mb-3">言語選択</h3>
+                  <div className="bg-gray-50 rounded-xl p-3">
+                    <LanguageSelector onLanguageChange={() => setIsMenuOpen(false)} />
+                  </div>
+                </div>
+                
+                {/* パブリックページ */}
+                <div>
+                  <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-500 mb-3">{t('menu.mainPages')}</h3>
+                  <div className="space-y-1">
+                    {publicPages.map((page) => (
+                      <Link
+                        key={page.path}
+                        to={page.path}
+                        className={`flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors ${
+                          location.pathname === page.path
+                            ? 'text-purple-600 bg-purple-50'
+                            : 'text-gray-700 hover:text-purple-600 hover:bg-purple-50'
+                        }`}
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        <page.icon className="w-5 h-5" />
+                        <span className="text-sm">{t(`menu.${page.key}`)}</span>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 認証ページ */}
+                {!isAuthenticated && (
+                  <div>
+                    <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-500 mb-3">{t('menu.account')}</h3>
+                    <div className="space-y-1">
+                      {authPages.map((page) => (
+                        <Link
+                          key={page.path}
+                          to={page.path}
+                          className={`flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors ${
+                            location.pathname === page.path
+                              ? 'text-purple-600 bg-purple-50'
+                              : 'text-gray-700 hover:text-purple-600 hover:bg-purple-50'
+                          }`}
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          <page.icon className="w-5 h-5" />
+                          <span className="text-sm">{t(`menu.${page.key}`)}</span>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* 認証が必要なページ */}
+                {isAuthenticated && (
+                  <div>
+                    <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-500 mb-3">{t('menu.myPages')}</h3>
+                    <div className="space-y-1">
+                      {protectedPages.map((page) => (
+                        <Link
+                          key={page.path}
+                          to={page.path}
+                          className={`flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors ${
+                            location.pathname === page.path
+                              ? 'text-purple-600 bg-purple-50'
+                              : 'text-gray-700 hover:text-purple-600 hover:bg-purple-50'
+                          }`}
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          <page.icon className="w-5 h-5" />
+                          <span className="text-sm">{t(`menu.${page.key}`)}</span>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* 法的ページ */}
+                <div>
+                 <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-500 mb-3">{t('menu.legalInfo')}</h3>
+                  <div className="space-y-1">
+                    {legalPages.map((page) => (
+                      <Link
+                        key={page.path}
+                        to={page.path}
+                        className={`flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors ${
+                          location.pathname === page.path
+                            ? 'text-purple-600 bg-purple-50'
+                            : 'text-gray-700 hover:text-purple-600 hover:bg-purple-50'
+                        }`}
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        <page.icon className="w-5 h-5" />
+                        <span className="text-sm">{t(`menu.${page.key}`)}</span>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+
+                {/* ユーザーアクション（認証済みユーザーのみ） */}
+                {isAuthenticated && user && (
+                  <div className="border-t border-gray-200 pt-4">
+                    <div className="space-y-1">
+                      <Link
+                        to="/profile"
+                        className="flex items-center space-x-3 px-3 py-2 text-gray-700 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        <Settings className="w-5 h-5" />
+                        <span className="text-sm">{t('menu.profile')}</span>
+                      </Link>
+                      <button
+                        onClick={() => {
+                          logout();
+                          setIsMenuOpen(false);
+                        }}
+                        className="flex items-center space-x-3 px-3 py-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors w-full text-left"
+                      >
+                        <LogOut className="w-5 h-5" />
+                        <span className="text-sm">{t('menu.logout')}</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </>
+  );
+};
+
+export default Header;
+</file>
+
+<file path="src/components/ImageUpload.tsx">
+import React, { useState, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Upload, X, Image as ImageIcon, Loader, AlertCircle, CheckCircle } from 'lucide-react';
+import { imageOptimizer, validateImageFile, OptimizedImage } from '../utils/imageOptimizer';
+
+interface ImageUploadProps {
+  onImageSelect: (optimizedImage: OptimizedImage) => void;
+  onError?: (error: string) => void;
+  maxFiles?: number;
+  acceptedFormats?: string[];
+  maxSizeKB?: number;
+  className?: string;
+  showPreview?: boolean;
+}
+
+const ImageUpload: React.FC<ImageUploadProps> = ({
+  onImageSelect,
+  onError,
+  maxFiles = 1,
+  acceptedFormats = ['image/jpeg', 'image/png', 'image/webp'],
+  maxSizeKB = 500,
+  className = '',
+  showPreview = true
+}) => {
+  const [isDragging, setIsDragging] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [uploadedImages, setUploadedImages] = useState<OptimizedImage[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileSelect = async (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+
+    setIsProcessing(true);
+    setError(null);
+
+    try {
+      const fileArray = Array.from(files).slice(0, maxFiles);
+      const optimizedImages: OptimizedImage[] = [];
+
+      for (const file of fileArray) {
+        // Validate file
+        const validation = validateImageFile(file);
+        if (!validation.valid) {
+          setError(validation.error || 'Invalid file');
+          onError?.(validation.error || 'Invalid file');
+          continue;
+        }
+
+        // Check format
+        if (!acceptedFormats.includes(file.type)) {
+          const error = `サポートされていない形式: ${file.type}`;
+          setError(error);
+          onError?.(error);
+          continue;
+        }
+
+        try {
+          // Optimize image
+          const optimized = await imageOptimizer.optimizeImage(file, {
+            maxWidth: 1920,
+            maxHeight: 1080,
+            quality: 0.8,
+            format: 'jpeg',
+            maxSizeKB
+          });
+
+          optimizedImages.push(optimized);
+          onImageSelect(optimized);
+        } catch (optimizationError) {
+          console.error('Image optimization failed:', optimizationError);
+          const error = `画像の最適化に失敗しました: ${file.name}`;
+          setError(error);
+          onError?.(error);
+        }
+      }
+
+      if (showPreview) {
+        setUploadedImages(prev => [...prev, ...optimizedImages]);
+      }
+    } catch (error) {
+      console.error('File processing failed:', error);
+      const errorMessage = 'ファイルの処理に失敗しました';
+      setError(errorMessage);
+      onError?.(errorMessage);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    handleFileSelect(e.dataTransfer.files);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const removeImage = (index: number) => {
+    setUploadedImages(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const formatFileSize = (bytes: number): string => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+  };
+
+  return (
+    <div className={`space-y-4 ${className}`}>
+      {/* Upload Area */}
+      <div
+        onDrop={handleDrop}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onClick={handleClick}
+        className={`relative border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all duration-300 ${
+          isDragging
+            ? 'border-purple-400 bg-purple-50'
+            : error
+            ? 'border-red-300 bg-red-50'
+            : 'border-gray-300 hover:border-purple-300 hover:bg-purple-50'
+        }`}
+      >
+        <input
+          ref={fileInputRef}
+          type="file"
+          multiple={maxFiles > 1}
+          accept={acceptedFormats.join(',')}
+          onChange={(e) => handleFileSelect(e.target.files)}
+          className="hidden"
+        />
+
+        <AnimatePresence mode="wait">
+          {isProcessing ? (
+            <motion.div
+              key="processing"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              className="flex flex-col items-center"
+            >
+              <Loader className="w-12 h-12 text-purple-600 animate-spin mb-4" />
+              <p className="text-purple-600 font-medium">画像を最適化中...</p>
+              <p className="text-sm text-gray-500 mt-1">品質を保ちながらファイルサイズを削減しています</p>
+            </motion.div>
+          ) : error ? (
+            <motion.div
+              key="error"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              className="flex flex-col items-center"
+            >
+              <AlertCircle className="w-12 h-12 text-red-500 mb-4" />
+              <p className="text-red-600 font-medium">エラーが発生しました</p>
+              <p className="text-sm text-red-500 mt-1">{error}</p>
+              <button
+                onClick={() => setError(null)}
+                className="mt-3 text-sm text-blue-600 hover:text-blue-700"
+              >
+                もう一度試す
+              </button>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="upload"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              className="flex flex-col items-center"
+            >
+              <Upload className="w-12 h-12 text-gray-400 mb-4" />
+              <p className="text-gray-600 font-medium mb-2">
+                画像をドラッグ&ドロップ
+              </p>
+              <p className="text-sm text-gray-500 mb-4">
+                またはクリックしてファイルを選択
+              </p>
+              <div className="text-xs text-gray-400 space-y-1">
+                <p>対応形式: JPEG, PNG, WebP</p>
+                <p>最大サイズ: {maxSizeKB}KB (自動最適化)</p>
+                <p>最大ファイル数: {maxFiles}</p>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* Preview Images */}
+      {showPreview && uploadedImages.length > 0 && (
+        <motion.div
+          className="grid grid-cols-2 md:grid-cols-3 gap-4"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          {uploadedImages.map((image, index) => (
+            <motion.div
+              key={index}
+              className="relative group"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3, delay: index * 0.1 }}
+            >
+              <div className="relative overflow-hidden rounded-xl">
+                <img
+                  src={image.dataUrl}
+                  alt={`Upload ${index + 1}`}
+                  className="w-full h-32 object-cover"
+                />
+                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300" />
+                
+                {/* Remove button */}
+                <button
+                  onClick={() => removeImage(index)}
+                  className="absolute top-2 right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-red-600"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+
+                {/* Optimization info */}
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <div className="text-white text-xs space-y-1">
+                    <div className="flex justify-between">
+                      <span>元サイズ:</span>
+                      <span>{formatFileSize(image.originalSize)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>最適化後:</span>
+                      <span>{formatFileSize(image.optimizedSize)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>圧縮率:</span>
+                      <span className="text-green-300">{image.compressionRatio}%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </motion.div>
+      )}
+
+      {/* Upload Summary */}
+      {uploadedImages.length > 0 && (
+        <motion.div
+          className="bg-green-50 border border-green-200 rounded-xl p-4"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <div className="flex items-center space-x-2 mb-2">
+            <CheckCircle className="w-5 h-5 text-green-600" />
+            <span className="font-medium text-green-800">
+              {uploadedImages.length}枚の画像を最適化しました
+            </span>
+          </div>
+          <div className="text-sm text-green-700">
+            総削減サイズ: {formatFileSize(
+              uploadedImages.reduce((total, img) => total + (img.originalSize - img.optimizedSize), 0)
+            )}
+          </div>
+        </motion.div>
+      )}
+    </div>
+  );
+};
+
+export default ImageUpload;
+</file>
+
+<file path="src/components/LanguageSelector.tsx">
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Globe, ChevronDown } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
+import { availableLanguages } from '../i18n/i18nResources';
+
+interface LanguageSelectorProps {
+  variant?: 'header' | 'menu';
+  onLanguageChange?: () => void;
+}
+
+const LanguageSelector: React.FC<LanguageSelectorProps> = ({ 
+  variant = 'header',
+  onLanguageChange 
+}) => {
+  const { currentLanguage, changeLanguage } = useLanguage();
+  const [isOpen, setIsOpen] = useState(false);
+
+  const currentLang = availableLanguages.find(lang => lang.code === currentLanguage);
+
+  const handleLanguageChange = (langCode: string) => {
+    changeLanguage(langCode);
+    setIsOpen(false);
+    onLanguageChange?.();
+  };
+
+  if (variant === 'menu') {
+    return (
+      <div className="space-y-2">
+        {availableLanguages.map((lang) => (
+          <button
+            key={lang.code}
+            onClick={() => handleLanguageChange(lang.code)}
+            className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors ${
+              currentLanguage === lang.code
+                ? 'bg-purple-50 text-purple-700 border border-purple-200'
+                : 'hover:bg-gray-50 text-gray-700'
+            }`}
+          >
+            <div className="w-8 h-8 rounded-full overflow-hidden border border-gray-200">
+              <img 
+                src={`https://flagcdn.com/w40/${lang.flag}.png`} 
+                alt={`${lang.country} flag`}
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div className="flex-1 text-left">
+              <div className="font-medium">{lang.name}</div>
+              <div className="text-xs text-gray-500">{lang.nameEn}</div>
+            </div>
+            {currentLanguage === lang.code && (
+              <div className="w-2 h-2 bg-purple-500 rounded-full" />
+            )}
+          </button>
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center space-x-2 px-3 py-2 bg-white/90 backdrop-blur-md hover:bg-white text-gray-800 rounded-full transition-all border border-gray-200 shadow-sm"
+      >
+        <div className="w-6 h-6 rounded-full overflow-hidden border border-gray-200">
+          <img 
+            src={`https://flagcdn.com/w40/${currentLang?.flag || 'jp'}.png`} 
+            alt={`${currentLang?.country || 'Japan'} flag`}
+            className="w-full h-full object-cover"
+          />
+        </div>
+        <div className="text-left">
+          <div className="text-sm font-medium">{currentLang?.name || '日本語'}</div>
+          <div className="text-xs text-gray-500">{currentLang?.nameEn || 'Japanese'}</div>
+        </div>
+        <ChevronDown className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+      </button>
+
+      <AnimatePresence>
+        {isOpen && (
+          <>
+            <div
+              className="fixed inset-0 z-40"
+              onClick={() => setIsOpen(false)}
+            />
+            <motion.div
+              className="absolute top-full right-0 mt-2 w-72 bg-white rounded-xl shadow-xl border border-gray-200 z-50 max-h-80 overflow-y-auto"
+              initial={{ opacity: 0, y: -10, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -10, scale: 0.95 }}
+              transition={{ duration: 0.2 }}
+            >
+              <div className="p-2">
+                {availableLanguages.map((lang) => (
+                  <button
+                    key={lang.code}
+                    onClick={() => handleLanguageChange(lang.code)}
+                    className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors ${
+                      currentLanguage === lang.code
+                        ? 'bg-purple-50 text-purple-700'
+                        : 'hover:bg-gray-50 text-gray-700'
+                    }`}
+                  >
+                    <div className="w-8 h-8 rounded-full overflow-hidden border border-gray-200">
+                      <img 
+                        src={`https://flagcdn.com/w40/${lang.flag}.png`} 
+                        alt={`${lang.country} flag`}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="flex-1 text-left">
+                      <div className="font-medium">{lang.name}</div>
+                      <div className="text-xs text-gray-500">{lang.nameEn}</div>
+                    </div>
+                    {currentLanguage === lang.code && (
+                      <div className="w-2 h-2 bg-purple-500 rounded-full" />
+                    )}
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
+export default LanguageSelector;
+</file>
+
+<file path="src/components/MagicBox.tsx">
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
+import { Sparkles, Gift, Zap } from 'lucide-react';
+
+interface MagicBoxProps {
+  onOpen: () => void;
+}
+
+const MagicBox: React.FC<MagicBoxProps> = ({ onOpen }) => {
+  const [isHovered, setIsHovered] = useState(false);
+  const [isOpening, setIsOpening] = useState(false);
+  const [isCharging, setIsCharging] = useState(false);
+
+  const handleClick = () => {
+    setIsCharging(true);
+    setIsOpening(true);
+    setTimeout(() => {
+      onOpen();
+    }, 1500);
+  };
+
+  return (
+    <div className="relative flex justify-center">
+      {/* Floating sparkles */}
+      <div className="absolute inset-0 pointer-events-none" style={{ width: '400px', height: '200px', left: '-100px', top: '-50px' }}>
+        {[...Array(12)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute"
+            style={{
+              left: `${10 + (i * 8)}%`,
+              top: `${10 + (i * 7)}%`,
+            }}
+            animate={{
+              y: [-15, -30, -15],
+              opacity: [0.2, 1, 0.2],
+              scale: [0.5, 1.5, 0.5],
+              rotate: [0, 180, 360],
+            }}
+            transition={{
+              duration: 2.5 + (i * 0.3),
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          >
+            <Sparkles className={`w-3 h-3 ${i % 3 === 0 ? 'text-yellow-300' : i % 3 === 1 ? 'text-pink-300' : 'text-purple-300'}`} />
+          </motion.div>
+        ))}
+      </div>
+
+      {/* Energy rings */}
+      {isCharging && (
+        <div className="absolute inset-0 pointer-events-none">
+          {[...Array(4)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute border-2 border-white/30 rounded-full"
+              style={{
+                width: `${100 + i * 30}px`,
+                height: `${100 + i * 30}px`,
+                left: '50%',
+                top: '50%',
+                transform: 'translate(-50%, -50%)'
+              }}
+              initial={{ scale: 0, opacity: 1 }}
+              animate={{
+                scale: [0, 2],
+                opacity: [1, 0]
+              }}
+              transition={{
+                duration: 1.5,
+                repeat: Infinity,
+                delay: i * 0.3,
+                ease: "easeOut"
+              }}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Magic Box */}
+      <motion.div
+        className="relative cursor-pointer group"
+        onHoverStart={() => setIsHovered(true)}
+        onHoverEnd={() => setIsHovered(false)}
+        onClick={handleClick}
+        whileHover={{ scale: 1.1, rotateY: 10 }}
+        whileTap={{ scale: 0.95 }}
+        style={{ transformStyle: 'preserve-3d' }}
+      >
+        {/* Enhanced Box Shadow with multiple layers */}
+        <motion.div
+          className="absolute inset-0 bg-gradient-to-br from-purple-600/40 to-pink-600/40 rounded-3xl blur-2xl"
+          animate={{
+            scale: isHovered ? 1.3 : 1,
+            opacity: isHovered ? 1 : 0.6,
+          }}
+          transition={{ duration: 0.4 }}
+        />
+        
+        <motion.div
+          className="absolute inset-0 bg-gradient-to-br from-yellow-400/20 to-red-500/20 rounded-3xl blur-xl"
+          animate={{
+            scale: isHovered ? 1.2 : 0.9,
+            opacity: isHovered ? 0.8 : 0.3,
+            rotate: isHovered ? 180 : 0,
+          }}
+          transition={{ duration: 0.6 }}
+        />
+
+        {/* Main Box with enhanced styling */}
+        <motion.div
+          className="relative bg-gradient-to-br from-purple-500 via-pink-500 to-red-500 rounded-3xl p-12 shadow-2xl border border-white/20"
+          style={{
+            background: 'linear-gradient(135deg, #8b5cf6 0%, #ec4899 50%, #ef4444 100%)',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.2)'
+          }}
+          animate={{
+            rotateY: isOpening ? 360 : 0,
+            scale: isCharging ? [1, 1.1, 1] : 1,
+          }}
+          transition={{ 
+            rotateY: { duration: 1.5, ease: "easeInOut" },
+            scale: { duration: 0.5, repeat: isCharging ? Infinity : 0 }
+          }}
+        >
+          {/* Enhanced Box Lid with gradient */}
+          <motion.div
+            className="absolute inset-x-0 top-0 h-6 bg-gradient-to-br from-purple-300 via-pink-300 to-red-300 rounded-t-3xl border-b border-white/20"
+            animate={{
+              rotateX: isOpening ? -90 : 0,
+              transformOrigin: "bottom",
+            }}
+            transition={{ duration: 1, ease: "easeInOut" }}
+          />
+
+          {/* Enhanced Gift Icon with energy effect */}
+          <motion.div
+            className="flex items-center justify-center relative"
+            animate={{
+              scale: isHovered ? 1.2 : 1,
+              rotate: isOpening ? 720 : 0,
+            }}
+            transition={{ 
+              scale: { duration: 0.3 },
+              rotate: { duration: isOpening ? 1.5 : 0.3 }
+            }}
+          >
+            {/* Energy glow behind icon */}
+            <motion.div
+              className="absolute inset-0 bg-white/30 rounded-full blur-lg"
+              animate={{
+                scale: isCharging ? [1, 1.5, 1] : 1,
+                opacity: isCharging ? [0.3, 0.8, 0.3] : 0.3,
+              }}
+              transition={{
+                duration: 1,
+                repeat: isCharging ? Infinity : 0
+              }}
+            />
+            
+            <Gift className="w-20 h-20 text-white relative z-10" />
+            
+            {/* Electric sparks */}
+            {isCharging && (
+              <>
+                {[...Array(6)].map((_, i) => (
+                  <motion.div
+                    key={i}
+                    className="absolute w-1 h-1 bg-yellow-300 rounded-full"
+                    style={{
+                      left: '50%',
+                      top: '50%',
+                    }}
+                    animate={{
+                      x: Math.cos((i * 60) * Math.PI / 180) * 40,
+                      y: Math.sin((i * 60) * Math.PI / 180) * 40,
+                      scale: [0, 1, 0],
+                      opacity: [1, 1, 0],
+                    }}
+                    transition={{
+                      duration: 0.8,
+                      repeat: Infinity,
+                      delay: i * 0.1,
+                      ease: "easeOut"
+                    }}
+                  />
+                ))}
+              </>
+            )}
+          </motion.div>
+
+          {/* Enhanced Magical Glow with multiple layers */}
+          <motion.div
+            className="absolute inset-0 bg-gradient-to-br from-yellow-300/30 via-pink-300/20 to-transparent rounded-3xl"
+            animate={{
+              opacity: isHovered ? 1 : 0.5,
+              scale: isHovered ? 1.1 : 1,
+              rotate: [0, 5, -5, 0],
+            }}
+            transition={{ 
+              opacity: { duration: 0.3 },
+              scale: { duration: 0.3 },
+              rotate: { duration: 2, repeat: Infinity }
+            }}
+          />
+          
+          {/* Inner glow */}
+          <motion.div
+            className="absolute inset-2 bg-gradient-to-br from-white/10 to-transparent rounded-2xl"
+            animate={{
+              opacity: isHovered ? 0.8 : 0.4,
+            }}
+            transition={{ duration: 0.3 }}
+          />
+          
+          {/* Text overlay */}
+          <motion.div
+            className="absolute bottom-2 left-0 right-0 text-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: isHovered ? 1 : 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <span className="text-white text-sm font-bold tracking-wider">
+              CLICK TO START
+            </span>
+          </motion.div>
+        </motion.div>
+
+        {/* Enhanced Opening Effect */}
+        {isOpening && (
+          <motion.div
+            className="absolute inset-0 pointer-events-none"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+          >
+            {/* Explosion particles */}
+            {[...Array(20)].map((_, i) => (
+              <motion.div
+                key={i}
+                className={`absolute w-3 h-3 rounded-full ${
+                  i % 4 === 0 ? 'bg-yellow-300' :
+                  i % 4 === 1 ? 'bg-pink-300' :
+                  i % 4 === 2 ? 'bg-purple-300' : 'bg-blue-300'
+                }`}
+                style={{
+                  left: '50%',
+                  top: '50%',
+                }}
+                animate={{
+                  x: Math.cos((i * 18) * Math.PI / 180) * (150 + Math.random() * 100),
+                  y: Math.sin((i * 18) * Math.PI / 180) * (150 + Math.random() * 100),
+                  opacity: [1, 0],
+                  scale: [0, 1.5, 0],
+                  rotate: [0, 360],
+                }}
+                transition={{
+                  duration: 1.5,
+                  ease: "easeOut",
+                  delay: i * 0.05,
+                }}
+              />
+            ))}
+            
+            {/* Central energy burst */}
+            <motion.div
+              className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2"
+              initial={{ scale: 0, opacity: 1 }}
+              animate={{
+                scale: [0, 3],
+                opacity: [1, 0]
+              }}
+              transition={{
+                duration: 1.5,
+                ease: "easeOut"
+              }}
+            >
+              <div className="w-20 h-20 bg-gradient-to-r from-yellow-300 via-pink-300 to-purple-300 rounded-full blur-xl" />
+            </motion.div>
+          </motion.div>
+        )}
+      </motion.div>
+    </div>
+  );
+};
+
+export default MagicBox;
+</file>
+
+<file path="src/components/MockDataNotice.tsx">
+import React from 'react';
+import { motion } from 'framer-motion';
+import { AlertTriangle, Wifi, RefreshCw } from 'lucide-react';
+
+interface MockDataNoticeProps {
+  message?: string;
+  onRetry?: () => void;
+  className?: string;
+}
+
+const MockDataNotice: React.FC<MockDataNoticeProps> = ({ 
+  message = "通信に失敗したため、モックデータを表示しています。",
+  onRetry,
+  className = ""
+}) => {
+  return (
+    <motion.div
+      className={`bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-4 ${className}`}
+      initial={{ opacity: 0, y: -10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+    >
+      <div className="flex items-start space-x-3">
+        <div className="flex-shrink-0">
+          <AlertTriangle className="w-5 h-5 text-yellow-600 mt-0.5" />
+        </div>
+        <div className="flex-1">
+          <div className="flex items-center space-x-2 mb-1">
+            <Wifi className="w-4 h-4 text-yellow-600" />
+            <span className="text-sm font-medium text-yellow-800">接続エラー</span>
+          </div>
+          <p className="text-sm text-yellow-700">{message}</p>
+          {onRetry && (
+            <button
+              onClick={onRetry}
+              className="mt-2 flex items-center space-x-1 text-xs text-yellow-600 hover:text-yellow-700 transition-colors"
+            >
+              <RefreshCw className="w-3 h-3" />
+              <span>再試行</span>
+            </button>
+          )}
+        </div>
+      </div>
+    </motion.div>
+  );
+};
+
+export default MockDataNotice;
+</file>
+
+<file path="src/components/PWAInstallPrompt.tsx">
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Download, X, Smartphone, Wifi, Zap } from 'lucide-react';
+import { usePWA } from '../hooks/usePWA';
+import { useLanguage } from '../contexts/LanguageContext';
+
+const PWAInstallPrompt: React.FC = () => {
+  const { isInstallable, installApp, isOnline } = usePWA();
+  const { t } = useLanguage();
+  const [showPrompt, setShowPrompt] = useState(true);
+  const [isInstalling, setIsInstalling] = useState(false);
+
+  const handleInstall = async () => {
+    setIsInstalling(true);
+    try {
+      const success = await installApp();
+      if (success) {
+        setShowPrompt(false);
+      }
+    } catch (error) {
+      console.error('Installation failed:', error);
+    } finally {
+      setIsInstalling(false);
+    }
+  };
+
+  const handleDismiss = () => {
+    setShowPrompt(false);
+    // Remember user dismissed the prompt
+    localStorage.setItem('trippin-install-dismissed', Date.now().toString());
+  };
+
+  // Don't show if not installable or user dismissed recently
+  if (!isInstallable || !showPrompt) {
+    return null;
+  }
+
+  // Check if user dismissed recently (within 7 days)
+  const dismissedTime = localStorage.getItem('trippin-install-dismissed');
+  if (dismissedTime) {
+    const daysSinceDismissed = (Date.now() - parseInt(dismissedTime)) / (1000 * 60 * 60 * 24);
+    if (daysSinceDismissed < 7) {
+      return null;
+    }
+  }
+
+  return (
+    <AnimatePresence>
+      <motion.div
+        className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:max-w-sm z-50"
+        initial={{ opacity: 0, y: 100, scale: 0.9 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, y: 100, scale: 0.9 }}
+        transition={{ duration: 0.3 }}
+      >
+        <div className="bg-white rounded-2xl shadow-2xl border border-gray-200 p-6">
+          <div className="flex items-start justify-between mb-4">
+            <div className="flex items-center space-x-3">
+              <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+                <img 
+                  src="/trippin-logo.png" 
+                  alt="TRIPPIN" 
+                  className="w-8 h-8 rounded-full"
+                />
+              </div>
+              <div>
+                <h3 className="font-bold text-gray-800">TRIPPINをインストール</h3>
+                <p className="text-sm text-gray-600">より快適にご利用いただけます</p>
+              </div>
+            </div>
+            <button
+              onClick={handleDismiss}
+              className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          {/* Benefits */}
+          <div className="space-y-3 mb-6">
+            <div className="flex items-center space-x-3 text-sm">
+              <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
+                <Zap className="w-3 h-3 text-blue-600" />
+              </div>
+              <span className="text-gray-700">高速アクセス</span>
+            </div>
+            <div className="flex items-center space-x-3 text-sm">
+              <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
+                <Wifi className="w-3 h-3 text-green-600" />
+              </div>
+              <span className="text-gray-700">オフライン対応</span>
+            </div>
+            <div className="flex items-center space-x-3 text-sm">
+              <div className="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center">
+                <Smartphone className="w-3 h-3 text-purple-600" />
+              </div>
+              <span className="text-gray-700">プッシュ通知</span>
+            </div>
+          </div>
+
+          {/* Install Button */}
+          <div className="flex space-x-3">
+            <button
+              onClick={handleDismiss}
+              className="flex-1 px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors text-sm"
+            >
+              後で
+            </button>
+            <button
+              onClick={handleInstall}
+              disabled={isInstalling}
+              className="flex-1 flex items-center justify-center space-x-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-2 rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all disabled:opacity-50"
+            >
+              {isInstalling ? (
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <Download className="w-4 h-4" />
+              )}
+              <span className="text-sm">インストール</span>
+            </button>
+          </div>
+
+          {/* Offline indicator */}
+          {!isOnline && (
+            <div className="mt-3 flex items-center space-x-2 text-xs text-yellow-600 bg-yellow-50 px-3 py-2 rounded-lg">
+              <div className="w-2 h-2 bg-yellow-500 rounded-full" />
+              <span>オフライン - インストールでオフライン機能が利用できます</span>
+            </div>
+          )}
+        </div>
+      </motion.div>
+    </AnimatePresence>
+  );
+};
+
+export default PWAInstallPrompt;
+</file>
+
+<file path="src/components/SEOHead.tsx">
+import React from 'react';
+import { Helmet } from 'react-helmet-async';
+import { useLocation } from 'react-router-dom';
+import { useLanguage } from '../contexts/LanguageContext';
+
+interface SEOHeadProps {
+  title?: string;
+  description?: string;
+  keywords?: string[];
+  image?: string;
+  type?: 'website' | 'article' | 'profile';
+  noIndex?: boolean;
+  canonicalUrl?: string;
+  structuredData?: object;
+}
+
+const SEOHead: React.FC<SEOHeadProps> = ({
+  title,
+  description,
+  keywords = [],
+  image = '/trippin-logo.png',
+  type = 'website',
+  noIndex = false,
+  canonicalUrl,
+  structuredData
+}) => {
+  const location = useLocation();
+  const { currentLanguage, t } = useLanguage();
+  
+  // Default SEO values
+  const defaultTitle = 'TRIPPIN - AI-Powered Japan Travel Planner';
+  const defaultDescription = 'Plan your perfect Japan trip with AI-powered itinerary generation, eSIM support, and 24/7 travel assistance.';
+  const defaultKeywords = ['Japan travel', 'AI travel planner', 'trip planning', 'Japan tourism', 'eSIM', 'travel assistant'];
+  
+  // Build final values
+  const finalTitle = title ? `${title} | TRIPPIN` : defaultTitle;
+  const finalDescription = description || defaultDescription;
+  const finalKeywords = [...defaultKeywords, ...keywords];
+  const finalImage = image.startsWith('http') ? image : `${window.location.origin}${image}`;
+  const finalCanonicalUrl = canonicalUrl || `${window.location.origin}${location.pathname}`;
+  
+  // Generate hreflang URLs
+  const languages = ['ja', 'en', 'zh', 'ko', 'es', 'fr'];
+  const hreflangs = languages.map(lang => ({
+    lang,
+    url: `${window.location.origin}${location.pathname}?lang=${lang}`
+  }));
+
+  // Page-specific structured data
+  const getStructuredData = () => {
+    const baseData = {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "TRIPPIN",
+      "description": finalDescription,
+      "url": window.location.origin,
+      "applicationCategory": "TravelApplication",
+      "operatingSystem": "Web",
+      "offers": {
+        "@type": "Offer",
+        "price": "1500",
+        "priceCurrency": "JPY",
+        "description": "Premium travel planning service"
+      },
+      "author": {
+        "@type": "Organization",
+        "name": "TRIPPIN Inc.",
+        "url": window.location.origin
+      }
+    };
+
+    // Add page-specific structured data
+    if (structuredData) {
+      return { ...baseData, ...structuredData };
+    }
+
+    // Generate page-specific data based on route
+    switch (location.pathname) {
+      case '/':
+        return {
+          ...baseData,
+          "@type": "WebSite",
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": `${window.location.origin}/search?q={search_term_string}`,
+            "query-input": "required name=search_term_string"
+          }
+        };
+      
+      case '/dashboard':
+        return {
+          ...baseData,
+          "@type": "WebPage",
+          "name": "Travel Dashboard",
+          "description": "Manage your Japan travel plans and bookings"
+        };
+      
+      default:
+        return baseData;
+    }
+  };
+
+  return (
+    <Helmet>
+      {/* Basic Meta Tags */}
+      <title>{finalTitle}</title>
+      <meta name="description" content={finalDescription} />
+      <meta name="keywords" content={finalKeywords.join(', ')} />
+      <meta name="author" content="TRIPPIN Inc." />
+      <meta name="robots" content={noIndex ? 'noindex,nofollow' : 'index,follow'} />
+      <meta name="language" content={currentLanguage} />
+      
+      {/* Canonical URL */}
+      <link rel="canonical" href={finalCanonicalUrl} />
+      
+      {/* Hreflang Tags */}
+      {hreflangs.map(({ lang, url }) => (
+        <link key={lang} rel="alternate" hrefLang={lang} href={url} />
+      ))}
+      <link rel="alternate" hrefLang="x-default" href={`${window.location.origin}${location.pathname}`} />
+      
+      {/* Open Graph Tags */}
+      <meta property="og:title" content={finalTitle} />
+      <meta property="og:description" content={finalDescription} />
+      <meta property="og:image" content={finalImage} />
+      <meta property="og:url" content={finalCanonicalUrl} />
+      <meta property="og:type" content={type} />
+      <meta property="og:site_name" content="TRIPPIN" />
+      <meta property="og:locale" content={currentLanguage === 'ja' ? 'ja_JP' : 'en_US'} />
+      
+      {/* Twitter Card Tags */}
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:title" content={finalTitle} />
+      <meta name="twitter:description" content={finalDescription} />
+      <meta name="twitter:image" content={finalImage} />
+      <meta name="twitter:site" content="@trippin_app" />
+      <meta name="twitter:creator" content="@trippin_app" />
+      
+      {/* Mobile Optimization */}
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+      <meta name="mobile-web-app-capable" content="yes" />
+      <meta name="apple-mobile-web-app-capable" content="yes" />
+      <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+      <meta name="apple-mobile-web-app-title" content="TRIPPIN" />
+      
+      {/* Theme Colors */}
+      <meta name="theme-color" content="#8b5cf6" />
+      <meta name="msapplication-TileColor" content="#8b5cf6" />
+      <meta name="msapplication-navbutton-color" content="#8b5cf6" />
+      
+      {/* Preconnect to external domains */}
+      <link rel="preconnect" href="https://fonts.googleapis.com" />
+      <link rel="preconnect" href="https://images.pexels.com" />
+      <link rel="preconnect" href="https://cmlc2yk69j.execute-api.ap-southeast-2.amazonaws.com" />
+      
+      {/* DNS Prefetch */}
+      <link rel="dns-prefetch" href="//fonts.googleapis.com" />
+      <link rel="dns-prefetch" href="//images.pexels.com" />
+      <link rel="dns-prefetch" href="//cmlc2yk69j.execute-api.ap-southeast-2.amazonaws.com" />
+      
+      {/* Structured Data */}
+      <script type="application/ld+json">
+        {JSON.stringify(getStructuredData())}
+      </script>
+      
+      {/* Additional Meta Tags for Japan Travel */}
+      <meta name="geo.region" content="JP" />
+      <meta name="geo.placename" content="Japan" />
+      <meta name="geo.position" content="35.6762;139.6503" />
+      <meta name="ICBM" content="35.6762, 139.6503" />
+      
+      {/* Travel-specific meta tags */}
+      <meta name="travel.destination" content="Japan" />
+      <meta name="travel.type" content="leisure" />
+      <meta name="travel.duration" content="flexible" />
+    </Helmet>
+  );
+};
+
+export default SEOHead;
+</file>
+
+<file path="src/components/questionnaire/LanguageSelection.tsx">
+import React, { useRef, useState } from 'react';
+import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
+import { ArrowRight, Globe, Sparkles } from 'lucide-react';
+import { useLanguage } from '../../contexts/LanguageContext';
+import { availableLanguages } from '../../i18n/i18nResources';
+
+const LanguageSelection: React.FC = () => {
+  const navigate = useNavigate();
+  const { currentLanguage, changeLanguage, t } = useLanguage();
+  const [currentVideoIndex, setCurrentVideoIndex] = React.useState(0);
+  const mainVideoRef = useRef<HTMLVideoElement>(null);
+  const backgroundVideoRef = useRef<HTMLVideoElement>(null);
+  const [activeVideo, setActiveVideo] = useState<'main' | 'background'>('main');
+
+  const videos = [
+    '/social_u7584567376_A_3D_cute_and_chubby_pastel-colored_cartoon_chara_db33ce0c-5457-43fb-a69c-739fe4f5de2b_3 (1).mp4',
+  ];
+
+  React.useEffect(() => {
+    const mainVideo = mainVideoRef.current;
+    const backgroundVideo = backgroundVideoRef.current;
+    if (!mainVideo || !backgroundVideo) return;
+
+    const handleTimeUpdate = () => {
+      const currentVideo = activeVideo === 'main' ? mainVideo : backgroundVideo;
+      const nextVideo = activeVideo === 'main' ? backgroundVideo : mainVideo;
+      const timeRemaining = currentVideo.duration - currentVideo.currentTime;
+      
+      // 単一動画の場合は残り0.3秒でフェード開始してループ
+      if (timeRemaining <= 0.3) {
+        currentVideo.style.opacity = '0';
+        nextVideo.currentTime = 0;
+        nextVideo.style.opacity = '1';
+        nextVideo.play().catch(error => {
+          console.warn('Next video play failed:', error);
+        });
+      }
+    };
+
+    const handleVideoEnd = () => {
+      // アクティブ動画を切り替え
+      setActiveVideo(activeVideo === 'main' ? 'background' : 'main');
+    };
+
+    const currentVideo = activeVideo === 'main' ? mainVideo : backgroundVideo;
+    currentVideo.addEventListener('timeupdate', handleTimeUpdate);
+    currentVideo.addEventListener('ended', handleVideoEnd);
+    
+    return () => {
+      currentVideo.removeEventListener('timeupdate', handleTimeUpdate);
+      currentVideo.removeEventListener('ended', handleVideoEnd);
+    };
+  }, [currentVideoIndex, activeVideo]);
+
+  React.useEffect(() => {
+    const mainVideo = mainVideoRef.current;
+    const backgroundVideo = backgroundVideoRef.current;
+    if (!mainVideo || !backgroundVideo) return;
+
+    // 両方の動画にトランジション設定
+    mainVideo.style.transition = 'opacity 0.3s ease-in-out';
+    backgroundVideo.style.transition = 'opacity 0.3s ease-in-out';
+    
+    // メイン動画を設定
+    mainVideo.src = videos[0];
+    mainVideo.style.opacity = '1';
+    mainVideo.load();
+    
+    // バックグラウンド動画を設定（同じ動画でループ用）
+    backgroundVideo.src = videos[0];
+    backgroundVideo.style.opacity = '0';
+    backgroundVideo.load();
+
+    const handleCanPlay = () => {
+      mainVideo.play().catch(error => {
+        console.warn('Initial video play failed:', error);
+      });
+    };
+
+    mainVideo.addEventListener('canplay', handleCanPlay);
+    
+    return () => {
+      mainVideo.removeEventListener('canplay', handleCanPlay);
+    };
+  }, []);
+
+  const handleLanguageSelect = (langCode: string) => {
+    changeLanguage(langCode);
+    setTimeout(() => {
+      navigate('/questionnaire/basic');
+    }, 300);
+  };
+
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        type: "spring",
+        damping: 12,
+        stiffness: 200
+      }
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 relative overflow-hidden">
+      {/* Background Video */}
+      <div className="fixed inset-0 z-0">
+        <video
+          ref={mainVideoRef}
+          autoPlay
+          muted
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{
+            opacity: 0.3,
+            transition: 'opacity 0.3s ease-in-out'
+          }}
+          preload="metadata"
+          onError={(e) => {
+            console.warn('Video load error:', e);
+          }}
+        >
+          <source src={videos[currentVideoIndex]} type="video/mp4" />
+        </video>
+        
+        {/* バックグラウンド動画（切り替え用） */}
+        <video
+          ref={backgroundVideoRef}
+          muted
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{
+            opacity: 0,
+            transition: 'opacity 0.3s ease-in-out'
+          }}
+          preload="metadata"
+          onError={(e) => {
+            console.warn('Background video load error:', e);
+          }}
+        >
+          <source src={videos[0]} type="video/mp4" />
+        </video>
+        
+        <div className="absolute inset-0 bg-white/20" />
+      </div>
+
+      {/* Animated background elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <motion.div
+          className="absolute top-10 left-10 w-72 h-72 bg-gradient-to-r from-blue-300 to-indigo-300 rounded-full opacity-20 blur-3xl"
+          animate={{
+            x: [0, 100, 0],
+            y: [0, -50, 0],
+          }}
+          transition={{
+            duration: 20,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
+        <motion.div
+          className="absolute top-1/2 right-10 w-96 h-96 bg-gradient-to-r from-purple-300 to-pink-300 rounded-full opacity-15 blur-3xl"
+          animate={{
+            x: [0, -80, 0],
+            y: [0, 60, 0],
+          }}
+          transition={{
+            duration: 25,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
+        <motion.div
+          className="absolute bottom-10 left-1/3 w-64 h-64 bg-gradient-to-r from-indigo-300 to-blue-300 rounded-full opacity-10 blur-3xl"
+          animate={{
+            scale: [1, 1.2, 1],
+            rotate: [0, 180, 360],
+          }}
+          transition={{
+            duration: 30,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
+      </div>
+
+      <motion.div
+        className="max-w-4xl w-full relative z-10 max-h-screen overflow-y-auto"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+        style={{
+          scrollbarWidth: 'thin',
+          scrollbarColor: '#3b82f6 transparent'
+        }}
+      >
+        {/* Header */}
+        <div className="text-center mb-8">
+          <motion.div
+            className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full mb-6 relative shadow-xl"
+            initial={{ scale: 0, rotate: -180 }}
+            animate={{ scale: 1, rotate: 0 }}
+            transition={{ 
+              type: "spring",
+              damping: 10,
+              stiffness: 200,
+              delay: 0.2 
+            }}
+            whileHover={{ 
+              scale: 1.1,
+              boxShadow: "0 20px 40px rgba(59, 130, 246, 0.3)"
+            }}
+          >
+            <Globe className="w-8 h-8 text-white" />
+            <motion.div
+              className="absolute -top-2 -right-2 w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center"
+              animate={{ 
+                rotate: [0, 360],
+                scale: [1, 1.2, 1]
+              }}
+              transition={{
+                duration: 3,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+            >
+              <Sparkles className="w-3 h-3 text-white" />
+            </motion.div>
+          </motion.div>
+          
+          <motion.h1
+            className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-4"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+          >
+            {t('questionnaire.language')}
+          </motion.h1>
+          
+          <motion.p
+            className="text-lg text-gray-600"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+          >
+            Choose your preferred language for the best experience
+          </motion.p>
+        </div>
+
+        <motion.div
+          className="bg-white/80 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-white/20"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.5 }}
+        >
+          {/* Language Selection */}
+          <motion.div 
+            className="mb-8"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+          >
+            <label className="block text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+              <Globe className="w-6 h-6 text-blue-600" />
+              言語選択
+            </label>
+            
+            {/* Language Grid with controlled height */}
+            <motion.div 
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[50vh] overflow-y-auto pr-2"
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+              style={{
+                scrollbarWidth: 'thin',
+                scrollbarColor: '#3b82f6 transparent'
+              }}
+            >
+              {availableLanguages.map((lang) => (
+                <motion.button
+                  key={lang.code}
+                  onClick={() => handleLanguageSelect(lang.code)}
+                  className={`p-4 rounded-2xl border-2 transition-all duration-300 relative overflow-hidden group ${
+                    currentLanguage === lang.code
+                      ? 'border-blue-500 bg-gradient-to-br from-blue-50 to-blue-100 text-blue-700 shadow-lg'
+                      : 'border-gray-200 hover:border-blue-300 hover:bg-gradient-to-br hover:from-blue-50 hover:to-white bg-white/50 backdrop-blur-sm'
+                  }`}
+                  variants={itemVariants}
+                  whileHover={{ 
+                    scale: 1.05,
+                    boxShadow: "0 10px 30px rgba(0,0,0,0.1)"
+                  }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  {/* Animated background effect */}
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-r from-blue-400 to-indigo-400 opacity-0 group-hover:opacity-10 transition-opacity duration-300"
+                    initial={false}
+                    animate={currentLanguage === lang.code ? { opacity: 0.1 } : { opacity: 0 }}
+                  />
+
+                  <div className="flex items-center justify-between relative z-10">
+                    <div className="flex items-center space-x-4">
+                      <img 
+                        src={`https://flagcdn.com/w80/${lang.flag}.png`} 
+                        alt={`${lang.country} flag`}
+                        className="w-12 h-8 object-cover rounded-md transform group-hover:scale-110 transition-transform"
+                      />
+                      <div className="text-left">
+                        <h3 className="text-lg font-semibold text-gray-800">{lang.name}</h3>
+                        <p className="text-gray-500 text-sm">{lang.nameEn}</p>
+                        <p className="text-gray-400 text-xs mt-1">{lang.country}</p>
+                      </div>
+                    </div>
+                    <div className="flex-1 flex justify-end">
+                      <ArrowRight className={`w-6 h-6 transition-all duration-300 ${
+                        currentLanguage === lang.code
+                          ? 'text-blue-500 translate-x-2'
+                          : 'text-gray-400 group-hover:text-blue-500 group-hover:translate-x-2'
+                      }`} />
+                    </div>
+                  </div>
+
+                  {/* Selected indicator */}
+                  {currentLanguage === lang.code && (
+                    <motion.div
+                      className="absolute top-2 right-2 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center"
+                      initial={{ scale: 0, rotate: -180 }}
+                      animate={{ scale: 1, rotate: 0 }}
+                      transition={{ type: "spring", damping: 15 }}
+                    >
+                      <motion.div
+                        className="w-3 h-3 bg-white rounded-full"
+                        animate={{ scale: [1, 1.2, 1] }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                      />
+                    </motion.div>
+                  )}
+                </motion.button>
+              ))}
+            </motion.div>
+          </motion.div>
+
+          {/* Navigation */}
+          <div className="flex justify-end">
+            <motion.button
+              onClick={() => handleLanguageSelect(currentLanguage)}
+              className="flex items-center space-x-2 px-8 py-3 rounded-xl font-medium transition-all relative overflow-hidden bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl"
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-blue-400 to-indigo-400 opacity-20"
+                animate={{ 
+                  x: ['-100%', '100%'],
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+              />
+              <span className="relative z-10">次へ</span>
+              <ArrowRight className="w-5 h-5 relative z-10" />
+            </motion.button>
+          </div>
+        </motion.div>
+
+        {/* Progress Indicator */}
+        <motion.div
+          className="mt-8 flex justify-center pb-8"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8, delay: 1 }}
+        >
+          <div className="flex space-x-2">
+            {[0, 1, 2, 3, 4].map((index) => (
+              <motion.div
+                key={index}
+                className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                  index === 0 ? 'bg-blue-500' : 'bg-gray-300'
+                }`}
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 1 + index * 0.1 }}
+                whileHover={{ scale: 1.2 }}
+              />
+            ))}
+          </div>
+        </motion.div>
+      </motion.div>
+    </div>
+  );
+};
+
+export default LanguageSelection;
+</file>
+
+<file path="src/components/questionnaire/TravelStyle.tsx">
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
+import { Heart, ArrowRight, ArrowLeft, DollarSign, Sparkles, Plus, Minus } from 'lucide-react';
+import { useLanguage } from '../../contexts/LanguageContext';
+
+const TravelStyle: React.FC = () => {
+  const navigate = useNavigate();
+  const { t } = useLanguage();
+  const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
+  const [budget, setBudget] = useState('');
+  const [currency, setCurrency] = useState('jpy');
+  const [showAllInterests, setShowAllInterests] = useState(false);
+  const [showAllDietary, setShowAllDietary] = useState(false);
+
+  const allInterests = [
+    // 歴史・文化
+    { id: 'history-culture', icon: '🏯', category: 'culture' },
+    { id: 'temples-shrine s', icon: '⛩️', category: 'culture' },
+    { id: 'traditional-experience', icon: '🎎', category: 'culture' },
+    { id: 'castles-historic-sites', icon: '🏰', category: 'culture' },
+    { id: 'museums-galleries', icon: '📚', category: 'culture' },
+    
+    // 自然・景色
+    { id: 'nature-scenery', icon: '🌸', category: 'nature' },
+    { id: 'hiking-trekking', icon: '🥾', category: 'nature' },
+    { id: 'beach-swimming', icon: '🏖️', category: 'nature' },
+    { id: 'forest-mountain-camping', icon: '🌲', category: 'nature' },
+    { id: 'national-parks', icon: '🏞️', category: 'nature' },
+    { id: 'cycling', icon: '🚴', category: 'nature' },
+    
+    // エンターテイメント
+    { id: 'anime-manga', icon: '🎌', category: 'entertainment' },
+    { id: 'nightlife', icon: '🌃', category: 'entertainment' },
+    { id: 'shopping', icon: '🛍️', category: 'entertainment' },
+    { id: 'urban-architecture', icon: '🏙️', category: 'entertainment' },
+    { id: 'cafe-bar-hopping', icon: '🍹', category: 'entertainment' },
+    
+    // グルメ
+    { id: 'food-gourmet', icon: '🍜', category: 'food' },
+    { id: 'local-street-food', icon: '🍣', category: 'food' },
+    { id: 'wine-sake-tasting', icon: '🍷', category: 'food' },
+    { id: 'sweets-cafe', icon: '🍫', category: 'food' },
+    
+    // イベント・パフォーマンス
+    { id: 'festivals-events', icon: '🎆', category: 'events' },
+    { id: 'gaming-esports', icon: '🎮', category: 'events' },
+    { id: 'performance-live', icon: '🤹‍♂️', category: 'events' },
+    { id: 'theater-musical', icon: '🎭', category: 'events' },
+    
+    // ウェルネス
+    { id: 'hot-springs', icon: '♨️', category: 'wellness' },
+    { id: 'massage-spa', icon: '💆‍♂️', category: 'wellness' },
+    { id: 'fitness-activities', icon: '🏋️‍♂️', category: 'wellness' },
+    { id: 'yoga-meditation', icon: '🧘‍♀️', category: 'wellness' },
+    
+    // テクノロジー
+    { id: 'technology', icon: '🤖', category: 'tech' },
+    { id: 'vr-ar-experience', icon: '🛸', category: 'tech' },
+    { id: 'science-tech-facilities', icon: '🚀', category: 'tech' },
+    
+    // ファッション
+    { id: 'fashion', icon: '👘', category: 'fashion' },
+    { id: 'brand-outlet', icon: '👜', category: 'fashion' },
+    { id: 'online-shopping', icon: '🛒', category: 'fashion' }
+  ];
+  
+  const dietaryRestrictions = [
+    { id: 'halal', icon: '🕋' },
+    { id: 'vegetarian', icon: '🌱' },
+    { id: 'vegan', icon: '🥬' },
+    { id: 'dairy-free', icon: '🥛' },
+    { id: 'egg-free', icon: '🍳' },
+    { id: 'gluten-free', icon: '🌾' },
+    { id: 'no-seafood', icon: '🐟' },
+    { id: 'meat-restrictions', icon: '🥩' },
+    { id: 'mild-spice', icon: '🌶️' },
+    { id: 'allergy-friendly', icon: '🍫' },
+    { id: 'organic-preference', icon: '🍃' }
+  ];
+
+  const displayedInterests = showAllInterests ? allInterests : allInterests.slice(0, 9);
+  const displayedDietary = showAllDietary ? dietaryRestrictions : dietaryRestrictions.slice(0, 9);
+  
+  // Calculate remaining counts
+  const remainingInterests = allInterests.length - 9;
+  const remainingDietary = dietaryRestrictions.length - 9;
+
+  const currencies = [
+    { code: 'jpy', symbol: '¥', name: t('currencies.jpy') },
+    { code: 'usd', symbol: '$', name: t('currencies.usd') },
+    { code: 'eur', symbol: '€', name: t('currencies.eur') },
+    { code: 'gbp', symbol: '£', name: t('currencies.gbp') },
+    { code: 'cny', symbol: '¥', name: t('currencies.cny') },
+    { code: 'krw', symbol: '₩', name: t('currencies.krw') }
+  ];
+
+  const toggleInterest = (interestId: string) => {
+    setSelectedInterests(prev =>
+      prev.includes(interestId)
+        ? prev.filter(id => id !== interestId)
+        : [...prev, interestId]
+    );
+  };
+
+  const handleNext = () => {
+    console.log('🔍 handleNext function called');
+    console.log('📊 Selected interests:', selectedInterests);
+    console.log('💰 Budget:', budget, currency);
+    
+    const styleData = {
+      interests: selectedInterests,
+      budget,
+      currency
+    };
+    localStorage.setItem('trippin-travel-style', JSON.stringify(styleData));
+    
+    console.log('💾 Data saved to localStorage:', styleData);
+    console.log('🚀 About to navigate to: /questionnaire/details');
+    
+    navigate('/questionnaire/details');
+    
+    console.log('✅ Navigation function executed');
+  };
+  
+  const handleBack = () => {
+    navigate('/questionnaire/basic');
+  };
+
+  // Animation variants for staggered children
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        type: "spring",
+        damping: 12,
+        stiffness: 200
+      }
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-50 relative overflow-hidden">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <motion.div
+          className="absolute top-10 left-10 w-72 h-72 bg-gradient-to-r from-pink-300 to-purple-300 rounded-full opacity-20 blur-3xl"
+          animate={{
+            x: [0, 100, 0],
+            y: [0, -50, 0],
+          }}
+          transition={{
+            duration: 20,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
+        <motion.div
+          className="absolute top-1/2 right-10 w-96 h-96 bg-gradient-to-r from-blue-300 to-teal-300 rounded-full opacity-15 blur-3xl"
+          animate={{
+            x: [0, -80, 0],
+            y: [0, 60, 0],
+          }}
+          transition={{
+            duration: 25,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
+        <motion.div
+          className="absolute bottom-10 left-1/3 w-64 h-64 bg-gradient-to-r from-yellow-300 to-orange-300 rounded-full opacity-10 blur-3xl"
+          animate={{
+            scale: [1, 1.2, 1],
+            rotate: [0, 180, 360],
+          }}
+          transition={{
+            duration: 30,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
+      </div>
+      <motion.div
+        className="max-w-4xl w-full relative z-10"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+      >
+        {/* Header */}
+        <div className="text-center mb-8">
+          <motion.div
+            className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-pink-500 to-red-600 rounded-full mb-6 relative shadow-xl"
+            initial={{ scale: 0, rotate: -180 }}
+            animate={{ scale: 1, rotate: 0 }}
+            transition={{ 
+              type: "spring",
+              damping: 10,
+              stiffness: 200,
+              delay: 0.2 
+            }}
+            whileHover={{ 
+              scale: 1.1,
+              boxShadow: "0 20px 40px rgba(236, 72, 153, 0.3)"
+            }}
+          >
+            <Heart className="w-8 h-8 text-white" />
+            <motion.div
+              className="absolute -top-2 -right-2 w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center"
+              animate={{ 
+                rotate: [0, 360],
+                scale: [1, 1.2, 1]
+              }}
+              transition={{
+                duration: 3,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+            >
+              <Sparkles className="w-3 h-3 text-white" />
+            </motion.div>
+          </motion.div>
+          
+          <motion.h1
+            className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent mb-4"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+          >
+            {t('questionnaire.style')}
+          </motion.h1>
+        </div>
+
+        <motion.div
+          className="bg-white/80 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-white/20"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.5 }}
+        >
+          {/* Interests Selection */}
+          <div className="mb-8">
+            <motion.h3 
+              className="text-xl font-semibold text-gray-800 mb-4"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.6 }}
+            >
+              {t('questionnaire.interests')}
+            </motion.h3>
+            
+            <motion.div 
+              className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-6"
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+            >
+              {displayedInterests.map((interest, index) => (
+                <motion.button
+                  key={interest.id}
+                  onClick={() => toggleInterest(interest.id)}
+                  className={`p-4 rounded-2xl border-2 transition-all duration-300 relative overflow-hidden group ${
+                    selectedInterests.includes(interest.id)
+                      ? 'border-pink-500 bg-gradient-to-br from-pink-50 to-pink-100 text-pink-700 shadow-lg'
+                      : 'border-gray-200 hover:border-pink-300 hover:bg-gradient-to-br hover:from-pink-50 hover:to-white bg-white/50 backdrop-blur-sm'
+                  }`}
+                  variants={itemVariants}
+                  whileHover={{ 
+                    scale: 1.05,
+                    boxShadow: "0 10px 30px rgba(0,0,0,0.1)"
+                  }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  {/* Animated background effect */}
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-r from-pink-400 to-purple-400 opacity-0 group-hover:opacity-10 transition-opacity duration-300"
+                    initial={false}
+                    animate={selectedInterests.includes(interest.id) ? { opacity: 0.1 } : { opacity: 0 }}
+                  />
+                  
+                  <motion.div 
+                    className="text-3xl mb-2 relative z-10"
+                    animate={selectedInterests.includes(interest.id) ? { scale: [1, 1.2, 1] } : { scale: 1 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    {interest.icon}
+                  </motion.div>
+                  <div className="text-sm font-medium relative z-10">
+                    {t(`questionnaire.${interest.id}`) || interest.id}
+                  </div>
+                  
+                  {/* Selected indicator */}
+                  {selectedInterests.includes(interest.id) && (
+                    <motion.div
+                      className="absolute top-2 right-2 w-6 h-6 bg-pink-500 rounded-full flex items-center justify-center"
+                      initial={{ scale: 0, rotate: -180 }}
+                      animate={{ scale: 1, rotate: 0 }}
+                      transition={{ type: "spring", damping: 15 }}
+                    >
+                      <motion.div
+                        className="w-3 h-3 bg-white rounded-full"
+                        animate={{ scale: [1, 1.2, 1] }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                      />
+                    </motion.div>
+                  )}
+                </motion.button>
+              ))}
+            </motion.div>
+            
+            {remainingInterests > 0 && (
+              <div className="text-center">
+                <motion.button
+                  onClick={() => setShowAllInterests(!showAllInterests)}
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white rounded-full font-medium transition-all duration-300 shadow-lg hover:shadow-xl"
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  {showAllInterests ? (
+                    <>
+                      <Minus className="w-4 h-4" />
+                      {t('common.showLess')}
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="w-4 h-4" />
+                      {t('common.showMore').replace('{count}', remainingInterests.toString())}
+                    </>
+                  )}
+                </motion.button>
+              </div>
+            )}
+          </div>
+
+          {/* Dietary Restrictions */}
+          <div className="mb-8">
+            <motion.h3 
+              className="text-xl font-semibold text-gray-800 mb-4"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.7 }}
+            >
+              {t('questionnaire.dietaryRestrictions')}
+            </motion.h3>
+            
+            <motion.div 
+              className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-6"
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+            >
+              {displayedDietary.map((dietary, index) => (
+                <motion.button
+                  key={dietary.id}
+                  onClick={() => toggleInterest(dietary.id)}
+                  className={`p-4 rounded-2xl border-2 transition-all duration-300 relative overflow-hidden group ${
+                    selectedInterests.includes(dietary.id)
+                      ? 'border-green-500 bg-gradient-to-br from-green-50 to-green-100 text-green-700 shadow-lg'
+                      : 'border-gray-200 hover:border-green-300 hover:bg-gradient-to-br hover:from-green-50 hover:to-white bg-white/50 backdrop-blur-sm'
+                  }`}
+                  variants={itemVariants}
+                  whileHover={{ 
+                    scale: 1.05,
+                    boxShadow: "0 10px 30px rgba(0,0,0,0.1)"
+                  }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  {/* Animated background effect */}
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-r from-green-400 to-teal-400 opacity-0 group-hover:opacity-10 transition-opacity duration-300"
+                    initial={false}
+                    animate={selectedInterests.includes(dietary.id) ? { opacity: 0.1 } : { opacity: 0 }}
+                  />
+                  
+                  <motion.div 
+                    className="text-3xl mb-2 relative z-10"
+                    animate={selectedInterests.includes(dietary.id) ? { scale: [1, 1.2, 1] } : { scale: 1 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    {dietary.icon}
+                  </motion.div>
+                  <div className="text-sm font-medium relative z-10">
+                    {t(`questionnaire.${dietary.id}`) || dietary.id}
+                  </div>
+                  
+                  {/* Selected indicator */}
+                  {selectedInterests.includes(dietary.id) && (
+                    <motion.div
+                      className="absolute top-2 right-2 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center"
+                      initial={{ scale: 0, rotate: -180 }}
+                      animate={{ scale: 1, rotate: 0 }}
+                      transition={{ type: "spring", damping: 15 }}
+                    >
+                      <motion.div
+                        className="w-3 h-3 bg-white rounded-full"
+                        animate={{ scale: [1, 1.2, 1] }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                      />
+                    </motion.div>
+                  )}
+                </motion.button>
+              ))}
+            </motion.div>
+            
+            {remainingDietary > 0 && (
+              <div className="text-center">
+                <motion.button
+                  onClick={() => setShowAllDietary(!showAllDietary)}
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 text-white rounded-full font-medium transition-all duration-300 shadow-lg hover:shadow-xl"
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  {showAllDietary ? (
+                    <>
+                      <Minus className="w-4 h-4" />
+                      {t('common.showLess')}
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="w-4 h-4" />
+                      {t('common.showMore').replace('{count}', remainingDietary.toString())}
+                    </>
+                  )}
+                </motion.button>
+              </div>
+            )}
+          </div>
+
+          {/* Quick Actions */}
+          <motion.div 
+            className="mb-8 bg-gradient-to-r from-gray-50 to-gray-100 rounded-2xl p-4"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8 }}
+          >
+            <div className="flex justify-between items-center">
+              <motion.button
+                onClick={() => setSelectedInterests([...allInterests.map(i => i.id), ...dietaryRestrictions.map(d => d.id)])}
+                className="flex items-center gap-2 px-4 py-2 text-sm bg-pink-100 hover:bg-pink-200 text-pink-700 rounded-full transition-all duration-300 font-medium"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Plus className="w-4 h-4" />
+                {t('questionnaire.selectAll')}
+              </motion.button>
+              
+              <div className="text-sm text-gray-600 font-medium bg-white px-4 py-2 rounded-full shadow-sm">
+                {selectedInterests.length} / {allInterests.length + dietaryRestrictions.length}
+              </div>
+              
+              <motion.button
+                onClick={() => setSelectedInterests([])}
+                className="flex items-center gap-2 px-4 py-2 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full transition-all duration-300 font-medium"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Minus className="w-4 h-4" />
+                {t('questionnaire.deselectAll')}
+              </motion.button>
+            </div>
+          </motion.div>
+
+          {/* Budget */}
+          <motion.div 
+            className="mb-8"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.9 }}
+          >
+            <h3 className="text-xl font-semibold text-gray-800 mb-4">
+              {t('questionnaire.budget')}
+            </h3>
+            <div className="flex space-x-4">
+              <div className="flex-1">
+                <div className="relative">
+                  <motion.div
+                    className="absolute left-3 top-3 w-5 h-5 text-gray-400"
+                    animate={{ rotate: budget ? 360 : 0 }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    <DollarSign className="w-5 h-5" />
+                  </motion.div>
+                  <input
+                    type="number"
+                    value={budget}
+                    onChange={(e) => setBudget(e.target.value)}
+                    placeholder={t('questionnaire.budgetPlaceholder')}
+                    className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-pink-200 focus:border-pink-500 transition-all duration-300 bg-white/50 backdrop-blur-sm"
+                  />
+                </div>
+              </div>
+              <motion.select
+                value={currency}
+                onChange={(e) => setCurrency(e.target.value)}
+                className="px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-pink-200 focus:border-pink-500 transition-all duration-300 bg-white/50 backdrop-blur-sm"
+                whileFocus={{ scale: 1.02 }}
+              >
+                {currencies.map(curr => (
+                  <option key={curr.code} value={curr.code}>
+                    {curr.symbol} {curr.name}
+                  </option>
+                ))}
+              </motion.select>
+            </div>
+          </motion.div>
+
+          {/* Navigation */}
+          <div className="flex justify-between">
+            <motion.button
+              onClick={handleBack}
+              className="flex items-center space-x-2 px-6 py-3 text-gray-600 hover:text-gray-800 transition-colors rounded-xl hover:bg-gray-100"
+              whileHover={{ x: -5, scale: 1.02 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <ArrowLeft className="w-5 h-5" />
+              <span>{t('common.back')}</span>
+            </motion.button>
+            
+            <motion.button
+              onClick={handleNext}
+              disabled={selectedInterests.length === 0}
+              className={`flex items-center space-x-2 px-8 py-3 rounded-xl font-medium transition-all relative overflow-hidden ${
+                selectedInterests.length === 0
+                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  : 'bg-gradient-to-r from-pink-600 to-red-600 hover:from-pink-700 hover:to-red-700 text-white shadow-lg hover:shadow-xl'
+              }`}
+              whileHover={selectedInterests.length > 0 ? { scale: 1.05, y: -2 } : {}}
+              whileTap={selectedInterests.length > 0 ? { scale: 0.98 } : {}}
+            >
+              {selectedInterests.length > 0 && (
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-r from-pink-400 to-red-400 opacity-20"
+                  animate={{ 
+                    x: ['-100%', '100%'],
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
+                />
+              )}
+              <span className="relative z-10">{t('common.next')}</span>
+              <ArrowRight className="w-5 h-5 relative z-10" />
+            </motion.button>
+          </div>
+        </motion.div>
+
+        {/* Progress Indicator */}
+        <motion.div
+          className="mt-8 flex justify-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8, delay: 1 }}
+        >
+          <div className="flex space-x-2">
+            {[0, 1, 2, 3, 4].map((index) => (
+              <motion.div
+                key={index}
+                className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                  index < 3 ? 'bg-pink-500' : 'bg-gray-300'
+                }`}
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 1 + index * 0.1 }}
+                whileHover={{ scale: 1.2 }}
+              />
+            ))}
+          </div>
+        </motion.div>
+      </motion.div>
+    </div>
+  );
+};
+
+export default TravelStyle;
+</file>
+
+<file path="src/components/questionnaire/BasicInfo.tsx">
+import React, { useState, useEffect, useRef } from 'react';
+
+import { motion } from 'framer-motion';
+
+import { useNavigate } from 'react-router-dom';
+
+import { User, ArrowRight, ArrowLeft, Calendar, MapPin, Users, Type, Sparkles, Plus, Minus, Search } from 'lucide-react';
+
+import { useLanguage } from '../../contexts/LanguageContext';
+
+const BasicInfo: React.FC = () => {
+
+  const navigate = useNavigate();
+
+  const { t } = useLanguage();
+
+  const [formData, setFormData] = useState({
+
+    tripTitle: '',
+
+    destination: '',
+
+    startDate: '',
+
+    endDate: '',
+
+    travelers: 1
+
+  });
+
+  const [errors, setErrors] = useState<any>({});
+
+  const [showAllDestinations, setShowAllDestinations] = useState(false);
+
+  const [predictions, setPredictions] = useState<any[]>([]);
+
+  const [showPredictions, setShowPredictions] = useState(false);
+
+  const autocompleteInputRef = useRef<HTMLInputElement>(null);
+
+  const autocompleteService = useRef<google.maps.places.AutocompleteService | null>(null);
+
+  // Popular destinations in Japan (30 destinations)
+
+  const popularDestinations = [
+
+    { id: 'tokyo', name: '東京', icon: '🏙️', nameEn: 'Tokyo' },
+
+    { id: 'osaka', name: '大阪', icon: '🏯', nameEn: 'Osaka' },
+
+    { id: 'kyoto', name: '京都', icon: '⛩️', nameEn: 'Kyoto' },
+
+    { id: 'hiroshima', name: '広島', icon: '🕊️', nameEn: 'Hiroshima' },
+
+    { id: 'fukuoka', name: '福岡', icon: '🍜', nameEn: 'Fukuoka' },
+
+    { id: 'sapporo', name: '札幌', icon: '❄️', nameEn: 'Sapporo' },
+
+    { id: 'nara', name: '奈良', icon: '🦌', nameEn: 'Nara' },
+
+    { id: 'kanazawa', name: '金沢', icon: '🏛️', nameEn: 'Kanazawa' },
+
+    { id: 'nikko', name: '日光', icon: '🌲', nameEn: 'Nikko' },
+
+    { id: 'okinawa', name: '沖縄', icon: '🏖️', nameEn: 'Okinawa' },
+
+    { id: 'mount-fuji', name: '富士山', icon: '🗻', nameEn: 'Mount Fuji' },
+
+    { id: 'hakone', name: '箱根', icon: '♨️', nameEn: 'Hakone' },
+
+    { id: 'yokohama', name: '横浜', icon: '🌉', nameEn: 'Yokohama' },
+
+    { id: 'kobe', name: '神戸', icon: '⚓', nameEn: 'Kobe' },
+
+    { id: 'sendai', name: '仙台', icon: '🌾', nameEn: 'Sendai' },
+
+    { id: 'nagoya', name: '名古屋', icon: '🏰', nameEn: 'Nagoya' },
+
+    { id: 'matsumoto', name: '松本', icon: '🏔️', nameEn: 'Matsumoto' },
+
+    { id: 'takayama', name: '高山', icon: '🏘️', nameEn: 'Takayama' },
+
+    { id: 'shirakawa-go', name: '白川郷', icon: '🏠', nameEn: 'Shirakawa-go' },
+
+    { id: 'atami', name: '熱海', icon: '🌊', nameEn: 'Atami' },
+
+    { id: 'kamakura', name: '鎌倉', icon: '🗿', nameEn: 'Kamakura' },
+
+    { id: 'izu', name: '伊豆', icon: '🏝️', nameEn: 'Izu' },
+
+    { id: 'miyajima', name: '宮島', icon: '⛩️', nameEn: 'Miyajima' },
+
+    { id: 'kumamoto', name: '熊本', icon: '🐻', nameEn: 'Kumamoto' },
+
+    { id: 'kagoshima', name: '鹿児島', icon: '🌋', nameEn: 'Kagoshima' },
+
+    { id: 'nagasaki', name: '長崎', icon: '🔔', nameEn: 'Nagasaki' },
+
+    { id: 'yamagata', name: '山形', icon: '🍒', nameEn: 'Yamagata' },
+
+    { id: 'aomori', name: '青森', icon: '🍎', nameEn: 'Aomori' },
+
+    { id: 'iwaki', name: 'いわき', icon: '🌸', nameEn: 'Iwaki' },
+
+    { id: 'shizuoka', name: '静岡', icon: '🍵', nameEn: 'Shizuoka' }
+
+  ];
+
+  const displayedDestinations = showAllDestinations ? popularDestinations : popularDestinations.slice(0, 9);
+
+  const remainingDestinations = popularDestinations.length - 9;
+
+  useEffect(() => {
+
+    console.log('🎯 BasicInfo component mounted!');
+
+    console.log('📍 Current URL:', window.location.pathname);
+
+    
+
+    // Load existing data from localStorage
+
+    const savedData = localStorage.getItem('trippin-basic-info');
+
+    if (savedData) {
+
+      const parsed = JSON.parse(savedData);
+
+      console.log('📊 Loaded BasicInfo data:', parsed);
+
+      setFormData(parsed);
+
+    } else {
+
+      console.log('📊 No existing BasicInfo data found');
+
+    }
+
+  }, []);
+
+  const validateForm = () => {
+
+    const newErrors: any = {};
+
+    
+
+    if (!formData.tripTitle.trim()) {
+
+      newErrors.tripTitle = '旅行タイトルを入力してください';
+
+    }
+
+    
+
+    if (!formData.destination.trim()) {
+
+      newErrors.destination = '目的地を選択または入力してください';
+
+    }
+
+    
+
+    if (!formData.startDate) {
+
+      newErrors.startDate = '出発日を選択してください';
+
+    }
+
+    
+
+    if (!formData.endDate) {
+
+      newErrors.endDate = '帰国日を選択してください';
+
+    }
+
+    
+
+    if (formData.startDate && formData.endDate && new Date(formData.startDate) >= new Date(formData.endDate)) {
+
+      newErrors.endDate = '帰国日は出発日より後の日付を選択してください';
+
+    }
+
+    
+
+    if (formData.travelers < 1 || formData.travelers > 20) {
+
+      newErrors.travelers = '旅行者数は1人から20人までです';
+
+    }
+
+    
+
+    setErrors(newErrors);
+
+    return Object.keys(newErrors).length === 0;
+
+  };
+
+  const handleNext = () => {
+
+    if (validateForm()) {
+
+      console.log('🔍 BasicInfo handleNext called');
+
+      console.log('📊 Form data:', formData);
+
+      
+
+      localStorage.setItem('trippin-basic-info', JSON.stringify(formData));
+
+      console.log('💾 BasicInfo saved to localStorage');
+
+      console.log('🚀 About to navigate to: /questionnaire/style');
+
+      
+
+      navigate('/questionnaire/style');
+
+      console.log('✅ Navigation executed');
+
+    }
+
+  };
+
+  const handleBack = () => {
+
+    navigate('/questionnaire/language');
+
+  };
+
+  const handleDestinationSelect = (destination: string) => {
+
+    setFormData(prev => ({ ...prev, destination }));
+
+    setShowPredictions(false);
+
+    setPredictions([]);
+
+    if (errors.destination) {
+
+      setErrors(prev => ({ ...prev, destination: '' }));
+
+    }
+
+  };
+
+  const handleDestinationInputChange = (value: string) => {
+
+    setFormData(prev => ({ ...prev, destination: value }));
+
+    
+
+    if (errors.destination) {
+
+      setErrors(prev => ({ ...prev, destination: '' }));
+
+    }
+
+    // Get predictions from Google Places API
+
+    if (value.length > 2 && autocompleteService.current) {
+
+      autocompleteService.current.getPlacePredictions(
+
+        {
+
+          input: value,
+
+          componentRestrictions: { country: 'jp' }, // Restrict to Japan
+
+          types: ['(cities)'], // Focus on cities and regions
+
+        },
+
+        (predictions, status) => {
+
+          if (status === google.maps.places.PlacesServiceStatus.OK && predictions) {
+
+            setPredictions(predictions);
+
+            setShowPredictions(true);
+
+          } else {
+
+            setPredictions([]);
+
+            setShowPredictions(false);
+
+          }
+
+        }
+
+      );
+
+    } else {
+
+      setPredictions([]);
+
+      setShowPredictions(false);
+
+    }
+
+  };
+
+  const handlePredictionSelect = (prediction: any) => {
+
+    setFormData(prev => ({ ...prev, destination: prediction.description }));
+
+    setShowPredictions(false);
+
+    setPredictions([]);
+
+    if (errors.destination) {
+
+      setErrors(prev => ({ ...prev, destination: '' }));
+
+    }
+
+  };
+
+  const handleTravelersChange = (change: number) => {
+
+    const newCount = Math.max(1, Math.min(20, formData.travelers + change));
+
+    setFormData(prev => ({ ...prev, travelers: newCount }));
+
+    if (errors.travelers) {
+
+      setErrors(prev => ({ ...prev, travelers: '' }));
+
+    }
+
+  };
+
+  const handleInputChange = (field: string, value: string | number) => {
+
+    setFormData(prev => ({ ...prev, [field]: value }));
+
+    if (errors[field]) {
+
+      setErrors(prev => ({ ...prev, [field]: '' }));
+
+    }
+
+  };
+
+  // Animation variants
+
+  const containerVariants = {
+
+    hidden: { opacity: 0 },
+
+    visible: {
+
+      opacity: 1,
+
+      transition: {
+
+        staggerChildren: 0.1
+
+      }
+
+    }
+
+  };
+
+  const itemVariants = {
+
+    hidden: { y: 20, opacity: 0 },
+
+    visible: {
+
+      y: 0,
+
+      opacity: 1,
+
+      transition: {
+
+        type: "spring",
+
+        damping: 12,
+
+        stiffness: 200
+
+      }
+
+    }
+
+  };
+
+  // Get today's date for min date restriction
+
+  const today = new Date().toISOString().split('T')[0];
+
+  return (
+
+    <div className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 relative overflow-hidden">
+
+      {/* Animated background elements */}
+
+      <div className="absolute inset-0 overflow-hidden">
+
+        <motion.div
+
+          className="absolute top-10 left-10 w-72 h-72 bg-gradient-to-r from-blue-300 to-indigo-300 rounded-full opacity-20 blur-3xl"
+
+          animate={{
+
+            x: [0, 100, 0],
+
+            y: [0, -50, 0],
+
+          }}
+
+          transition={{
+
+            duration: 20,
+
+            repeat: Infinity,
+
+            ease: "easeInOut"
+
+          }}
+
+        />
+
+        <motion.div
+
+          className="absolute top-1/2 right-10 w-96 h-96 bg-gradient-to-r from-purple-300 to-pink-300 rounded-full opacity-15 blur-3xl"
+
+          animate={{
+
+            x: [0, -80, 0],
+
+            y: [0, 60, 0],
+
+          }}
+
+          transition={{
+
+            duration: 25,
+
+            repeat: Infinity,
+
+            ease: "easeInOut"
+
+          }}
+
+        />
+
+        <motion.div
+
+          className="absolute bottom-10 left-1/3 w-64 h-64 bg-gradient-to-r from-indigo-300 to-blue-300 rounded-full opacity-10 blur-3xl"
+
+          animate={{
+
+            scale: [1, 1.2, 1],
+
+            rotate: [0, 180, 360],
+
+          }}
+
+          transition={{
+
+            duration: 30,
+
+            repeat: Infinity,
+
+            ease: "easeInOut"
+
+          }}
+
+        />
+
+      </div>
+
+      <motion.div
+
+        className="max-w-4xl w-full relative z-10"
+
+        initial={{ opacity: 0, y: 20 }}
+
+        animate={{ opacity: 1, y: 0 }}
+
+        transition={{ duration: 0.8 }}
+
+      >
+
+        {/* Header */}
+
+        <div className="text-center mb-8">
+
+          <motion.div
+
+            className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full mb-6 relative shadow-xl"
+
+            initial={{ scale: 0, rotate: -180 }}
+
+            animate={{ scale: 1, rotate: 0 }}
+
+            transition={{ 
+
+              type: "spring",
+
+              damping: 10,
+
+              stiffness: 200,
+
+              delay: 0.2 
+
+            }}
+
+            whileHover={{ 
+
+              scale: 1.1,
+
+              boxShadow: "0 20px 40px rgba(59, 130, 246, 0.3)"
+
+            }}
+
+          >
+
+            <User className="w-8 h-8 text-white" />
+
+            <motion.div
+
+              className="absolute -top-2 -right-2 w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center"
+
+              animate={{ 
+
+                rotate: [0, 360],
+
+                scale: [1, 1.2, 1]
+
+              }}
+
+              transition={{
+
+                duration: 3,
+
+                repeat: Infinity,
+
+                ease: "easeInOut"
+
+              }}
+
+            >
+
+              <Sparkles className="w-3 h-3 text-white" />
+
+            </motion.div>
+
+          </motion.div>
+
+          
+
+          <motion.h1
+
+            className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-4"
+
+            initial={{ opacity: 0, y: 20 }}
+
+            animate={{ opacity: 1, y: 0 }}
+
+            transition={{ duration: 0.8, delay: 0.3 }}
+
+          >
+
+            基本情報
+
+          </motion.h1>
+
+          
+
+          <motion.p
+
+            className="text-lg text-gray-600"
+
+            initial={{ opacity: 0, y: 20 }}
+
+            animate={{ opacity: 1, y: 0 }}
+
+            transition={{ duration: 0.8, delay: 0.4 }}
+
+          >
+
+            あなたの旅行の基本的な情報を教えてください
+
+          </motion.p>
+
+        </div>
+
+        <motion.div
+
+          className="bg-white/80 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-white/20"
+
+          initial={{ opacity: 0, y: 30 }}
+
+          animate={{ opacity: 1, y: 0 }}
+
+          transition={{ duration: 0.8, delay: 0.5 }}
+
+        >
+
+          {/* Trip Title */}
+
+          <motion.div 
+
+            className="mb-8"
+
+            initial={{ opacity: 0, y: 20 }}
+
+            animate={{ opacity: 1, y: 0 }}
+
+            transition={{ delay: 0.6 }}
+
+          >
+
+            <label className="block text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+
+              <Type className="w-6 h-6 text-blue-600" />
+
+              旅行タイトル
+
+            </label>
+
+            <div className="relative">
+
+              <input
+
+                type="text"
+
+                value={formData.tripTitle}
+
+                onChange={(e) => handleInputChange('tripTitle', e.target.value)}
+
+                placeholder="例: 春の日本縦断旅行"
+
+                className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-4 focus:ring-blue-200 transition-all duration-300 bg-white/50 backdrop-blur-sm ${
+
+                  errors.tripTitle ? 'border-red-500 focus:border-red-500' : 'border-gray-200 focus:border-blue-500'
+
+                }`}
+
+              />
+
+              {errors.tripTitle && (
+
+                <motion.p 
+
+                  className="text-red-500 text-sm mt-2"
+
+                  initial={{ opacity: 0, y: -10 }}
+
+                  animate={{ opacity: 1, y: 0 }}
+
+                >
+
+                  {errors.tripTitle}
+
+                </motion.p>
+
+              )}
+
+            </div>
+
+          </motion.div>
+
+          {/* Destination Selection */}
+
+          <motion.div 
+
+            className="mb-8"
+
+            initial={{ opacity: 0, y: 20 }}
+
+            animate={{ opacity: 1, y: 0 }}
+
+            transition={{ delay: 0.7 }}
+
+          >
+
+            <label className="block text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+
+              <MapPin className="w-6 h-6 text-blue-600" />
+
+              目的地
+
+            </label>
+
+            
+
+            {/* Popular Destinations */}
+
+            <motion.div 
+
+              className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-6"
+
+              variants={containerVariants}
+
+              initial="hidden"
+
+              animate="visible"
+
+            >
+
+              {displayedDestinations.map((destination) => (
+
+                <motion.button
+
+                  key={destination.id}
+
+                  onClick={() => handleDestinationSelect(destination.name)}
+
+                  className={`p-4 rounded-2xl border-2 transition-all duration-300 relative overflow-hidden group ${
+
+                    formData.destination === destination.name
+
+                      ? 'border-blue-500 bg-gradient-to-br from-blue-50 to-blue-100 text-blue-700 shadow-lg'
+
+                      : 'border-gray-200 hover:border-blue-300 hover:bg-gradient-to-br hover:from-blue-50 hover:to-white bg-white/50 backdrop-blur-sm'
+
+                  }`}
+
+                  variants={itemVariants}
+
+                  whileHover={{ 
+
+                    scale: 1.05,
+
+                    boxShadow: "0 10px 30px rgba(0,0,0,0.1)"
+
+                  }}
+
+                  whileTap={{ scale: 0.95 }}
+
+                >
+
+                  {/* Animated background effect */}
+
+                  <motion.div
+
+                    className="absolute inset-0 bg-gradient-to-r from-blue-400 to-indigo-400 opacity-0 group-hover:opacity-10 transition-opacity duration-300"
+
+                    initial={false}
+
+                    animate={formData.destination === destination.name ? { opacity: 0.1 } : { opacity: 0 }}
+
+                  />
+
+                  
+
+                  <motion.div 
+
+                    className="text-3xl mb-2 relative z-10"
+
+                    animate={formData.destination === destination.name ? { scale: [1, 1.2, 1] } : { scale: 1 }}
+
+                    transition={{ duration: 0.3 }}
+
+                  >
+
+                    {destination.icon}
+
+                  </motion.div>
+
+                  <div className="text-sm font-medium relative z-10">{destination.name}</div>
+
+                  
+
+                  {/* Selected indicator */}
+
+                  {formData.destination === destination.name && (
+
+                    <motion.div
+
+                      className="absolute top-2 right-2 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center"
+
+                      initial={{ scale: 0, rotate: -180 }}
+
+                      animate={{ scale: 1, rotate: 0 }}
+
+                      transition={{ type: "spring", damping: 15 }}
+
+                    >
+
+                      <motion.div
+
+                        className="w-3 h-3 bg-white rounded-full"
+
+                        animate={{ scale: [1, 1.2, 1] }}
+
+                        transition={{ duration: 2, repeat: Infinity }}
+
+                      />
+
+                    </motion.div>
+
+                  )}
+
+                </motion.button>
+
+              ))}
+
+            </motion.div>
+
+            {/* Show More/Less Button */}
+
+            {remainingDestinations > 0 && (
+
+              <div className="text-center mb-6">
+
+                <motion.button
+
+                  onClick={() => setShowAllDestinations(!showAllDestinations)}
+
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white rounded-full font-medium transition-all duration-300 shadow-lg hover:shadow-xl"
+
+                  whileHover={{ scale: 1.05, y: -2 }}
+
+                  whileTap={{ scale: 0.95 }}
+
+                >
+
+                  {showAllDestinations ? (
+
+                    <>
+
+                      <Minus className="w-4 h-4" />
+
+                      表示を減らす
+
+                    </>
+
+                  ) : (
+
+                    <>
+
+                      <Plus className="w-4 h-4" />
+
+                      もっと見る ({remainingDestinations}箇所)
+
+                    </>
+
+                  )}
+
+                </motion.button>
+
+              </div>
+
+            )}
+
+            {/* Custom Destination Input */}
+
+            <div className="relative">
+
+              <input
+
+                type="text"
+
+                value={formData.destination}
+
+                onChange={(e) => handleInputChange('destination', e.target.value)}
+
+                placeholder="または、カスタム目的地を入力..."
+
+                className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-4 focus:ring-blue-200 transition-all duration-300 bg-white/50 backdrop-blur-sm ${
+
+                  errors.destination ? 'border-red-500 focus:border-red-500' : 'border-gray-200 focus:border-blue-500'
+
+                }`}
+
+              />
+
+              {errors.destination && (
+
+                <motion.p 
+
+                  className="text-red-500 text-sm mt-2"
+
+                  initial={{ opacity: 0, y: -10 }}
+
+                  animate={{ opacity: 1, y: 0 }}
+
+                >
+
+                  {errors.destination}
+
+                </motion.p>
+
+              )}
+
+            </div>
+
+          </motion.div>
+
+          {/* Date Selection */}
+
+          <motion.div 
+
+            className="mb-8 grid md:grid-cols-2 gap-6"
+
+            initial={{ opacity: 0, y: 20 }}
+
+            animate={{ opacity: 1, y: 0 }}
+
+            transition={{ delay: 0.8 }}
+
+          >
+
+            {/* Start Date */}
+
+            <div>
+
+              <label className="block text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+
+                <Calendar className="w-6 h-6 text-blue-600" />
+
+                出発日
+
+              </label>
+
+              <div className="relative">
+
+                <input
+
+                  type="date"
+
+                  value={formData.startDate}
+
+                  min={today}
+
+                  onChange={(e) => handleInputChange('startDate', e.target.value)}
+
+                  className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-4 focus:ring-blue-200 transition-all duration-300 bg-white/50 backdrop-blur-sm ${
+
+                    errors.startDate ? 'border-red-500 focus:border-red-500' : 'border-gray-200 focus:border-blue-500'
+
+                  }`}
+
+                />
+
+                {errors.startDate && (
+
+                  <motion.p 
+
+                    className="text-red-500 text-sm mt-2"
+
+                    initial={{ opacity: 0, y: -10 }}
+
+                    animate={{ opacity: 1, y: 0 }}
+
+                  >
+
+                    {errors.startDate}
+
+                  </motion.p>
+
+                )}
+
+              </div>
+
+            </div>
+
+            {/* End Date */}
+
+            <div>
+
+              <label className="block text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+
+                <Calendar className="w-6 h-6 text-blue-600" />
+
+                帰国日
+
+              </label>
+
+              <div className="relative">
+
+                <input
+
+                  type="date"
+
+                  value={formData.endDate}
+
+                  min={formData.startDate || today}
+
+                  onChange={(e) => handleInputChange('endDate', e.target.value)}
+
+                  className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-4 focus:ring-blue-200 transition-all duration-300 bg-white/50 backdrop-blur-sm ${
+
+                    errors.endDate ? 'border-red-500 focus:border-red-500' : 'border-gray-200 focus:border-blue-500'
+
+                  }`}
+
+                />
+
+                {errors.endDate && (
+
+                  <motion.p 
+
+                    className="text-red-500 text-sm mt-2"
+
+                    initial={{ opacity: 0, y: -10 }}
+
+                    animate={{ opacity: 1, y: 0 }}
+
+                  >
+
+                    {errors.endDate}
+
+                  </motion.p>
+
+                )}
+
+              </div>
+
+            </div>
+
+          </motion.div>
+
+          {/* Number of Travelers */}
+
+          <motion.div 
+
+            className="mb-8"
+
+            initial={{ opacity: 0, y: 20 }}
+
+            animate={{ opacity: 1, y: 0 }}
+
+            transition={{ delay: 0.9 }}
+
+          >
+
+            <label className="block text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+
+              <Users className="w-6 h-6 text-blue-600" />
+
+              旅行者数
+
+            </label>
+
+            <div className="flex items-center justify-center space-x-6 bg-white/50 backdrop-blur-sm rounded-2xl p-6 border-2 border-gray-200">
+
+              <motion.button
+
+                onClick={() => handleTravelersChange(-1)}
+
+                disabled={formData.travelers <= 1}
+
+                className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${
+
+                  formData.travelers <= 1
+
+                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+
+                    : 'bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white shadow-lg hover:shadow-xl'
+
+                }`}
+
+                whileHover={formData.travelers > 1 ? { scale: 1.1 } : {}}
+
+                whileTap={formData.travelers > 1 ? { scale: 0.9 } : {}}
+
+              >
+
+                <Minus className="w-6 h-6" />
+
+              </motion.button>
+
+              
+
+              <motion.div 
+
+                className="text-center"
+
+                key={formData.travelers}
+
+                initial={{ scale: 0.8, opacity: 0 }}
+
+                animate={{ scale: 1, opacity: 1 }}
+
+                transition={{ type: "spring", damping: 15 }}
+
+              >
+
+                <div className="text-4xl font-bold text-blue-600 mb-1">{formData.travelers}</div>
+
+                <div className="text-sm text-gray-600">
+
+                  {formData.travelers === 1 ? '人' : '人'}
+
+                </div>
+
+              </motion.div>
+
+              
+
+              <motion.button
+
+                onClick={() => handleTravelersChange(1)}
+
+                disabled={formData.travelers >= 20}
+
+                className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${
+
+                  formData.travelers >= 20
+
+                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+
+                    : 'bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white shadow-lg hover:shadow-xl'
+
+                }`}
+
+                whileHover={formData.travelers < 20 ? { scale: 1.1 } : {}}
+
+                whileTap={formData.travelers < 20 ? { scale: 0.9 } : {}}
+
+              >
+
+                <Plus className="w-6 h-6" />
+
+              </motion.button>
+
+            </div>
+
+            {errors.travelers && (
+
+              <motion.p 
+
+                className="text-red-500 text-sm mt-2 text-center"
+
+                initial={{ opacity: 0, y: -10 }}
+
+                animate={{ opacity: 1, y: 0 }}
+
+              >
+
+                {errors.travelers}
+
+              </motion.p>
+
+            )}
+
+          </motion.div>
+
+          {/* Navigation */}
+
+          <div className="flex justify-between">
+
+            <motion.button
+
+              onClick={handleBack}
+
+              className="flex items-center space-x-2 px-6 py-3 text-gray-600 hover:text-gray-800 transition-colors rounded-xl hover:bg-gray-100"
+
+              whileHover={{ x: -5, scale: 1.02 }}
+
+              whileTap={{ scale: 0.95 }}
+
+            >
+
+              <ArrowLeft className="w-5 h-5" />
+
+              <span>戻る</span>
+
+            </motion.button>
+
+            
+
+            <motion.button
+
+              onClick={handleNext}
+
+              className="flex items-center space-x-2 px-8 py-3 rounded-xl font-medium transition-all relative overflow-hidden bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl"
+
+              whileHover={{ scale: 1.05, y: -2 }}
+
+              whileTap={{ scale: 0.98 }}
+
+            >
+
+              <motion.div
+
+                className="absolute inset-0 bg-gradient-to-r from-blue-400 to-indigo-400 opacity-20"
+
+                animate={{ 
+
+                  x: ['-100%', '100%'],
+
+                }}
+
+                transition={{
+
+                  duration: 2,
+
+                  repeat: Infinity,
+
+                  ease: "easeInOut"
+
+                }}
+
+              />
+
+              <span className="relative z-10">次へ</span>
+
+              <ArrowRight className="w-5 h-5 relative z-10" />
+
+            </motion.button>
+
+          </div>
+
+        </motion.div>
+
+        {/* Progress Indicator */}
+
+        <motion.div
+
+          className="mt-8 flex justify-center"
+
+          initial={{ opacity: 0 }}
+
+          animate={{ opacity: 1 }}
+
+          transition={{ duration: 0.8, delay: 1 }}
+
+        >
+
+          <div className="flex space-x-2">
+
+            {[0, 1, 2, 3, 4].map((index) => (
+
+              <motion.div
+
+                key={index}
+
+                className={`w-3 h-3 rounded-full transition-all duration-300 ${
+
+                  index < 2 ? 'bg-blue-500' : 'bg-gray-300'
+
+                }`}
+
+                initial={{ scale: 0 }}
+
+                animate={{ scale: 1 }}
+
+                transition={{ delay: 1 + index * 0.1 }}
+
+                whileHover={{ scale: 1.2 }}
+
+              />
+
+            ))}
+
+          </div>
+
+        </motion.div>
+
+      </motion.div>
+
+    </div>
+
+  );
+
+};
+
+export default BasicInfo;
+</file>
+
+</files>

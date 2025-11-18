@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Backend Running</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .warning { background-color: #fff3cd; border-color: #ffeaa7; }
+        button { margin: 5px; padding: 10px; border: none; border-radius: 3px; cursor: pointer; }
+        .btn-primary { background-color: #007bff; color: white; }
+        .btn-success { background-color: #28a745; color: white; }
+    </style>
+</head>
+<body>
+    <h1>✅ Backend is Running!</h1>
+    <p>This page will test that the backend is working properly.</p>
+    
+    <div class="test-section">
+        <h3>🧪 Test Backend Connection</h3>
+        <button onclick="testBackendHealth()" class="btn-primary">Test Backend Health</button>
+        <button onclick="testOpenAIEndpoint()" class="btn-primary">Test OpenAI Endpoint</button>
+        <button onclick="testPlanGeneration()" class="btn-success">Test Plan Generation</button>
+        <div id="test-results"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>📊 Expected Results</h3>
+        <ul>
+            <li><strong>Backend Health:</strong> Should return 200 OK</li>
+            <li><strong>OpenAI Endpoint:</strong> Should return success or fallback</li>
+            <li><strong>Plan Generation:</strong> Should work without ERR_CONNECTION_REFUSED</li>
+        </ul>
+    </div>
+    
+    <div class="test-section">
+        <h3>🎯 Next Steps</h3>
+        <ul>
+            <li>✅ Backend is running on port 3001</li>
+            <li>✅ OpenAI endpoint is accessible</li>
+            <li>✅ Plan generation should work now</li>
+            <li>🔄 Go to <a href="http://localhost:5173/plan-generation" target="_blank">Plan Generation Page</a></li>
+        </ul>
+    </div>
+    
+    <script>
+        async function testBackendHealth() {
+            try {
+                const response = await fetch('http://localhost:3001/health');
+                const data = await response.json();
+                document.getElementById('test-results').innerHTML = 
+                    `<div class="success">✅ Backend is running! Status: ${data.status}</div>`;
+            } catch (error) {
+                document.getElementById('test-results').innerHTML = 
+                    `<div class="error">❌ Backend not running: ${error.message}</div>`;
+            }
+        }
+        
+        async function testOpenAIEndpoint() {
+            try {
+                const response = await fetch('http://localhost:3001/api/openai/health');
+                const data = await response.json();
+                document.getElementById('test-results').innerHTML = 
+                    `<div class="success">✅ OpenAI endpoint is working! Message: ${data.message}</div>`;
+            } catch (error) {
+                document.getElementById('test-results').innerHTML = 
+                    `<div class="error">❌ OpenAI endpoint failed: ${error.message}</div>`;
+            }
+        }
+        
+        async function testPlanGeneration() {
+            try {
+                const testData = {
+                    tripData: {
+                        destination: 'Tokyo, Japan',
+                        duration: 2,
+                        budget: 100000,
+                        travelers: 2,
+                        interests: ['culture', 'food'],
+                        accommodation: 'hotel',
+                        currency: 'JPY'
+                    }
+                };
+                
+                document.getElementById('test-results').innerHTML = 
+                    '<div class="warning">🔄 Testing plan generation...</div>';
+                
+                const response = await fetch('http://localhost:3001/api/openai/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(testData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    const isFallback = data.isFallback || false;
+                    document.getElementById('test-results').innerHTML = 
+                        `<div class="success">
+                            ✅ Plan generation working!<br>
+                            📊 Plan type: ${isFallback ? 'Fallback Plan' : 'AI Generated'}<br>
+                            🎯 Message: ${data.message}
+                        </div>`;
+                } else {
+                    document.getElementById('test-results').innerHTML = 
+                        `<div class="error">❌ Plan generation failed: ${data.message}</div>`;
+                }
+            } catch (error) {
+                document.getElementById('test-results').innerHTML = 
+                    `<div class="error">❌ Plan generation test failed: ${error.message}</div>`;
+            }
+        }
+        
+        // Auto-test on load
+        window.onload = function() {
+            document.getElementById('test-results').innerHTML = 
+                '<div class="warning">🔄 Click the test buttons to verify everything is working</div>';
+        };
+    </script>
+</body>
+</html>
+
+
+

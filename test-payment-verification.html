@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Verification Debug</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .success {
+            color: #28a745;
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+        }
+        .error {
+            color: #dc3545;
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+        }
+        .info {
+            color: #0c5460;
+            background-color: #d1ecf1;
+            border-color: #bee5eb;
+        }
+        .warning {
+            color: #856404;
+            background-color: #fff3cd;
+            border-color: #ffeaa7;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        pre {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+            max-height: 300px;
+        }
+        .log {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 10px;
+            margin: 10px 0;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Payment Verification Debug</h1>
+        <p>This page helps debug the payment verification flow that's getting stuck.</p>
+        
+        <div class="test-section">
+            <h3>1. Backend Connection Test</h3>
+            <button onclick="testBackendConnection()">Test Backend Connection</button>
+            <div id="backend-connection-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>2. API Endpoints Test</h3>
+            <button onclick="testApiEndpoints()">Test API Endpoints</button>
+            <div id="api-endpoints-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>3. URL Construction Test</h3>
+            <button onclick="testUrlConstruction()">Test URL Construction</button>
+            <div id="url-construction-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>4. Payment Verification Simulation</h3>
+            <button onclick="simulatePaymentVerification()">Simulate Payment Verification</button>
+            <div id="payment-verification-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>5. Debug Log</h3>
+            <div id="debug-log" class="log"></div>
+            <button onclick="clearLog()">Clear Log</button>
+        </div>
+    </div>
+
+    <script>
+        const BACKEND_URL = 'http://localhost:3001';
+        const FRONTEND_URL = 'http://localhost:5173';
+        
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('debug-log');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.innerHTML = `<strong>[${timestamp}]</strong> ${message}`;
+            logEntry.className = type;
+            logDiv.appendChild(logEntry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function clearLog() {
+            document.getElementById('debug-log').innerHTML = '';
+        }
+
+        async function testBackendConnection() {
+            const resultDiv = document.getElementById('backend-connection-result');
+            resultDiv.innerHTML = '<p>Testing backend connection...</p>';
+            log('Testing backend connection...', 'info');
+            
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/test`);
+                if (response.ok) {
+                    const data = await response.json();
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <h4>✅ Backend is running!</h4>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+                    log('Backend connection successful', 'success');
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="error">
+                            <h4>❌ Backend connection failed</h4>
+                            <p>Status: ${response.status} ${response.statusText}</p>
+                        </div>
+                    `;
+                    log(`Backend connection failed: ${response.status} ${response.statusText}`, 'error');
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <h4>❌ Backend connection failed</h4>
+                        <p>Error: ${error.message}</p>
+                    </div>
+                `;
+                log(`Backend connection error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testApiEndpoints() {
+            const resultDiv = document.getElementById('api-endpoints-result');
+            resultDiv.innerHTML = '<p>Testing API endpoints...</p>';
+            log('Testing API endpoints...', 'info');
+            
+            const endpoints = [
+                { name: 'Test Endpoint', url: '/api/test', expectedStatus: 200 },
+                { name: 'Subscription Status', url: '/api/subscriptions/status', expectedStatus: 401 },
+                { name: 'Verify Payment', url: '/api/subscriptions/verify-payment', expectedStatus: 400 }
+            ];
+            
+            let results = [];
+            
+            for (const endpoint of endpoints) {
+                try {
+                    log(`Testing ${endpoint.name}: ${endpoint.url}`, 'info');
+                    const response = await fetch(`${BACKEND_URL}${endpoint.url}`, {
+                        method: endpoint.name === 'Verify Payment' ? 'POST' : 'GET',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: endpoint.name === 'Verify Payment' ? JSON.stringify({ sessionId: 'test' }) : undefined
+                    });
+                    
+                    const result = {
+                        name: endpoint.name,
+                        url: endpoint.url,
+                        status: response.status,
+                        expectedStatus: endpoint.expectedStatus,
+                        success: response.status === endpoint.expectedStatus
+                    };
+                    
+                    results.push(result);
+                    log(`${endpoint.name}: ${response.status} (expected: ${endpoint.expectedStatus})`, 
+                        result.success ? 'success' : 'warning');
+                        
+                } catch (error) {
+                    results.push({
+                        name: endpoint.name,
+                        url: endpoint.url,
+                        error: error.message,
+                        success: false
+                    });
+                    log(`${endpoint.name}: Error - ${error.message}`, 'error');
+                }
+            }
+            
+            const successCount = results.filter(r => r.success).length;
+            const totalCount = results.length;
+            
+            resultDiv.innerHTML = `
+                <div class="${successCount === totalCount ? 'success' : 'warning'}">
+                    <h4>API Endpoints Test Results (${successCount}/${totalCount} passed)</h4>
+                    <pre>${JSON.stringify(results, null, 2)}</pre>
+                </div>
+            `;
+        }
+
+        function testUrlConstruction() {
+            const resultDiv = document.getElementById('url-construction-result');
+            log('Testing URL construction...', 'info');
+            
+            // Simulate different environment scenarios
+            const scenarios = [
+                {
+                    name: 'Development Mode (Vite Proxy)',
+                    isDev: true,
+                    viteBackendUrl: 'http://localhost:5173/api',
+                    endpoint: '/api/subscriptions/status',
+                    expectedUrl: '/api/subscriptions/status'
+                },
+                {
+                    name: 'Production Mode',
+                    isDev: false,
+                    viteBackendUrl: 'http://localhost:3001',
+                    endpoint: '/api/subscriptions/status',
+                    expectedUrl: 'http://localhost:3001/api/subscriptions/status'
+                },
+                {
+                    name: 'Production Mode with VITE_BACKEND_URL',
+                    isDev: false,
+                    viteBackendUrl: 'http://localhost:5173/api',
+                    endpoint: '/api/subscriptions/status',
+                    expectedUrl: 'http://localhost:5173/api/api/subscriptions/status'
+                }
+            ];
+            
+            const results = scenarios.map(scenario => {
+                let constructedUrl;
+                if (scenario.isDev) {
+                    constructedUrl = scenario.endpoint;
+                } else {
+                    constructedUrl = `${scenario.viteBackendUrl}${scenario.endpoint}`;
+                }
+                
+                return {
+                    ...scenario,
+                    constructedUrl,
+                    isCorrect: constructedUrl === scenario.expectedUrl
+                };
+            });
+            
+            resultDiv.innerHTML = `
+                <div class="info">
+                    <h4>URL Construction Test Results</h4>
+                    <pre>${JSON.stringify(results, null, 2)}</pre>
+                </div>
+            `;
+            
+            log('URL construction test completed', 'info');
+        }
+
+        async function simulatePaymentVerification() {
+            const resultDiv = document.getElementById('payment-verification-result');
+            resultDiv.innerHTML = '<p>Simulating payment verification...</p>';
+            log('Simulating payment verification...', 'info');
+            
+            try {
+                // Test the verify-payment endpoint
+                const response = await fetch(`${BACKEND_URL}/api/subscriptions/verify-payment`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ sessionId: 'test-session-id' })
+                });
+                
+                const data = await response.json();
+                
+                resultDiv.innerHTML = `
+                    <div class="info">
+                        <h4>Payment Verification Test</h4>
+                        <p><strong>Status:</strong> ${response.status} ${response.statusText}</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                        <p><strong>Note:</strong> This is expected to fail without a valid session ID, but the endpoint should be accessible.</p>
+                    </div>
+                `;
+                
+                log(`Payment verification test: ${response.status} ${response.statusText}`, 'info');
+                
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <h4>Payment Verification Test Failed</h4>
+                        <p>Error: ${error.message}</p>
+                    </div>
+                `;
+                log(`Payment verification test error: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-run tests on page load
+        window.addEventListener('load', () => {
+            log('Payment verification debug page loaded', 'info');
+            testBackendConnection();
+        });
+    </script>
+</body>
+</html>
+

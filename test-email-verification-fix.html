@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Verification Fix Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 1000px; margin: 0 auto; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        .warning { background-color: #fff3cd; border-color: #ffeaa7; }
+        button { padding: 10px 15px; margin: 5px; cursor: pointer; }
+        input { padding: 8px; margin: 5px; width: 200px; }
+        .log { background: #f8f9fa; padding: 10px; margin: 10px 0; border-radius: 3px; font-family: monospace; white-space: pre-wrap; max-height: 300px; overflow-y: auto; }
+        .step { margin: 10px 0; padding: 10px; background: #f8f9fa; border-left: 4px solid #007bff; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Email Verification Fix Test</h1>
+    
+    <div class="test-section info">
+        <h3>📋 Test Steps</h3>
+        <div class="step">
+            <strong>Step 1:</strong> Test user registration and check if verification email is sent
+        </div>
+        <div class="step">
+            <strong>Step 2:</strong> Check the verification email and copy the verification link
+        </div>
+        <div class="step">
+            <strong>Step 3:</strong> Test the verification link directly in this page
+        </div>
+        <div class="step">
+            <strong>Step 4:</strong> Check if the user can login after verification
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h3>Step 1: Test Registration</h3>
+        <p>Register a new user and check if verification email is sent:</p>
+        <input type="email" id="reg-email" placeholder="Email" value="test-verification@example.com">
+        <input type="password" id="reg-password" placeholder="Password" value="testpassword123">
+        <input type="text" id="reg-name" placeholder="Full Name" value="Test User">
+        <br>
+        <button onclick="testRegistration()">Test Registration</button>
+        <div id="reg-result" class="log"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>Step 2: Test Verification Link</h3>
+        <p>Paste the verification link from your email here:</p>
+        <input type="url" id="verification-url" placeholder="Paste verification link here" style="width: 500px;">
+        <br>
+        <button onclick="testVerificationLink()">Test Verification Link</button>
+        <div id="verification-result" class="log"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>Step 3: Manual Token Test</h3>
+        <p>If you have the token and type from the URL, test them directly:</p>
+        <input type="text" id="manual-token" placeholder="Token">
+        <input type="text" id="manual-type" placeholder="Type" value="signup">
+        <input type="email" id="manual-email" placeholder="Email">
+        <br>
+        <button onclick="testManualVerification()">Test Manual Verification</button>
+        <div id="manual-result" class="log"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>Step 4: Test Login After Verification</h3>
+        <p>Try to login with the verified account:</p>
+        <input type="email" id="login-email" placeholder="Email" value="test-verification@example.com">
+        <input type="password" id="login-password" placeholder="Password" value="testpassword123">
+        <br>
+        <button onclick="testLogin()">Test Login</button>
+        <div id="login-result" class="log"></div>
+    </div>
+
+    <div class="test-section warning">
+        <h3>🔍 Debug Information</h3>
+        <p>Check the browser console for detailed debugging information. The verification process now includes:</p>
+        <ul>
+            <li>✅ Fixed token parameter (using 'token' instead of 'token_hash')</li>
+            <li>✅ Enhanced URL parameter parsing (query, hash, and fragment)</li>
+            <li>✅ Better error handling and debugging</li>
+            <li>✅ Correct verification type handling ('signup' for email verification)</li>
+            <li>✅ Retry mechanism with different verification types</li>
+            <li>✅ Fallback verification through backend</li>
+        </ul>
+    </div>
+
+    <script>
+        function log(elementId, message, isError = false) {
+            const element = document.getElementById(elementId);
+            const timestamp = new Date().toLocaleTimeString();
+            const className = isError ? 'error' : 'success';
+            element.innerHTML += `<div class="${className}">[${timestamp}] ${message}</div>`;
+            element.scrollTop = element.scrollHeight;
+        }
+
+        async function testRegistration() {
+            const resultDiv = document.getElementById('reg-result');
+            resultDiv.innerHTML = 'Testing registration...\n';
+            
+            const email = document.getElementById('reg-email').value;
+            const password = document.getElementById('reg-password').value;
+            const fullName = document.getElementById('reg-name').value;
+
+            try {
+                log('reg-result', '🚀 Starting registration process...');
+                
+                const response = await fetch('http://localhost:3001/api/supabase-auth/signup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email,
+                        password,
+                        full_name: fullName
+                    })
+                });
+
+                const data = await response.json();
+                
+                log('reg-result', `📡 Response status: ${response.status}`);
+                log('reg-result', `📦 Response data: ${JSON.stringify(data, null, 2)}`);
+                
+                if (response.ok) {
+                    log('reg-result', '✅ Registration successful!');
+                    if (data.data?.needsVerification) {
+                        log('reg-result', '📧 Email verification required');
+                        log('reg-result', '🔗 Check your email for verification link');
+                        log('reg-result', '💡 Copy the verification link and paste it in Step 2');
+                    }
+                } else {
+                    log('reg-result', `❌ Registration failed: ${data.error}`, true);
+                }
+            } catch (error) {
+                log('reg-result', `❌ Registration error: ${error.message}`, true);
+            }
+        }
+
+        function testVerificationLink() {
+            const resultDiv = document.getElementById('verification-result');
+            resultDiv.innerHTML = 'Analyzing verification link...\n';
+            
+            const url = document.getElementById('verification-url').value;
+            if (!url) {
+                log('verification-result', '❌ Please enter a verification URL', true);
+                return;
+            }
+
+            try {
+                const urlObj = new URL(url);
+                log('verification-result', `🔗 Analyzing URL: ${url}`);
+                log('verification-result', `📍 Host: ${urlObj.host}`);
+                log('verification-result', `📍 Pathname: ${urlObj.pathname}`);
+                log('verification-result', `📍 Search: ${urlObj.search}`);
+                log('verification-result', `📍 Hash: ${urlObj.hash}`);
+
+                // Parse parameters
+                const urlParams = new URLSearchParams(urlObj.search);
+                const hashParams = new URLSearchParams(urlObj.hash.substring(1));
+                const fragment = urlObj.hash.substring(1);
+                const fragmentParams = new URLSearchParams(fragment);
+
+                const token = urlParams.get('token') || hashParams.get('token') || fragmentParams.get('token');
+                const type = urlParams.get('type') || hashParams.get('type') || fragmentParams.get('type');
+                const email = urlParams.get('email') || hashParams.get('email') || fragmentParams.get('email');
+
+                log('verification-result', `🔑 Found token: ${token ? token.substring(0, 20) + '...' : 'None'}`);
+                log('verification-result', `🏷️ Found type: ${type || 'None'}`);
+                log('verification-result', `📧 Found email: ${email || 'None'}`);
+
+                if (token && type) {
+                    log('verification-result', '✅ Verification parameters found! Testing verification...');
+                    testManualVerification(token, type, email);
+                } else {
+                    log('verification-result', '❌ No verification parameters found in URL', true);
+                    log('verification-result', '💡 Make sure you copied the complete verification link from your email', true);
+                }
+
+            } catch (error) {
+                log('verification-result', `❌ URL parsing error: ${error.message}`, true);
+            }
+        }
+
+        async function testManualVerification(token = null, type = null, email = null) {
+            const resultDiv = document.getElementById('manual-result');
+            resultDiv.innerHTML = 'Testing manual verification...\n';
+            
+            const manualToken = token || document.getElementById('manual-token').value;
+            const manualType = type || document.getElementById('manual-type').value;
+            const manualEmail = email || document.getElementById('manual-email').value;
+
+            if (!manualToken || !manualType) {
+                log('manual-result', '❌ Token and type are required', true);
+                return;
+            }
+
+            try {
+                log('manual-result', `🔑 Testing with token: ${manualToken.substring(0, 20)}...`);
+                log('manual-result', `🏷️ Type: ${manualType}`);
+                log('manual-result', `📧 Email: ${manualEmail || 'Not provided'}`);
+
+                // Test backend verification
+                const response = await fetch('http://localhost:3001/api/supabase-auth/verify-email', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        token: manualToken,
+                        type: manualType
+                    })
+                });
+
+                const data = await response.json();
+                
+                log('manual-result', `📡 Response status: ${response.status}`);
+                log('manual-result', `📦 Response data: ${JSON.stringify(data, null, 2)}`);
+                
+                if (response.ok) {
+                    log('manual-result', '✅ Email verification successful!');
+                    log('manual-result', '🎉 You can now proceed to test login');
+                } else {
+                    log('manual-result', `❌ Verification failed: ${data.error}`, true);
+                    if (data.details) {
+                        log('manual-result', `📝 Details: ${data.details}`, true);
+                    }
+                }
+            } catch (error) {
+                log('manual-result', `❌ Verification error: ${error.message}`, true);
+            }
+        }
+
+        async function testLogin() {
+            const resultDiv = document.getElementById('login-result');
+            resultDiv.innerHTML = 'Testing login...\n';
+            
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            try {
+                const response = await fetch('http://localhost:3001/api/supabase-auth/signin', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email,
+                        password
+                    })
+                });
+
+                const data = await response.json();
+                
+                log('login-result', `📡 Response status: ${response.status}`);
+                log('login-result', `📦 Response data: ${JSON.stringify(data, null, 2)}`);
+                
+                if (response.ok) {
+                    log('login-result', '✅ Login successful!');
+                    log('login-result', '🎉 Email verification is working correctly!');
+                } else {
+                    log('login-result', `❌ Login failed: ${data.error}`, true);
+                    if (data.error.includes('email_not_confirmed')) {
+                        log('login-result', '💡 This suggests the email verification did not work properly', true);
+                    }
+                }
+            } catch (error) {
+                log('login-result', `❌ Login error: ${error.message}`, true);
+            }
+        }
+
+        // Auto-fill login email when registration email changes
+        document.getElementById('reg-email').addEventListener('input', function() {
+            document.getElementById('login-email').value = this.value;
+        });
+    </script>
+</body>
+</html>

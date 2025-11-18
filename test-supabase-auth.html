@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supabase Auth Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        button { padding: 10px 15px; margin: 5px; cursor: pointer; }
+        input { padding: 8px; margin: 5px; width: 200px; }
+        .log { background: #f8f9fa; padding: 10px; margin: 10px 0; border-radius: 3px; font-family: monospace; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+    <h1>Supabase Authentication Test</h1>
+    
+    <div class="test-section info">
+        <h3>Configuration Check</h3>
+        <p>Testing Supabase configuration and backend connectivity...</p>
+        <button onclick="checkConfig()">Check Configuration</button>
+        <div id="config-result" class="log"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>User Registration Test</h3>
+        <input type="email" id="signup-email" placeholder="Email" value="test@example.com">
+        <input type="password" id="signup-password" placeholder="Password" value="testpassword123">
+        <input type="text" id="signup-name" placeholder="Full Name" value="Test User">
+        <br>
+        <button onclick="testSignup()">Test Signup</button>
+        <div id="signup-result" class="log"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>User Login Test</h3>
+        <input type="email" id="signin-email" placeholder="Email" value="test@example.com">
+        <input type="password" id="signin-password" placeholder="Password" value="testpassword123">
+        <br>
+        <button onclick="testSignin()">Test Signin</button>
+        <div id="signin-result" class="log"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>Protected Route Test</h3>
+        <button onclick="testProtectedRoute()">Test Protected Route</button>
+        <div id="protected-result" class="log"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>Logout Test</h3>
+        <button onclick="testLogout()">Test Logout</button>
+        <div id="logout-result" class="log"></div>
+    </div>
+
+    <script>
+        let authToken = null;
+
+        function log(elementId, message, isError = false) {
+            const element = document.getElementById(elementId);
+            const timestamp = new Date().toLocaleTimeString();
+            const className = isError ? 'error' : 'success';
+            element.innerHTML += `<div class="${className}">[${timestamp}] ${message}</div>`;
+        }
+
+        async function checkConfig() {
+            const resultDiv = document.getElementById('config-result');
+            resultDiv.innerHTML = 'Checking configuration...\n';
+            
+            try {
+                // Check backend health
+                const healthResponse = await fetch('http://localhost:3001/health');
+                if (healthResponse.ok) {
+                    log('config-result', '✅ Backend is running');
+                } else {
+                    log('config-result', '❌ Backend health check failed', true);
+                }
+
+                // Check Supabase auth endpoint
+                const authResponse = await fetch('http://localhost:3001/api/supabase-auth/user', {
+                    headers: { 'Authorization': 'Bearer test-token' }
+                });
+                
+                if (authResponse.status === 401) {
+                    log('config-result', '✅ Supabase auth endpoint is working (401 expected without valid token)');
+                } else {
+                    log('config-result', `⚠️ Unexpected response from auth endpoint: ${authResponse.status}`);
+                }
+
+            } catch (error) {
+                log('config-result', `❌ Configuration check failed: ${error.message}`, true);
+            }
+        }
+
+        async function testSignup() {
+            const resultDiv = document.getElementById('signup-result');
+            resultDiv.innerHTML = 'Testing signup...\n';
+            
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            const fullName = document.getElementById('signup-name').value;
+
+            try {
+                const response = await fetch('http://localhost:3001/api/supabase-auth/signup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email,
+                        password,
+                        full_name: fullName
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    log('signup-result', `✅ Signup successful: ${data.message}`);
+                    if (data.data?.needsVerification) {
+                        log('signup-result', '📧 Email verification required');
+                    }
+                } else {
+                    log('signup-result', `❌ Signup failed: ${data.error}`, true);
+                }
+            } catch (error) {
+                log('signup-result', `❌ Signup error: ${error.message}`, true);
+            }
+        }
+
+        async function testSignin() {
+            const resultDiv = document.getElementById('signin-result');
+            resultDiv.innerHTML = 'Testing signin...\n';
+            
+            const email = document.getElementById('signin-email').value;
+            const password = document.getElementById('signin-password').value;
+
+            try {
+                const response = await fetch('http://localhost:3001/api/supabase-auth/signin', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email,
+                        password
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    log('signin-result', `✅ Signin successful: ${data.message || 'Logged in'}`);
+                    if (data.data?.session?.access_token) {
+                        authToken = data.data.session.access_token;
+                        log('signin-result', '🔑 Auth token received');
+                    }
+                } else {
+                    log('signin-result', `❌ Signin failed: ${data.error}`, true);
+                }
+            } catch (error) {
+                log('signin-result', `❌ Signin error: ${error.message}`, true);
+            }
+        }
+
+        async function testProtectedRoute() {
+            const resultDiv = document.getElementById('protected-result');
+            resultDiv.innerHTML = 'Testing protected route...\n';
+            
+            if (!authToken) {
+                log('protected-result', '❌ No auth token available. Please sign in first.', true);
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:3001/api/supabase-auth/user', {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    log('protected-result', `✅ Protected route access successful`);
+                    log('protected-result', `👤 User: ${data.data?.user?.email || 'Unknown'}`);
+                } else {
+                    log('protected-result', `❌ Protected route access failed: ${data.error}`, true);
+                }
+            } catch (error) {
+                log('protected-result', `❌ Protected route error: ${error.message}`, true);
+            }
+        }
+
+        async function testLogout() {
+            const resultDiv = document.getElementById('logout-result');
+            resultDiv.innerHTML = 'Testing logout...\n';
+            
+            if (!authToken) {
+                log('logout-result', '❌ No auth token available. Please sign in first.', true);
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:3001/api/supabase-auth/signout', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    log('logout-result', `✅ Logout successful: ${data.message}`);
+                    authToken = null;
+                } else {
+                    log('logout-result', `❌ Logout failed: ${data.error}`, true);
+                }
+            } catch (error) {
+                log('logout-result', `❌ Logout error: ${error.message}`, true);
+            }
+        }
+
+        // Auto-check configuration on load
+        window.onload = function() {
+            checkConfig();
+        };
+    </script>
+</body>
+</html>

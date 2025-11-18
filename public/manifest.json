@@ -1,0 +1,59 @@
+{
+  "name": "TRIPPIN - AI-Powered Japan Travel Planner",
+  "short_name": "TRIPPIN",
+  "description": "Plan your perfect Japan trip with AI-powered itinerary generation, eSIM support, and 24/7 travel assistance.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#8b5cf6",
+  "orientation": "portrait-primary",
+  "scope": "./",
+  "lang": "ja",
+  "categories": ["travel", "lifestyle", "productivity"],
+  "icons": [
+    {
+      "src": "/trippin-logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/trippin-logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "新しい旅行プラン",
+      "short_name": "新規プラン",
+      "description": "新しい日本旅行プランを作成",
+      "url": "/questionnaire/language",
+      "icons": [{ "src": "/trippin-logo.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "AIチャット",
+      "short_name": "チャット",
+      "description": "AIアシスタントに相談",
+      "url": "/chat",
+      "icons": [{ "src": "/trippin-logo.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "翻訳ツール",
+      "short_name": "翻訳",
+      "description": "リアルタイム翻訳",
+      "url": "/translate",
+      "icons": [{ "src": "/trippin-logo.png", "sizes": "96x96" }]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/trippin-logo.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "platform": "wide",
+      "label": "TRIPPIN Dashboard"
+    }
+  ]
+}

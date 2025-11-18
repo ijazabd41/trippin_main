@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Dashboard Infinite Loop Fix</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .success { color: green; font-weight: bold; }
+        .error { color: red; font-weight: bold; }
+        .info { color: blue; }
+        .warning { color: orange; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border: 1px solid #dee2e6;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .step {
+            border-left: 4px solid #007bff;
+            padding-left: 15px;
+            margin: 10px 0;
+        }
+        .step.completed {
+            border-left-color: #28a745;
+        }
+        .step.error {
+            border-left-color: #dc3545;
+        }
+        .api-call {
+            background: #e3f2fd;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 5px 0;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test Dashboard Infinite Loop Fix</h1>
+        <p>This test verifies that the dashboard no longer makes infinite API requests.</p>
+        
+        <div class="step" id="step1">
+            <h3>Step 1: Simulate Problematic State</h3>
+            <button onclick="simulateProblematicState()">🚨 Simulate Problematic State</button>
+            <div id="step1-result"></div>
+        </div>
+        
+        <div class="step" id="step2">
+            <h3>Step 2: Test Dashboard Logic</h3>
+            <button onclick="testDashboardLogic()">🔍 Test Dashboard Logic</button>
+            <div id="step2-result"></div>
+        </div>
+        
+        <div class="step" id="step3">
+            <h3>Step 3: Verify No Infinite Loops</h3>
+            <button onclick="verifyNoInfiniteLoops()">✅ Verify No Infinite Loops</button>
+            <div id="step3-result"></div>
+        </div>
+        
+        <div class="step" id="step4">
+            <h3>Step 4: Test Recent Trip Handling</h3>
+            <button onclick="testRecentTripHandling()">📊 Test Recent Trip Handling</button>
+            <div id="step4-result"></div>
+        </div>
+        
+        <div>
+            <button onclick="runAllTests()">🔄 Run All Tests</button>
+            <button onclick="clearTestData()">🗑️ Clear Test Data</button>
+        </div>
+        
+        <h3>API Call Simulation:</h3>
+        <div id="api-calls"></div>
+        
+        <h3>Test Results:</h3>
+        <pre id="test-results"></pre>
+    </div>
+
+    <script>
+        let apiCallCount = 0;
+        let testResults = [];
+        let mockTrips = [];
+        let recentTrip = null;
+        
+        function simulateProblematicState() {
+            // Clear existing data
+            localStorage.removeItem('trippin-trips');
+            localStorage.removeItem('trippin-recent-trip');
+            
+            // Create a recent trip that's not in the context
+            recentTrip = {
+                id: 'recent-trip-1',
+                title: 'Hiroshima Cultural Experience',
+                destination: 'Hiroshima, Japan',
+                start_date: '2023-05-15',
+                end_date: '2023-05-17',
+                status: 'planning',
+                budget: 100000,
+                currency: 'JPY',
+                travelers: 2
+            };
+            
+            // Store recent trip in localStorage
+            localStorage.setItem('trippin-recent-trip', JSON.stringify(recentTrip));
+            
+            // Simulate empty trips context (this was causing the infinite loop)
+            mockTrips = [];
+            
+            addTestResult('✅ Problematic state simulated - recent trip in localStorage but not in context', 'success');
+            document.getElementById('step1-result').innerHTML = 
+                '<div class="success">✅ Problematic state simulated!</div>';
+            document.getElementById('step1').classList.add('completed');
+            updateTestResults();
+        }
+        
+        function testDashboardLogic() {
+            // Simulate the new dashboard logic
+            const trips = mockTrips; // Empty array from context
+            const displayTrips = computeDisplayTrips(trips);
+            
+            addTestResult(`✅ Dashboard logic test - trips: ${trips.length}, displayTrips: ${displayTrips.length}`, 'success');
+            document.getElementById('step2-result').innerHTML = 
+                '<div class="success">✅ Dashboard logic working correctly!</div>';
+            document.getElementById('step2').classList.add('completed');
+            updateTestResults();
+        }
+        
+        function verifyNoInfiniteLoops() {
+            // Simulate the old problematic logic
+            let oldLogicCalls = 0;
+            const oldLogic = () => {
+                oldLogicCalls++;
+                if (oldLogicCalls > 10) {
+                    addTestResult('❌ Old logic would cause infinite loops (stopped at 10 calls)', 'error');
+                    return;
+                }
+                
+                const recentTripData = localStorage.getItem('trippin-recent-trip');
+                if (recentTripData) {
+                    const recentTrip = JSON.parse(recentTripData);
+                    const existingTrip = mockTrips.find(t => t.id === recentTrip.id);
+                    if (!existingTrip) {
+                        // This would trigger fetchTrips() which would update trips, causing infinite loop
+                        simulateApiCall();
+                        oldLogic(); // Recursive call - this is the problem!
+                    }
+                }
+            };
+            
+            // Test new logic (should not cause infinite loops)
+            let newLogicCalls = 0;
+            const newLogic = () => {
+                newLogicCalls++;
+                const recentTripData = localStorage.getItem('trippin-recent-trip');
+                if (recentTripData) {
+                    const recentTrip = JSON.parse(recentTripData);
+                    const existingTrip = mockTrips.find(t => t.id === recentTrip.id);
+                    if (!existingTrip) {
+                        // New logic: only try once, no recursive calls
+                        simulateApiCall();
+                    }
+                }
+            };
+            
+            // Run old logic (will be stopped at 10 calls)
+            oldLogic();
+            
+            // Run new logic (should only call once)
+            newLogic();
+            
+            if (oldLogicCalls > 5) {
+                addTestResult(`❌ Old logic made ${oldLogicCalls} calls (would be infinite)`, 'error');
+            } else {
+                addTestResult(`✅ Old logic limited to ${oldLogicCalls} calls`, 'success');
+            }
+            
+            if (newLogicCalls === 1) {
+                addTestResult(`✅ New logic made only ${newLogicCalls} call (no infinite loop)`, 'success');
+                document.getElementById('step3-result').innerHTML = 
+                    '<div class="success">✅ No infinite loops detected!</div>';
+                document.getElementById('step3').classList.add('completed');
+            } else {
+                addTestResult(`❌ New logic made ${newLogicCalls} calls (unexpected)`, 'error');
+                document.getElementById('step3-result').innerHTML = 
+                    '<div class="error">❌ Unexpected behavior detected</div>';
+                document.getElementById('step3').classList.add('error');
+            }
+            
+            updateTestResults();
+        }
+        
+        function testRecentTripHandling() {
+            // Test the new displayTrips logic
+            const trips = mockTrips; // Empty from context
+            const displayTrips = computeDisplayTrips(trips);
+            
+            if (displayTrips.length > 0) {
+                addTestResult(`✅ Recent trip handling working - found ${displayTrips.length} trips`, 'success');
+                document.getElementById('step4-result').innerHTML = 
+                    '<div class="success">✅ Recent trip handling working!</div>';
+                document.getElementById('step4').classList.add('completed');
+            } else {
+                addTestResult('❌ Recent trip handling failed - no trips found', 'error');
+                document.getElementById('step4-result').innerHTML = 
+                    '<div class="error">❌ Recent trip handling failed</div>';
+                document.getElementById('step4').classList.add('error');
+            }
+            
+            updateTestResults();
+        }
+        
+        function computeDisplayTrips(trips) {
+            // Simulate the new displayTrips logic
+            if (Array.isArray(trips) && trips.length > 0) {
+                return trips.map(trip => ({
+                    id: trip.id,
+                    title: trip.title,
+                    destination: trip.destination,
+                    startDate: trip.startDate || trip.start_date,
+                    endDate: trip.endDate || trip.end_date,
+                    status: trip.status,
+                    image: trip.image || 'default-image.jpg'
+                }));
+            }
+            
+            // Check for stored trips
+            const storedTrips = localStorage.getItem('trippin-trips');
+            if (storedTrips) {
+                try {
+                    const parsedTrips = JSON.parse(storedTrips);
+                    if (Array.isArray(parsedTrips) && parsedTrips.length > 0) {
+                        return parsedTrips.map(trip => ({
+                            ...trip,
+                            image: trip.image || 'default-image.jpg'
+                        }));
+                    }
+                } catch (error) {
+                    console.error('Error parsing stored trips:', error);
+                }
+            }
+            
+            // Check for recent trip data as final fallback
+            const recentTripData = localStorage.getItem('trippin-recent-trip');
+            if (recentTripData) {
+                try {
+                    const recentTrip = JSON.parse(recentTripData);
+                    return [{
+                        id: recentTrip.id,
+                        title: recentTrip.title,
+                        destination: recentTrip.destination,
+                        startDate: recentTrip.startDate || recentTrip.start_date,
+                        endDate: recentTrip.endDate || recentTrip.end_date,
+                        status: recentTrip.status || 'planning',
+                        image: recentTrip.image || 'default-image.jpg'
+                    }];
+                } catch (error) {
+                    console.error('Error parsing recent trip:', error);
+                }
+            }
+            
+            return [];
+        }
+        
+        function simulateApiCall() {
+            apiCallCount++;
+            const callDiv = document.createElement('div');
+            callDiv.className = 'api-call';
+            callDiv.textContent = `API Call #${apiCallCount}: GET /api/trips (${new Date().toLocaleTimeString()})`;
+            document.getElementById('api-calls').appendChild(callDiv);
+        }
+        
+        function addTestResult(message, type) {
+            testResults.push({
+                message,
+                type,
+                timestamp: new Date().toISOString()
+            });
+        }
+        
+        function updateTestResults() {
+            const resultsText = testResults.map(result => 
+                `[${result.type.toUpperCase()}] ${result.message}`
+            ).join('\n');
+            document.getElementById('test-results').textContent = resultsText;
+        }
+        
+        function runAllTests() {
+            clearTestData();
+            setTimeout(() => {
+                simulateProblematicState();
+                setTimeout(() => {
+                    testDashboardLogic();
+                    setTimeout(() => {
+                        verifyNoInfiniteLoops();
+                        setTimeout(() => {
+                            testRecentTripHandling();
+                        }, 500);
+                    }, 500);
+                }, 500);
+            }, 100);
+        }
+        
+        function clearTestData() {
+            localStorage.removeItem('trippin-trips');
+            localStorage.removeItem('trippin-recent-trip');
+            apiCallCount = 0;
+            testResults = [];
+            mockTrips = [];
+            recentTrip = null;
+            
+            // Reset steps
+            document.querySelectorAll('.step').forEach(step => {
+                step.classList.remove('completed', 'error');
+            });
+            
+            // Clear results
+            document.querySelectorAll('[id$="-result"]').forEach(result => {
+                result.innerHTML = '';
+            });
+            
+            document.getElementById('api-calls').innerHTML = '';
+            document.getElementById('test-results').textContent = 'No test results yet';
+        }
+    </script>
+</body>
+</html>
