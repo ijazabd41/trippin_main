@@ -11,21 +11,61 @@ export default defineConfig({
     minify: 'esbuild',
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom'],
-          router: ['react-router-dom'],
-          motion: ['framer-motion'],
-          icons: ['lucide-react'],
-          i18n: ['i18next', 'react-i18next'],
-          auth: ['@auth0/auth0-react'],
-          seo: ['react-helmet-async']
+        manualChunks: (id) => {
+          // Vendor chunks - split by library
+          if (id.includes('node_modules')) {
+            if (id.includes('react') || id.includes('react-dom')) {
+              return 'vendor-react';
+            }
+            if (id.includes('react-router')) {
+              return 'vendor-router';
+            }
+            if (id.includes('framer-motion')) {
+              return 'vendor-motion';
+            }
+            if (id.includes('lucide-react')) {
+              return 'vendor-icons';
+            }
+            if (id.includes('i18next') || id.includes('react-i18next')) {
+              return 'vendor-i18n';
+            }
+            if (id.includes('@auth0')) {
+              return 'vendor-auth';
+            }
+            if (id.includes('@stripe')) {
+              return 'vendor-stripe';
+            }
+            if (id.includes('@supabase')) {
+              return 'vendor-supabase';
+            }
+            if (id.includes('@google')) {
+              return 'vendor-google';
+            }
+            // All other node_modules
+            return 'vendor-other';
+          }
+          // Split large page components into separate chunks
+          if (id.includes('src/pages/QuestionnaireFlow') || id.includes('src/components/questionnaire')) {
+            return 'page-questionnaire';
+          }
+          if (id.includes('src/pages/ESIMManagement') || id.includes('src/components/ESIM')) {
+            return 'page-esim';
+          }
+          if (id.includes('src/pages/Dashboard')) {
+            return 'page-dashboard';
+          }
+          if (id.includes('src/pages/PlanGeneration') || id.includes('src/components/GeneratedPlanDisplay')) {
+            return 'page-plan-generation';
+          }
         }
       }
     },
-    chunkSizeWarningLimit: 1000,
+    chunkSizeWarningLimit: 500,
     // Vercel用の最適化
     target: 'esnext',
-    modulePreload: false
+    modulePreload: false,
+    cssCodeSplit: true,
+    reportCompressedSize: false
   },
   // PWAファイルの処理
   publicDir: 'public',

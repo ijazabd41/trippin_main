@@ -1582,33 +1582,5 @@ export const ja = {
     "imageProcessingError": "画像処理でエラーが発生しました。",
     "imageProcessingFailed": "画像の処理に失敗しました。ネットワーク接続を確認してください。",
     "dismiss": "閉じる"
-  },
-  "esim": {
-    "title": "eSIM管理",
-    "subtitle": "日本全国で利用可能な高速データ通信",
-    "currentPlans": "現在のプラン",
-    "availablePlans": "利用可能なプラン",
-    "active": "アクティブ",
-    "inactive": "非アクティブ",
-    "expired": "期限切れ",
-    "dataUsage": "データ使用量",
-    "activationDate": "有効化日",
-    "expiryDate": "有効期限",
-    "settings": "設定",
-    "qrCode": "QRコード",
-    "dataCapacity": "データ容量",
-    "validityPeriod": "有効期間",
-    "coverageArea": "カバーエリア",
-    "japanNationwide": "日本全国",
-    "purchase": "購入",
-    "planName": "eSIMデータプラン",
-    "planDescription": "日本全国対応・高速データ通信",
-    "noPlansAvailable": "eSIMプランがありません",
-    "purchaseToStartPrompt": "利用可能なプランから購入してeSIMを開始しましょう",
-    "features": {
-      "highSpeedData": "高速データ通信",
-      "japanNationwideAvailability": "日本全国で利用可能",
-      "easyQRSetup": "簡単なQRコード設定"
-    }
   }
 };
