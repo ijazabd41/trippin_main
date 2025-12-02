@@ -579,11 +579,76 @@ const ESIMManagement: React.FC = () => {
   };
 
   if (isLoading) {
+    const currentPlanSkeletons = Array.from({ length: 2 });
+    const availablePlanSkeletons = Array.from({ length: 3 });
+
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 pt-20 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">eSIM情報を読み込み中...</p>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 pt-20">
+        <div className="max-w-6xl mx-auto px-6 py-8 animate-pulse">
+          <div className="text-center mb-8">
+            <div className="h-10 bg-white/70 rounded-full w-48 mx-auto mb-4" />
+            <div className="h-4 bg-white/70 rounded-full w-72 mx-auto" />
+          </div>
+
+          <div className="grid lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2 space-y-6">
+              <div className="h-7 bg-white/70 rounded-full w-40" />
+              {currentPlanSkeletons.map((_, index) => (
+                <div
+                  key={`current-plan-skeleton-${index}`}
+                  className="bg-white rounded-3xl shadow-lg p-6 space-y-4"
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-12 h-12 bg-gray-200 rounded-full" />
+                      <div>
+                        <div className="h-4 bg-gray-200 rounded w-40 mb-2" />
+                        <div className="h-3 bg-gray-200 rounded w-24" />
+                      </div>
+                    </div>
+                    <div className="flex space-x-2">
+                      <div className="h-6 bg-gray-200 rounded-full w-20" />
+                      <div className="h-6 bg-gray-100 rounded-full w-16" />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="h-3 bg-gray-100 rounded w-full" />
+                    <div className="h-3 bg-gray-100 rounded w-5/6" />
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="h-10 bg-gray-100 rounded" />
+                    <div className="h-10 bg-gray-100 rounded" />
+                  </div>
+
+                  <div className="flex space-x-3">
+                    <div className="h-10 bg-gray-100 rounded-lg flex-1" />
+                    <div className="h-10 bg-gray-100 rounded-lg flex-1" />
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="space-y-6">
+              <div className="h-7 bg-white/70 rounded-full w-40" />
+              {availablePlanSkeletons.map((_, index) => (
+                <div
+                  key={`available-plan-skeleton-${index}`}
+                  className="bg-white rounded-2xl shadow-lg p-6 space-y-4"
+                >
+                  <div className="h-5 bg-gray-200 rounded w-52" />
+                  <div className="space-y-2">
+                    <div className="h-3 bg-gray-100 rounded w-full" />
+                    <div className="h-3 bg-gray-100 rounded w-5/6" />
+                    <div className="h-3 bg-gray-100 rounded w-2/3" />
+                  </div>
+                  <div className="h-8 bg-gray-200 rounded w-32" />
+                  <div className="h-10 bg-gray-100 rounded-xl" />
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     );

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
 import { createClient, SupabaseClient, User, Session } from '@supabase/supabase-js';
 import { backendService } from '../services/BackendService';
 import { backendApiCall, BACKEND_API_CONFIG } from '../config/backend-api';
@@ -100,6 +100,8 @@ export const SupabaseAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const [session, setSession] = useState<Session | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const lastPremiumRefreshTokenRef = useRef<string | null>(null);
+  const hasLoadedProfileFromStorageRef = useRef(false);
 
   useEffect(() => {
     // Attempt to load runtime config at runtime (window-injected or fetched by index.html)
@@ -114,6 +116,44 @@ export const SupabaseAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
       } catch {}
     })();
   }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    try {
+      const storedProfile = window.localStorage.getItem('supabase-user-profile');
+      if (storedProfile) {
+        const parsedProfile = JSON.parse(storedProfile);
+        setUserProfile(prev => prev ?? parsedProfile);
+      }
+    } catch (error) {
+      console.warn('Failed to load cached user profile:', error);
+    } finally {
+      hasLoadedProfileFromStorageRef.current = true;
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    if (!hasLoadedProfileFromStorageRef.current) {
+      return;
+    }
+
+    try {
+      if (userProfile) {
+        window.localStorage.setItem('supabase-user-profile', JSON.stringify(userProfile));
+      } else {
+        window.localStorage.removeItem('supabase-user-profile');
+      }
+    } catch (error) {
+      console.warn('Failed to persist user profile cache:', error);
+    }
+  }, [userProfile]);
 
   // Session restoration on app load
   useEffect(() => {
@@ -343,7 +383,7 @@ export const SupabaseAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
   };
 
   // Refresh user profile from backend API
-  const refreshUserProfileFromBackend = async () => {
+  const refreshUserProfileFromBackend = useCallback(async () => {
     try {
       if (!session?.access_token) {
         console.log('No access token available for backend refresh');
@@ -389,7 +429,28 @@ export const SupabaseAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
       console.warn('⚠️ Subscription status endpoint not accessible - this is expected if backend is not fully configured');
       return null;
     }
-  };
+  }, [session, userProfile]);
+
+  useEffect(() => {
+    const accessToken = session?.access_token;
+
+    if (!accessToken) {
+      lastPremiumRefreshTokenRef.current = null;
+      return;
+    }
+
+    if (userProfile?.is_premium === true) {
+      lastPremiumRefreshTokenRef.current = accessToken;
+      return;
+    }
+
+    if (lastPremiumRefreshTokenRef.current === accessToken) {
+      return;
+    }
+
+    lastPremiumRefreshTokenRef.current = accessToken;
+    refreshUserProfileFromBackend();
+  }, [session?.access_token, userProfile?.is_premium, refreshUserProfileFromBackend]);
 
   // Sign up with email and password
   const signUp = async (email: string, password: string, userData?: any) => {

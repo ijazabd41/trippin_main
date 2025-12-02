@@ -1,6 +1,0 @@
-{
-  "planId": "premium",
-  "successUrl": "http://localhost:5173/payment-success",
-  "cancelUrl": "http://localhost:5173/checkout"
-}
-
