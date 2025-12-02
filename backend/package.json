@@ -9,8 +9,7 @@
     "dev": "nodemon server.js",
     "build": "echo 'No build step required'",
     "test": "jest",
-    "setup": "node setup.js",
-    "test-api": "node test-api.js"
+    "setup": "node setup.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0",
@@ -35,6 +34,6 @@
     "nodemon": "^3.0.2"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": "24.x"
   }
 }

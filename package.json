@@ -12,12 +12,8 @@
     "vercel-build": "npm run build",
     "start": "vite preview",
     "postbuild": "echo 'Build completed successfully'",
-    "start-dev": "node start-dev.js",
-    "start-dev-windows": "powershell -ExecutionPolicy Bypass -File start-dev.ps1",
     "backend": "cd backend && npm run dev",
-    "frontend": "npm run dev",
-    "test-connection": "node test-connection.js",
-    "translate:ja": "node translate-from-ja.js ur vi tr th sv ru"
+    "frontend": "npm run dev"
   },
   "dependencies": {
     "@auth0/auth0-react": "^2.3.0",
@@ -57,8 +53,7 @@
     "typescript-eslint": "^8.3.0",
     "vite": "^7.1.0"
   },
-   "engines": {
-  "node": "24.x"
-}
-
+  "engines": {
+    "node": "24.x"
+  }
 }
