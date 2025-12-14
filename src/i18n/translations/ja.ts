@@ -24,7 +24,14 @@ export const ja = {
     "showMore": "もっと見る（{{count}}個）",
     "showLess": "表示を減らす",
     "selectAll": "すべて選択",
-    "deselectAll": "すべて解除"
+    "deselectAll": "すべて解除",
+    "notAvailable": "利用できません",
+    "authRequired": "認証が必要です",
+    "loadingSettings": "設定を読み込み中...",
+    "loadingDetails": "詳細を読み込み中...",
+    "loadingTemplates": "テンプレートを読み込み中...",
+    "loadingTrip": "旅程を読み込み中...",
+    "loadingAdminData": "管理データを読み込み中..."
   },
   "menu": {
     "home": "ホーム",
@@ -1204,7 +1211,7 @@ export const ja = {
     "mild-spice": "辛いもの控えめ",
     "allergy-friendly": "アレルギー対応（ナッツ、甲殻類など）",
     "organic-preference": "オーガニック志向",
-    "transportationMethods": "交通手段",
+    "transportationMethods": "観光スポット",
     "shinkansen": "新幹線",
     "local-train": "在来線",
     "bus": "バス",
@@ -1213,7 +1220,7 @@ export const ja = {
     "bicycle": "自転車",
     "ferry": "フェリー",
     "airplane": "飛行機",
-    "accommodationTypes": "宿泊施設",
+    "accommodationTypes": "食べ物",
     "hotel": "ホテル",
     "ryokan": "旅館",
     "hostel": "ホステル",
@@ -1357,6 +1364,7 @@ export const ja = {
     "shizuoka": "静岡"
   },
   "errors": {
+
     "tripTitleRequired": "旅行タイトルを入力してください",
     "destinationRequired": "目的地を選択または入力してください",
     "departureDateRequired": "出発日を選択してください",
@@ -1364,7 +1372,42 @@ export const ja = {
     "travelersRequired": "旅行者数を選択してください",
     "pastDate": "出発日は今日以降を選択してください",
     "invalidDateRange": "帰国日は出発日より後の日付を選択してください",
-    "travelersRange": "旅行者数は1人から20人までです"
+    "travelersRange": "旅行者数は1人から20人までです",
+"boundaryTitle": "問題が発生しました",
+    "boundaryMessage": "予期しないエラーが発生しました。ご不便をおかけして申し訳ありません。",
+    "reloadPage": "ページを再読み込み",
+    "pages": {
+      "notFoundTitle": "ページが見つかりません",
+      "notFoundDescription": "お探しのページは存在しないか、一時的に利用できません。",
+      "serverErrorTitle": "サーバーエラー",
+      "serverErrorDescription": "サーバーで問題が発生しました。しばらくしてから再度お試しください。",
+      "maintenanceTitle": "メンテナンス中",
+      "maintenanceDescription": "現在メンテナンスを実施しています。少し時間をおいて再度お試しください。",
+      "unexpectedTitle": "エラーが発生しました",
+      "unexpectedDescription": "予期しないエラーが発生しました。",
+      "backToPrevious": "前のページに戻る",
+      "errorCode": "エラーコード: {{code}}"
+    },
+    "checkout": {
+      "generic": "決済処理でエラーが発生しました。もう一度お試しください。",
+      "sessionCreationFailed": "決済セッションの作成に失敗しました。",
+      "backendMockInUse": "バックエンドがモックデータを使用しています。バックエンド接続を確認してください。",
+      "mockDataInstructions": "バックエンドがモックデータを使用しています。デバッグパネルの「Force Real Backend」をクリックしてください。",
+      "auth": "認証エラーが発生しました。ログインし直してください。",
+      "network": "ネットワークエラーが発生しました。インターネット接続を確認してください。",
+      "timeout": "リクエストがタイムアウトしました。もう一度お試しください。",
+      "rateLimited": "リクエストが多すぎます。しばらく待ってからもう一度お試しください。",
+      "backendConnection": "バックエンドサービスを利用できません。時間をおいて再試行してください。"
+    },
+    "forms": {
+      "paymentFieldsRequired": "すべての支払い項目を入力してください。",
+      "paymentProcessingError": "決済処理中にエラーが発生しました。"
+    },
+    "esim": {
+      "plansLoadFailed": "eSIMプラン情報の取得に失敗しました。",
+      "mockDataNotice": "eSIMサービスが一時的に利用できないため、サンプルプランを表示しています。",
+      "loadFailedFallback": "eSIMデータの読み込みに失敗しました。基本情報を表示しています。"
+    }
   },
   "confirmation": {
     "title": "旅行プラン確認",

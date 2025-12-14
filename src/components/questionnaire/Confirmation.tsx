@@ -33,6 +33,7 @@ import {
 import { useLanguage } from '../../contexts/LanguageContext';
 import { planGenerationService, PlanGenerationRequest } from '../../services/PlanGenerationService';
 import { useSupabaseAuth } from '../../contexts/SupabaseAuthContext';
+import { formatCurrency, getCurrencySymbol } from '../../utils/currencyFormatter';
 
 interface CompletionData {
   basicInfo: any;
@@ -102,7 +103,7 @@ const Confirmation: React.FC = () => {
         endDate: allData.basicInfo.endDate || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
         travelers: allData.basicInfo.travelers || 1,
         budget: allData.travelStyle.budget || 100000,
-        currency: 'JPY',
+        currency: (allData.travelStyle.currency || 'jpy').toUpperCase(),
         interests: allData.travelStyle.interests || [],
         accommodationType: allData.detailedPreferences.accommodationType || 'mid-range',
         transportationType: allData.detailedPreferences.transportationType || 'public',
@@ -347,7 +348,7 @@ const Confirmation: React.FC = () => {
                   <div className="p-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-2xl shadow-sm">
                     <div className="text-sm text-gray-600 mb-1">💰 {t('questionnaire.totalBudget') || '総予算'}</div>
                     <div className="font-bold text-gray-800">
-                      ¥{(allData?.travelStyle.budget || 0).toLocaleString()}
+                      {formatCurrency(parseFloat(allData?.travelStyle.budget || '0') || 0, allData?.travelStyle.currency || 'jpy')}
                     </div>
                   </div>
                 </div>

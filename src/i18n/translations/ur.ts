@@ -24,7 +24,14 @@ export const ur = {
     "showMore": "مزید دیکھیں ({{گنتی}})",
     "showLess": "کم ڈسپلے کریں",
     "selectAll": "سب کو منتخب کریں",
-    "deselectAll": "سب کو جاری کریں"
+    "deselectAll": "سب کو جاری کریں",
+    "notAvailable": "دستیاب نہیں",
+    "authRequired": "تصدیق درکار ہے",
+    "loadingSettings": "ترتیبات لوڈ ہو رہی ہیں...",
+    "loadingDetails": "تفصیلات لوڈ ہو رہی ہیں...",
+    "loadingTemplates": "ٹیمپلیٹس لوڈ ہو رہے ہیں...",
+    "loadingTrip": "سفر لوڈ ہو رہا ہے...",
+    "loadingAdminData": "ایڈمن ڈیٹا لوڈ ہو رہا ہے..."
   },
   "menu": {
     "home": "گھر",
@@ -1478,7 +1485,7 @@ export const ur = {
     "mild-spice": "مسالہ دار کھانوں سے پرہیز کریں",
     "allergy-friendly": "الرجی دوستانہ (گری دار میوے ، شیلفش ، وغیرہ)",
     "organic-preference": "نامیاتی پر مبنی",
-    "transportationMethods": "نقل و حمل کے ذرائع",
+    "transportationMethods": "سیاحتی مقامات",
     "shinkansen": "بلٹ ٹرین",
     "local-train": "روایتی لائن",
     "bus": "بس",
@@ -1487,7 +1494,7 @@ export const ur = {
     "bicycle": "سائیکل",
     "ferry": "فیری",
     "airplane": "ہوائی جہاز",
-    "accommodationTypes": "رہائش",
+    "accommodationTypes": "کھانا",
     "hotel": "ہوٹل",
     "ryokan": "In",
     "hostel": "ہاسٹل",
@@ -1672,6 +1679,7 @@ export const ur = {
     "shizuoka": "شیزوکا"
   },
   "errors": {
+
     "tripTitleRequired": "براہ کرم ٹرپ ٹائٹل درج کریں",
     "destinationRequired": "براہ کرم اپنی منزل منتخب کریں یا درج کریں",
     "departureDateRequired": "براہ کرم اپنی روانگی کی تاریخ منتخب کریں",
@@ -1679,7 +1687,42 @@ export const ur = {
     "travelersRequired": "براہ کرم مسافروں کی تعداد منتخب کریں",
     "pastDate": "براہ کرم آج کے بعد روانگی کی تاریخ منتخب کریں",
     "invalidDateRange": "براہ کرم اپنی واپسی کی تاریخ کے لئے اپنی روانگی کی تاریخ کے بعد ایک تاریخ منتخب کریں۔",
-    "travelersRange": "مسافروں کی تعداد 1 سے 20 تک ہے"
+    "travelersRange": "مسافروں کی تعداد 1 سے 20 تک ہے",
+"boundaryTitle": "Something went wrong",
+    "boundaryMessage": "We're sorry, but something unexpected happened.",
+    "reloadPage": "Reload page",
+    "pages": {
+      "notFoundTitle": "Page not found",
+      "notFoundDescription": "The page you are looking for might have been removed or temporarily unavailable.",
+      "serverErrorTitle": "Server error",
+      "serverErrorDescription": "There was a problem on our server. Please try again later.",
+      "maintenanceTitle": "Maintenance in progress",
+      "maintenanceDescription": "The service is currently undergoing maintenance. Please try again soon.",
+      "unexpectedTitle": "An error occurred",
+      "unexpectedDescription": "An unexpected error has occurred.",
+      "backToPrevious": "Go back to the previous page",
+      "errorCode": "Error code: {{code}}"
+    },
+    "checkout": {
+      "generic": "A payment error occurred. Please try again.",
+      "sessionCreationFailed": "Failed to create a checkout session.",
+      "backendMockInUse": "The backend is using mock data. Please check the backend connection.",
+      "mockDataInstructions": "The backend is using mock data. Click the \"Force Real Backend\" button in the debug panel.",
+      "auth": "Authentication error occurred. Please sign in again.",
+      "network": "A network error occurred. Please check your internet connection.",
+      "timeout": "The request timed out. Please try again.",
+      "rateLimited": "Too many requests. Please wait and try again.",
+      "backendConnection": "Backend service is unavailable. Please try again later."
+    },
+    "forms": {
+      "paymentFieldsRequired": "Please complete all payment fields.",
+      "paymentProcessingError": "An error occurred while processing the payment."
+    },
+    "esim": {
+      "plansLoadFailed": "Failed to load eSIM plan information.",
+      "mockDataNotice": "eSIM service is temporarily unavailable, showing sample plans.",
+      "loadFailedFallback": "Failed to load eSIM data. Showing basic fallback information."
+    }
   },
   "confirmation": {
     "title": "ٹریول پلان کی تصدیق کریں",

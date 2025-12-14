@@ -24,7 +24,14 @@ export const tr = {
     "showMore": "Daha fazlasını gör ({{count}})",
     "showLess": "daha az göster",
     "selectAll": "Tümünü seç",
-    "deselectAll": "Tümünü serbest bırak"
+    "deselectAll": "Tümünü serbest bırak",
+    "notAvailable": "Mevcut değil",
+    "authRequired": "Kimlik doğrulama gerekli",
+    "loadingSettings": "Ayarlar yükleniyor...",
+    "loadingDetails": "Detaylar yükleniyor...",
+    "loadingTemplates": "Şablonlar yükleniyor...",
+    "loadingTrip": "Seyahat yükleniyor...",
+    "loadingAdminData": "Yönetim verileri yükleniyor..."
   },
   "menu": {
     "home": "Ev",
@@ -1478,7 +1485,7 @@ export const tr = {
     "mild-spice": "Baharatlı yiyeceklerden kaçının",
     "allergy-friendly": "Alerji dostu (fındık, kabuklu deniz ürünleri vb.)",
     "organic-preference": "Organik odaklı",
-    "transportationMethods": "ulaşım aracı",
+    "transportationMethods": "Turistik Yerler",
     "shinkansen": "hızlı tren",
     "local-train": "Geleneksel hat",
     "bus": "otobüs",
@@ -1487,7 +1494,7 @@ export const tr = {
     "bicycle": "bisiklet",
     "ferry": "feribot",
     "airplane": "uçak",
-    "accommodationTypes": "Konaklama",
+    "accommodationTypes": "Yemek",
     "hotel": "Otel",
     "ryokan": "Han",
     "hostel": "pansiyon",
@@ -1672,6 +1679,7 @@ export const tr = {
     "shizuoka": "Şizuoka"
   },
   "errors": {
+
     "tripTitleRequired": "Lütfen gezi başlığını girin",
     "destinationRequired": "Lütfen varış noktanızı seçin veya girin",
     "departureDateRequired": "Lütfen kalkış tarihinizi seçin",
@@ -1679,7 +1687,42 @@ export const tr = {
     "travelersRequired": "Lütfen yolcu sayısını seçin",
     "pastDate": "Lütfen bugünden sonra bir kalkış tarihi seçin",
     "invalidDateRange": "Lütfen dönüş tarihiniz olarak gidiş tarihinizden sonraki bir tarihi seçiniz.",
-    "travelersRange": "Yolcu sayısı 1 ila 20 arasında değişiyor"
+    "travelersRange": "Yolcu sayısı 1 ila 20 arasında değişiyor",
+"boundaryTitle": "Something went wrong",
+    "boundaryMessage": "We're sorry, but something unexpected happened.",
+    "reloadPage": "Reload page",
+    "pages": {
+      "notFoundTitle": "Page not found",
+      "notFoundDescription": "The page you are looking for might have been removed or temporarily unavailable.",
+      "serverErrorTitle": "Server error",
+      "serverErrorDescription": "There was a problem on our server. Please try again later.",
+      "maintenanceTitle": "Maintenance in progress",
+      "maintenanceDescription": "The service is currently undergoing maintenance. Please try again soon.",
+      "unexpectedTitle": "An error occurred",
+      "unexpectedDescription": "An unexpected error has occurred.",
+      "backToPrevious": "Go back to the previous page",
+      "errorCode": "Error code: {{code}}"
+    },
+    "checkout": {
+      "generic": "A payment error occurred. Please try again.",
+      "sessionCreationFailed": "Failed to create a checkout session.",
+      "backendMockInUse": "The backend is using mock data. Please check the backend connection.",
+      "mockDataInstructions": "The backend is using mock data. Click the \"Force Real Backend\" button in the debug panel.",
+      "auth": "Authentication error occurred. Please sign in again.",
+      "network": "A network error occurred. Please check your internet connection.",
+      "timeout": "The request timed out. Please try again.",
+      "rateLimited": "Too many requests. Please wait and try again.",
+      "backendConnection": "Backend service is unavailable. Please try again later."
+    },
+    "forms": {
+      "paymentFieldsRequired": "Please complete all payment fields.",
+      "paymentProcessingError": "An error occurred while processing the payment."
+    },
+    "esim": {
+      "plansLoadFailed": "Failed to load eSIM plan information.",
+      "mockDataNotice": "eSIM service is temporarily unavailable, showing sample plans.",
+      "loadFailedFallback": "Failed to load eSIM data. Showing basic fallback information."
+    }
   },
   "confirmation": {
     "title": "Seyahat planını onaylayın",

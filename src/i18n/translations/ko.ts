@@ -24,7 +24,14 @@ export const ko = {
     "showMore": "더보기 ({{count}})",
     "showLess": "덜 표시하다",
     "selectAll": "모두 선택",
-    "deselectAll": "모두 해제"
+    "deselectAll": "모두 해제",
+    "notAvailable": "사용할 수 없음",
+    "authRequired": "인증이 필요합니다",
+    "loadingSettings": "설정 로드 중...",
+    "loadingDetails": "세부 정보 로드 중...",
+    "loadingTemplates": "템플릿 로드 중...",
+    "loadingTrip": "여행 로드 중...",
+    "loadingAdminData": "관리 데이터 로드 중..."
   },
   "menu": {
     "home": "집",
@@ -1476,7 +1483,7 @@ export const ko = {
     "mild-spice": "매운 음식을 피하세요",
     "allergy-friendly": "알레르기 친화적(견과류, 조개류 등)",
     "organic-preference": "유기농 지향",
-    "transportationMethods": "교통수단",
+    "transportationMethods": "명소",
     "shinkansen": "신칸센",
     "local-train": "재래선",
     "bus": "버스",
@@ -1485,7 +1492,7 @@ export const ko = {
     "bicycle": "자전거",
     "ferry": "나룻배",
     "airplane": "비행기",
-    "accommodationTypes": "숙소",
+    "accommodationTypes": "음식",
     "hotel": "호텔",
     "ryokan": "여인숙",
     "hostel": "숙박소",
@@ -1670,6 +1677,7 @@ export const ko = {
     "shizuoka": "시즈오카"
   },
   "errors": {
+
     "tripTitleRequired": "여행 제목을 입력해주세요",
     "destinationRequired": "목적지를 선택하거나 입력하세요.",
     "departureDateRequired": "출발일을 선택해주세요.",
@@ -1677,7 +1685,42 @@ export const ko = {
     "travelersRequired": "여행자 수를 선택해주세요.",
     "pastDate": "오늘 이후의 출발일을 선택하세요.",
     "invalidDateRange": "귀국일은 ​​출발일보다 늦은 날짜를 선택해 주세요.",
-    "travelersRange": "여행자 수는 1명부터 20명까지입니다."
+    "travelersRange": "여행자 수는 1명부터 20명까지입니다.",
+"boundaryTitle": "Something went wrong",
+    "boundaryMessage": "We're sorry, but something unexpected happened.",
+    "reloadPage": "Reload page",
+    "pages": {
+      "notFoundTitle": "Page not found",
+      "notFoundDescription": "The page you are looking for might have been removed or temporarily unavailable.",
+      "serverErrorTitle": "Server error",
+      "serverErrorDescription": "There was a problem on our server. Please try again later.",
+      "maintenanceTitle": "Maintenance in progress",
+      "maintenanceDescription": "The service is currently undergoing maintenance. Please try again soon.",
+      "unexpectedTitle": "An error occurred",
+      "unexpectedDescription": "An unexpected error has occurred.",
+      "backToPrevious": "Go back to the previous page",
+      "errorCode": "Error code: {{code}}"
+    },
+    "checkout": {
+      "generic": "A payment error occurred. Please try again.",
+      "sessionCreationFailed": "Failed to create a checkout session.",
+      "backendMockInUse": "The backend is using mock data. Please check the backend connection.",
+      "mockDataInstructions": "The backend is using mock data. Click the \"Force Real Backend\" button in the debug panel.",
+      "auth": "Authentication error occurred. Please sign in again.",
+      "network": "A network error occurred. Please check your internet connection.",
+      "timeout": "The request timed out. Please try again.",
+      "rateLimited": "Too many requests. Please wait and try again.",
+      "backendConnection": "Backend service is unavailable. Please try again later."
+    },
+    "forms": {
+      "paymentFieldsRequired": "Please complete all payment fields.",
+      "paymentProcessingError": "An error occurred while processing the payment."
+    },
+    "esim": {
+      "plansLoadFailed": "Failed to load eSIM plan information.",
+      "mockDataNotice": "eSIM service is temporarily unavailable, showing sample plans.",
+      "loadFailedFallback": "Failed to load eSIM data. Showing basic fallback information."
+    }
   },
   "confirmation": {
     "title": "여행 계획 확인",

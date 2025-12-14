@@ -24,7 +24,14 @@ export const en = {
     "showMore": "See more ({{count}})",
     "showLess": "display less",
     "selectAll": "Select all",
-    "deselectAll": "Release all"
+    "deselectAll": "Release all",
+    "notAvailable": "Not available",
+    "authRequired": "Authentication required",
+    "loadingSettings": "Loading settings...",
+    "loadingDetails": "Loading details...",
+    "loadingTemplates": "Loading templates...",
+    "loadingTrip": "Loading trip...",
+    "loadingAdminData": "Loading admin data..."
   },
   "menu": {
     "home": "Home",
@@ -1476,7 +1483,7 @@ export const en = {
     "mild-spice": "Avoid spicy foods",
     "allergy-friendly": "Allergy friendly (nuts, shellfish, etc.)",
     "organic-preference": "Organic-oriented",
-    "transportationMethods": "means of transportation",
+    "transportationMethods": "Attractions",
     "shinkansen": "bullet train",
     "local-train": "Conventional line",
     "bus": "bus",
@@ -1485,7 +1492,7 @@ export const en = {
     "bicycle": "bicycle",
     "ferry": "ferry",
     "airplane": "plane",
-    "accommodationTypes": "Accommodation",
+    "accommodationTypes": "Food",
     "hotel": "Hotel",
     "ryokan": "Inn",
     "hostel": "hostel",
@@ -1670,6 +1677,7 @@ export const en = {
     "shizuoka": "Shizuoka"
   },
   "errors": {
+
     "tripTitleRequired": "Please enter the trip title",
     "destinationRequired": "Please select or enter your destination",
     "departureDateRequired": "Please select your departure date",
@@ -1677,7 +1685,42 @@ export const en = {
     "travelersRequired": "Please select number of travelers",
     "pastDate": "Please select a departure date after today",
     "invalidDateRange": "Please select a date later than your departure date for your return date.",
-    "travelersRange": "Number of travelers ranges from 1 to 20"
+    "travelersRange": "Number of travelers ranges from 1 to 20",
+"boundaryTitle": "Something went wrong",
+    "boundaryMessage": "We're sorry, but something unexpected happened.",
+    "reloadPage": "Reload page",
+    "pages": {
+      "notFoundTitle": "Page not found",
+      "notFoundDescription": "The page you are looking for might have been removed or temporarily unavailable.",
+      "serverErrorTitle": "Server error",
+      "serverErrorDescription": "There was a problem on our server. Please try again later.",
+      "maintenanceTitle": "Maintenance in progress",
+      "maintenanceDescription": "The service is currently undergoing maintenance. Please try again soon.",
+      "unexpectedTitle": "An error occurred",
+      "unexpectedDescription": "An unexpected error has occurred.",
+      "backToPrevious": "Go back to the previous page",
+      "errorCode": "Error code: {{code}}"
+    },
+    "checkout": {
+      "generic": "A payment error occurred. Please try again.",
+      "sessionCreationFailed": "Failed to create a checkout session.",
+      "backendMockInUse": "The backend is using mock data. Please check the backend connection.",
+      "mockDataInstructions": "The backend is using mock data. Click the \"Force Real Backend\" button in the debug panel.",
+      "auth": "Authentication error occurred. Please sign in again.",
+      "network": "A network error occurred. Please check your internet connection.",
+      "timeout": "The request timed out. Please try again.",
+      "rateLimited": "Too many requests. Please wait and try again.",
+      "backendConnection": "Backend service is unavailable. Please try again later."
+    },
+    "forms": {
+      "paymentFieldsRequired": "Please complete all payment fields.",
+      "paymentProcessingError": "An error occurred while processing the payment."
+    },
+    "esim": {
+      "plansLoadFailed": "Failed to load eSIM plan information.",
+      "mockDataNotice": "eSIM service is temporarily unavailable, showing sample plans.",
+      "loadFailedFallback": "Failed to load eSIM data. Showing basic fallback information."
+    }
   },
   "confirmation": {
     "title": "Confirm travel plan",

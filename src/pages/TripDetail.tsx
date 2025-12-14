@@ -703,7 +703,7 @@ const TripDetail: React.FC = () => {
               {isLoadingDetails ? (
                 <div className="py-12 text-center">
                   <div className="w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                  <p className="text-gray-600">詳細を読み込み中...</p>
+                  <p className="text-gray-600">{t('common.loadingDetails')}</p>
                 </div>
               ) : activityDetails ? (
                 <>

@@ -24,7 +24,14 @@ export const nl = {
     "showMore": "Bekijk meer ({{count}})",
     "showLess": "minder weergeven",
     "selectAll": "Selecteer alles",
-    "deselectAll": "Laat alles los"
+    "deselectAll": "Laat alles los",
+    "notAvailable": "Niet beschikbaar",
+    "authRequired": "Authenticatie vereist",
+    "loadingSettings": "Instellingen laden...",
+    "loadingDetails": "Details laden...",
+    "loadingTemplates": "Sjablonen laden...",
+    "loadingTrip": "Reis laden...",
+    "loadingAdminData": "Beheerdersgegevens laden..."
   },
   "menu": {
     "home": "Thuis",
@@ -1478,7 +1485,7 @@ export const nl = {
     "mild-spice": "Vermijd gekruid voedsel",
     "allergy-friendly": "Allergievriendelijk (noten, schaaldieren, etc.)",
     "organic-preference": "Biologisch gericht",
-    "transportationMethods": "vervoermiddel",
+    "transportationMethods": "Bezienswaardigheden",
     "shinkansen": "kogel trein",
     "local-train": "Conventionele lijn",
     "bus": "bus",
@@ -1487,7 +1494,7 @@ export const nl = {
     "bicycle": "fiets",
     "ferry": "veerboot",
     "airplane": "vliegtuig",
-    "accommodationTypes": "Accommodatie",
+    "accommodationTypes": "Eten",
     "hotel": "Hotel",
     "ryokan": "Herberg",
     "hostel": "hostel",
@@ -1672,6 +1679,7 @@ export const nl = {
     "shizuoka": "Shizuoka"
   },
   "errors": {
+
     "tripTitleRequired": "Voer de titel van de reis in",
     "destinationRequired": "Selecteer of voer uw bestemming in",
     "departureDateRequired": "Selecteer uw vertrekdatum",
@@ -1679,7 +1687,42 @@ export const nl = {
     "travelersRequired": "Selecteer het aantal reizigers",
     "pastDate": "Selecteer een vertrekdatum na vandaag",
     "invalidDateRange": "Selecteer voor uw terugkeerdatum een ​​datum later dan uw vertrekdatum.",
-    "travelersRange": "Het aantal reizigers varieert van 1 tot 20"
+    "travelersRange": "Het aantal reizigers varieert van 1 tot 20",
+"boundaryTitle": "Something went wrong",
+    "boundaryMessage": "We're sorry, but something unexpected happened.",
+    "reloadPage": "Reload page",
+    "pages": {
+      "notFoundTitle": "Page not found",
+      "notFoundDescription": "The page you are looking for might have been removed or temporarily unavailable.",
+      "serverErrorTitle": "Server error",
+      "serverErrorDescription": "There was a problem on our server. Please try again later.",
+      "maintenanceTitle": "Maintenance in progress",
+      "maintenanceDescription": "The service is currently undergoing maintenance. Please try again soon.",
+      "unexpectedTitle": "An error occurred",
+      "unexpectedDescription": "An unexpected error has occurred.",
+      "backToPrevious": "Go back to the previous page",
+      "errorCode": "Error code: {{code}}"
+    },
+    "checkout": {
+      "generic": "A payment error occurred. Please try again.",
+      "sessionCreationFailed": "Failed to create a checkout session.",
+      "backendMockInUse": "The backend is using mock data. Please check the backend connection.",
+      "mockDataInstructions": "The backend is using mock data. Click the \"Force Real Backend\" button in the debug panel.",
+      "auth": "Authentication error occurred. Please sign in again.",
+      "network": "A network error occurred. Please check your internet connection.",
+      "timeout": "The request timed out. Please try again.",
+      "rateLimited": "Too many requests. Please wait and try again.",
+      "backendConnection": "Backend service is unavailable. Please try again later."
+    },
+    "forms": {
+      "paymentFieldsRequired": "Please complete all payment fields.",
+      "paymentProcessingError": "An error occurred while processing the payment."
+    },
+    "esim": {
+      "plansLoadFailed": "Failed to load eSIM plan information.",
+      "mockDataNotice": "eSIM service is temporarily unavailable, showing sample plans.",
+      "loadFailedFallback": "Failed to load eSIM data. Showing basic fallback information."
+    }
   },
   "confirmation": {
     "title": "Bevestig reisplan",

@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { AlertTriangle, Home, RefreshCw, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface ErrorPagesProps {
   type: '404' | '500' | '503';
@@ -9,46 +10,47 @@ interface ErrorPagesProps {
 
 const ErrorPages: React.FC<ErrorPagesProps> = ({ type }) => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   const getErrorContent = () => {
     switch (type) {
       case '404':
         return {
-          title: 'ページが見つかりません',
-          description: 'お探しのページは存在しないか、移動された可能性があります。',
+          title: t('errors.pages.notFoundTitle'),
+          description: t('errors.pages.notFoundDescription'),
           icon: '🔍',
           actions: [
-            { label: 'ホームに戻る', action: () => navigate('/'), icon: Home },
-            { label: '前のページに戻る', action: () => window.history.back(), icon: ArrowLeft }
+            { label: t('common.backToHome'), action: () => navigate('/'), icon: Home },
+            { label: t('errors.pages.backToPrevious'), action: () => window.history.back(), icon: ArrowLeft }
           ]
         };
       case '500':
         return {
-          title: 'サーバーエラー',
-          description: 'サーバーで問題が発生しました。しばらくしてからもう一度お試しください。',
+          title: t('errors.pages.serverErrorTitle'),
+          description: t('errors.pages.serverErrorDescription'),
           icon: '⚠️',
           actions: [
-            { label: 'ページを再読み込み', action: () => window.location.reload(), icon: RefreshCw },
-            { label: 'ホームに戻る', action: () => navigate('/'), icon: Home }
+            { label: t('errors.reloadPage'), action: () => window.location.reload(), icon: RefreshCw },
+            { label: t('common.backToHome'), action: () => navigate('/'), icon: Home }
           ]
         };
       case '503':
         return {
-          title: 'メンテナンス中',
-          description: 'サービスは現在メンテナンス中です。しばらくお待ちください。',
+          title: t('errors.pages.maintenanceTitle'),
+          description: t('errors.pages.maintenanceDescription'),
           icon: '🔧',
           actions: [
-            { label: 'ページを再読み込み', action: () => window.location.reload(), icon: RefreshCw },
-            { label: 'ホームに戻る', action: () => navigate('/'), icon: Home }
+            { label: t('errors.reloadPage'), action: () => window.location.reload(), icon: RefreshCw },
+            { label: t('common.backToHome'), action: () => navigate('/'), icon: Home }
           ]
         };
       default:
         return {
-          title: 'エラーが発生しました',
-          description: '予期しないエラーが発生しました。',
+          title: t('errors.pages.unexpectedTitle'),
+          description: t('errors.pages.unexpectedDescription'),
           icon: '❌',
           actions: [
-            { label: 'ホームに戻る', action: () => navigate('/'), icon: Home }
+            { label: t('common.backToHome'), action: () => navigate('/'), icon: Home }
           ]
         };
     }
@@ -117,7 +119,7 @@ const ErrorPages: React.FC<ErrorPagesProps> = ({ type }) => {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.6 }}
         >
-          エラーコード: {type}
+          {t('errors.pages.errorCode', { code: type })}
         </motion.div>
       </motion.div>
     </div>

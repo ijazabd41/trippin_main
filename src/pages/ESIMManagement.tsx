@@ -356,15 +356,15 @@ const ESIMManagement: React.FC = () => {
         setAvailablePlans(plansResult.data);
         if (plansResult.isMockData) {
           setShowMockNotice(true);
-          setNoticeMessage('eSIMサービスが一時的に利用できないため、サンプルプランを表示しています。');
+          setNoticeMessage(t('errors.esim.mockDataNotice'));
         }
       } else {
-        throw new Error(plansResult.error || 'eSIMプラン情報の取得に失敗しました');
+        throw new Error(plansResult.error || t('errors.esim.plansLoadFailed'));
       }
     } catch (error) {
       console.error('Failed to load eSIM data:', error);
       setShowMockNotice(true);
-      setNoticeMessage('eSIMデータの読み込みに失敗しました。基本情報を表示しています。');
+      setNoticeMessage(t('errors.esim.loadFailedFallback'));
       
       // Use fallback data
       const fallbackPlans: ESIMPlan[] = [

@@ -24,7 +24,14 @@ export const hi = {
     "showMore": "अधिक दिखाएं ({{count}})",
     "showLess": "कम दिखाएं",
     "selectAll": "सभी चुनें",
-    "deselectAll": "सभी रद्द करें"
+    "deselectAll": "सभी रद्द करें",
+    "notAvailable": "उपलब्ध नहीं",
+    "authRequired": "प्रमाणीकरण आवश्यक है",
+    "loadingSettings": "सेटिंग्स लोड हो रही हैं...",
+    "loadingDetails": "विवरण लोड हो रहे हैं...",
+    "loadingTemplates": "टेम्प्लेट लोड हो रहे हैं...",
+    "loadingTrip": "यात्रा लोड हो रही है...",
+    "loadingAdminData": "प्रशासनिक डेटा लोड हो रहा है..."
   },
   "menu": {
     "home": "TODO: translate",
@@ -1429,11 +1436,11 @@ export const hi = {
     "budget": "TODO: translate",
     "budgetPlaceholder": "TODO: translate",
     "selectAll": "TODO: translate",
-    "deselectAll": "TODO: translate",
-    "dietaryRestrictions": "TODO: translate",
-    "history-culture": "TODO: translate",
-    "temples-shrines": "TODO: translate",
-    "traditional-experience": "TODO: translate",
+    "deselectAll": "सभी रद्द करें",
+    "dietaryRestrictions": "आहार प्रतिबंध/एलर्जी",
+    "history-culture": "इतिहास/संस्कृति",
+    "temples-shrines": "मंदिर/मंदिर",
+    "traditional-experience": "पारंपरिक अनुभव (चाय समारोह, सुलेख, आदि)",
     "castles-historic-sites": "TODO: translate",
     "museums-galleries": "TODO: translate",
     "nature-scenery": "TODO: translate",
@@ -1476,7 +1483,7 @@ export const hi = {
     "mild-spice": "TODO: translate",
     "allergy-friendly": "TODO: translate",
     "organic-preference": "TODO: translate",
-    "transportationMethods": "TODO: translate",
+    "transportationMethods": "आकर्षण",
     "shinkansen": "TODO: translate",
     "local-train": "TODO: translate",
     "bus": "TODO: translate",
@@ -1485,7 +1492,7 @@ export const hi = {
     "bicycle": "TODO: translate",
     "ferry": "TODO: translate",
     "airplane": "TODO: translate",
-    "accommodationTypes": "TODO: translate",
+    "accommodationTypes": "भोजन",
     "hotel": "TODO: translate",
     "ryokan": "TODO: translate",
     "hostel": "TODO: translate",
@@ -1670,6 +1677,7 @@ export const hi = {
     "shizuoka": "TODO: translate"
   },
   "errors": {
+
     "tripTitleRequired": "TODO: translate",
     "destinationRequired": "TODO: translate",
     "departureDateRequired": "TODO: translate",
@@ -1677,7 +1685,42 @@ export const hi = {
     "travelersRequired": "TODO: translate",
     "pastDate": "TODO: translate",
     "invalidDateRange": "TODO: translate",
-    "travelersRange": "TODO: translate"
+    "travelersRange": "TODO: translate",
+"boundaryTitle": "Something went wrong",
+    "boundaryMessage": "We're sorry, but something unexpected happened.",
+    "reloadPage": "Reload page",
+    "pages": {
+      "notFoundTitle": "Page not found",
+      "notFoundDescription": "The page you are looking for might have been removed or temporarily unavailable.",
+      "serverErrorTitle": "Server error",
+      "serverErrorDescription": "There was a problem on our server. Please try again later.",
+      "maintenanceTitle": "Maintenance in progress",
+      "maintenanceDescription": "The service is currently undergoing maintenance. Please try again soon.",
+      "unexpectedTitle": "An error occurred",
+      "unexpectedDescription": "An unexpected error has occurred.",
+      "backToPrevious": "Go back to the previous page",
+      "errorCode": "Error code: {{code}}"
+    },
+    "checkout": {
+      "generic": "A payment error occurred. Please try again.",
+      "sessionCreationFailed": "Failed to create a checkout session.",
+      "backendMockInUse": "The backend is using mock data. Please check the backend connection.",
+      "mockDataInstructions": "The backend is using mock data. Click the \"Force Real Backend\" button in the debug panel.",
+      "auth": "Authentication error occurred. Please sign in again.",
+      "network": "A network error occurred. Please check your internet connection.",
+      "timeout": "The request timed out. Please try again.",
+      "rateLimited": "Too many requests. Please wait and try again.",
+      "backendConnection": "Backend service is unavailable. Please try again later."
+    },
+    "forms": {
+      "paymentFieldsRequired": "Please complete all payment fields.",
+      "paymentProcessingError": "An error occurred while processing the payment."
+    },
+    "esim": {
+      "plansLoadFailed": "Failed to load eSIM plan information.",
+      "mockDataNotice": "eSIM service is temporarily unavailable, showing sample plans.",
+      "loadFailedFallback": "Failed to load eSIM data. Showing basic fallback information."
+    }
   },
   "confirmation": {
     "title": "TODO: translate",

@@ -116,7 +116,7 @@ const PlanCustomization: React.FC = () => {
     return (
       <div className="flex items-center justify-center py-12">
         <RefreshCw className="w-6 h-6 animate-spin text-purple-600" />
-        <span className="ml-2 text-gray-600">設定を読み込み中...</span>
+        <span className="ml-2 text-gray-600">{t('common.loadingSettings')}</span>
       </div>
     );
   }

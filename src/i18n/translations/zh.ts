@@ -24,7 +24,14 @@ export const zh = {
     "showMore": "查看更多 ({{count}})",
     "showLess": "显示较少",
     "selectAll": "选择全部",
-    "deselectAll": "全部释放"
+    "deselectAll": "全部释放",
+    "notAvailable": "不可用",
+    "authRequired": "需要身份验证",
+    "loadingSettings": "正在加载设置...",
+    "loadingDetails": "正在加载详细信息...",
+    "loadingTemplates": "正在加载模板...",
+    "loadingTrip": "正在加载行程...",
+    "loadingAdminData": "正在加载管理数据..."
   },
   "menu": {
     "home": "家",
@@ -1476,7 +1483,7 @@ export const zh = {
     "mild-spice": "避免辛辣食物",
     "allergy-friendly": "防过敏（坚果、贝类等）",
     "organic-preference": "有机导向",
-    "transportationMethods": "交通工具",
+    "transportationMethods": "景点",
     "shinkansen": "子弹头列车",
     "local-train": "常规线",
     "bus": "公共汽车",
@@ -1485,7 +1492,7 @@ export const zh = {
     "bicycle": "自行车",
     "ferry": "渡船",
     "airplane": "飞机",
-    "accommodationTypes": "住宿",
+    "accommodationTypes": "食物",
     "hotel": "酒店",
     "ryokan": "客栈",
     "hostel": "旅馆",
@@ -1670,6 +1677,7 @@ export const zh = {
     "shizuoka": "静冈"
   },
   "errors": {
+
     "tripTitleRequired": "请输入行程标题",
     "destinationRequired": "请选择或输入您的目的地",
     "departureDateRequired": "请选择您的出发日期",
@@ -1677,7 +1685,42 @@ export const zh = {
     "travelersRequired": "请选择出行人数",
     "pastDate": "请选择今天之后的出发日期",
     "invalidDateRange": "请选择晚于出发日期的日期作为返回日期。",
-    "travelersRange": "出行人数从1到20人不等"
+    "travelersRange": "出行人数从1到20人不等",
+"boundaryTitle": "Something went wrong",
+    "boundaryMessage": "We're sorry, but something unexpected happened.",
+    "reloadPage": "Reload page",
+    "pages": {
+      "notFoundTitle": "Page not found",
+      "notFoundDescription": "The page you are looking for might have been removed or temporarily unavailable.",
+      "serverErrorTitle": "Server error",
+      "serverErrorDescription": "There was a problem on our server. Please try again later.",
+      "maintenanceTitle": "Maintenance in progress",
+      "maintenanceDescription": "The service is currently undergoing maintenance. Please try again soon.",
+      "unexpectedTitle": "An error occurred",
+      "unexpectedDescription": "An unexpected error has occurred.",
+      "backToPrevious": "Go back to the previous page",
+      "errorCode": "Error code: {{code}}"
+    },
+    "checkout": {
+      "generic": "A payment error occurred. Please try again.",
+      "sessionCreationFailed": "Failed to create a checkout session.",
+      "backendMockInUse": "The backend is using mock data. Please check the backend connection.",
+      "mockDataInstructions": "The backend is using mock data. Click the \"Force Real Backend\" button in the debug panel.",
+      "auth": "Authentication error occurred. Please sign in again.",
+      "network": "A network error occurred. Please check your internet connection.",
+      "timeout": "The request timed out. Please try again.",
+      "rateLimited": "Too many requests. Please wait and try again.",
+      "backendConnection": "Backend service is unavailable. Please try again later."
+    },
+    "forms": {
+      "paymentFieldsRequired": "Please complete all payment fields.",
+      "paymentProcessingError": "An error occurred while processing the payment."
+    },
+    "esim": {
+      "plansLoadFailed": "Failed to load eSIM plan information.",
+      "mockDataNotice": "eSIM service is temporarily unavailable, showing sample plans.",
+      "loadFailedFallback": "Failed to load eSIM data. Showing basic fallback information."
+    }
   },
   "confirmation": {
     "title": "确认旅行计划",

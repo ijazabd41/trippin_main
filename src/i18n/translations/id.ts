@@ -24,7 +24,14 @@ export const id = {
     "showMore": "Lihat selengkapnya ({{count}})",
     "showLess": "tampilkan lebih sedikit",
     "selectAll": "Pilih semua",
-    "deselectAll": "Lepaskan semuanya"
+    "deselectAll": "Lepaskan semuanya",
+    "notAvailable": "Tidak tersedia",
+    "authRequired": "Autentikasi diperlukan",
+    "loadingSettings": "Memuat pengaturan...",
+    "loadingDetails": "Memuat detail...",
+    "loadingTemplates": "Memuat template...",
+    "loadingTrip": "Memuat perjalanan...",
+    "loadingAdminData": "Memuat data admin..."
   },
   "menu": {
     "home": "Rumah",
@@ -1476,7 +1483,7 @@ export const id = {
     "mild-spice": "Hindari makanan pedas",
     "allergy-friendly": "Ramah alergi (kacang-kacangan, kerang, dll.)",
     "organic-preference": "Berorientasi organik",
-    "transportationMethods": "alat transportasi",
+    "transportationMethods": "Atraksi",
     "shinkansen": "kereta peluru",
     "local-train": "Garis konvensional",
     "bus": "bis",
@@ -1485,7 +1492,7 @@ export const id = {
     "bicycle": "sepeda",
     "ferry": "feri",
     "airplane": "pesawat",
-    "accommodationTypes": "Akomodasi",
+    "accommodationTypes": "Makanan",
     "hotel": "Hotel",
     "ryokan": "Losmen",
     "hostel": "asrama",
@@ -1670,6 +1677,7 @@ export const id = {
     "shizuoka": "Shizuoka"
   },
   "errors": {
+
     "tripTitleRequired": "Silakan masukkan judul perjalanan",
     "destinationRequired": "Silakan pilih atau masukkan tujuan Anda",
     "departureDateRequired": "Silakan pilih tanggal keberangkatan Anda",
@@ -1677,7 +1685,42 @@ export const id = {
     "travelersRequired": "Silakan pilih jumlah wisatawan",
     "pastDate": "Silakan pilih tanggal keberangkatan setelah hari ini",
     "invalidDateRange": "Silakan pilih tanggal setelah tanggal keberangkatan Anda untuk tanggal kepulangan Anda.",
-    "travelersRange": "Jumlah wisatawan berkisar antara 1 hingga 20"
+    "travelersRange": "Jumlah wisatawan berkisar antara 1 hingga 20",
+"boundaryTitle": "Something went wrong",
+    "boundaryMessage": "We're sorry, but something unexpected happened.",
+    "reloadPage": "Reload page",
+    "pages": {
+      "notFoundTitle": "Page not found",
+      "notFoundDescription": "The page you are looking for might have been removed or temporarily unavailable.",
+      "serverErrorTitle": "Server error",
+      "serverErrorDescription": "There was a problem on our server. Please try again later.",
+      "maintenanceTitle": "Maintenance in progress",
+      "maintenanceDescription": "The service is currently undergoing maintenance. Please try again soon.",
+      "unexpectedTitle": "An error occurred",
+      "unexpectedDescription": "An unexpected error has occurred.",
+      "backToPrevious": "Go back to the previous page",
+      "errorCode": "Error code: {{code}}"
+    },
+    "checkout": {
+      "generic": "A payment error occurred. Please try again.",
+      "sessionCreationFailed": "Failed to create a checkout session.",
+      "backendMockInUse": "The backend is using mock data. Please check the backend connection.",
+      "mockDataInstructions": "The backend is using mock data. Click the \"Force Real Backend\" button in the debug panel.",
+      "auth": "Authentication error occurred. Please sign in again.",
+      "network": "A network error occurred. Please check your internet connection.",
+      "timeout": "The request timed out. Please try again.",
+      "rateLimited": "Too many requests. Please wait and try again.",
+      "backendConnection": "Backend service is unavailable. Please try again later."
+    },
+    "forms": {
+      "paymentFieldsRequired": "Please complete all payment fields.",
+      "paymentProcessingError": "An error occurred while processing the payment."
+    },
+    "esim": {
+      "plansLoadFailed": "Failed to load eSIM plan information.",
+      "mockDataNotice": "eSIM service is temporarily unavailable, showing sample plans.",
+      "loadFailedFallback": "Failed to load eSIM data. Showing basic fallback information."
+    }
   },
   "confirmation": {
     "title": "Konfirmasikan rencana perjalanan",

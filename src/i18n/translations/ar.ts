@@ -24,7 +24,14 @@ export const ar = {
     "showMore": "شاهد المزيد ({{count}})",
     "showLess": "عرض أقل",
     "selectAll": "حدد الكل",
-    "deselectAll": "الافراج عن الكل"
+    "deselectAll": "الافراج عن الكل",
+    "notAvailable": "غير متاح",
+    "authRequired": "المصادقة مطلوبة",
+    "loadingSettings": "جاري تحميل الإعدادات...",
+    "loadingDetails": "جاري تحميل التفاصيل...",
+    "loadingTemplates": "جاري تحميل القوالب...",
+    "loadingTrip": "جاري تحميل الرحلة...",
+    "loadingAdminData": "جاري تحميل بيانات الإدارة..."
   },
   "menu": {
     "home": "بيت",
@@ -1476,7 +1483,7 @@ export const ar = {
     "mild-spice": "تجنب الأطعمة الحارة",
     "allergy-friendly": "مناسب للحساسية (المكسرات والمحار وغيرها)",
     "organic-preference": "ذات توجه عضوي",
-    "transportationMethods": "وسائل النقل",
+    "transportationMethods": "المعالم السياحية",
     "shinkansen": "قطار رصاصة",
     "local-train": "الخط التقليدي",
     "bus": "حافلة",
@@ -1485,7 +1492,7 @@ export const ar = {
     "bicycle": "دراجة",
     "ferry": "العبارة",
     "airplane": "طائرة",
-    "accommodationTypes": "إقامة",
+    "accommodationTypes": "طعام",
     "hotel": "الفندق",
     "ryokan": "ُخمارة",
     "hostel": "نزل",
@@ -1670,6 +1677,7 @@ export const ar = {
     "shizuoka": "شيزوكا"
   },
   "errors": {
+
     "tripTitleRequired": "الرجاء إدخال عنوان الرحلة",
     "destinationRequired": "الرجاء تحديد أو إدخال وجهتك",
     "departureDateRequired": "الرجاء تحديد تاريخ المغادرة",
@@ -1677,7 +1685,42 @@ export const ar = {
     "travelersRequired": "الرجاء تحديد عدد المسافرين",
     "pastDate": "يرجى تحديد تاريخ المغادرة بعد اليوم",
     "invalidDateRange": "يرجى تحديد تاريخ لاحق لتاريخ المغادرة لتاريخ عودتك.",
-    "travelersRange": "عدد المسافرين يتراوح من 1 إلى 20"
+    "travelersRange": "عدد المسافرين يتراوح من 1 إلى 20",
+"boundaryTitle": "Something went wrong",
+    "boundaryMessage": "We're sorry, but something unexpected happened.",
+    "reloadPage": "Reload page",
+    "pages": {
+      "notFoundTitle": "Page not found",
+      "notFoundDescription": "The page you are looking for might have been removed or temporarily unavailable.",
+      "serverErrorTitle": "Server error",
+      "serverErrorDescription": "There was a problem on our server. Please try again later.",
+      "maintenanceTitle": "Maintenance in progress",
+      "maintenanceDescription": "The service is currently undergoing maintenance. Please try again soon.",
+      "unexpectedTitle": "An error occurred",
+      "unexpectedDescription": "An unexpected error has occurred.",
+      "backToPrevious": "Go back to the previous page",
+      "errorCode": "Error code: {{code}}"
+    },
+    "checkout": {
+      "generic": "A payment error occurred. Please try again.",
+      "sessionCreationFailed": "Failed to create a checkout session.",
+      "backendMockInUse": "The backend is using mock data. Please check the backend connection.",
+      "mockDataInstructions": "The backend is using mock data. Click the \"Force Real Backend\" button in the debug panel.",
+      "auth": "Authentication error occurred. Please sign in again.",
+      "network": "A network error occurred. Please check your internet connection.",
+      "timeout": "The request timed out. Please try again.",
+      "rateLimited": "Too many requests. Please wait and try again.",
+      "backendConnection": "Backend service is unavailable. Please try again later."
+    },
+    "forms": {
+      "paymentFieldsRequired": "Please complete all payment fields.",
+      "paymentProcessingError": "An error occurred while processing the payment."
+    },
+    "esim": {
+      "plansLoadFailed": "Failed to load eSIM plan information.",
+      "mockDataNotice": "eSIM service is temporarily unavailable, showing sample plans.",
+      "loadFailedFallback": "Failed to load eSIM data. Showing basic fallback information."
+    }
   },
   "confirmation": {
     "title": "تأكيد خطة السفر",

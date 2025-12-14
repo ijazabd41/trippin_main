@@ -24,7 +24,14 @@ export const vi = {
     "showMore": "Xem thêm ({{count}})",
     "showLess": "hiển thị ít hơn",
     "selectAll": "Chọn tất cả",
-    "deselectAll": "Phát hành tất cả"
+    "deselectAll": "Phát hành tất cả",
+    "notAvailable": "Không có sẵn",
+    "authRequired": "Yêu cầu xác thực",
+    "loadingSettings": "Đang tải cài đặt...",
+    "loadingDetails": "Đang tải chi tiết...",
+    "loadingTemplates": "Đang tải mẫu...",
+    "loadingTrip": "Đang tải chuyến đi...",
+    "loadingAdminData": "Đang tải dữ liệu quản trị..."
   },
   "menu": {
     "home": "Trang chủ",
@@ -1476,7 +1483,7 @@ export const vi = {
     "mild-spice": "Tránh ăn đồ cay",
     "allergy-friendly": "Thân thiện với dị ứng (các loại hạt, động vật có vỏ, v.v.)",
     "organic-preference": "Định hướng hữu cơ",
-    "transportationMethods": "phương tiện vận tải",
+    "transportationMethods": "Điểm tham quan",
     "shinkansen": "tàu cao tốc",
     "local-train": "Dòng thông thường",
     "bus": "xe buýt",
@@ -1485,7 +1492,7 @@ export const vi = {
     "bicycle": "xe đạp",
     "ferry": "phà",
     "airplane": "máy bay",
-    "accommodationTypes": "Chỗ ở",
+    "accommodationTypes": "Thức ăn",
     "hotel": "Khách sạn",
     "ryokan": "quán trọ",
     "hostel": "ký túc xá",
@@ -1670,6 +1677,7 @@ export const vi = {
     "shizuoka": "Shizuoka"
   },
   "errors": {
+
     "tripTitleRequired": "Vui lòng nhập tên chuyến đi",
     "destinationRequired": "Vui lòng chọn hoặc nhập điểm đến của bạn",
     "departureDateRequired": "Vui lòng chọn ngày khởi hành của bạn",
@@ -1677,7 +1685,42 @@ export const vi = {
     "travelersRequired": "Vui lòng chọn số lượng khách du lịch",
     "pastDate": "Vui lòng chọn ngày khởi hành sau ngày hôm nay",
     "invalidDateRange": "Vui lòng chọn ngày về muộn hơn ngày khởi hành.",
-    "travelersRange": "Số lượng khách du lịch dao động từ 1 đến 20"
+    "travelersRange": "Số lượng khách du lịch dao động từ 1 đến 20",
+"boundaryTitle": "Something went wrong",
+    "boundaryMessage": "We're sorry, but something unexpected happened.",
+    "reloadPage": "Reload page",
+    "pages": {
+      "notFoundTitle": "Page not found",
+      "notFoundDescription": "The page you are looking for might have been removed or temporarily unavailable.",
+      "serverErrorTitle": "Server error",
+      "serverErrorDescription": "There was a problem on our server. Please try again later.",
+      "maintenanceTitle": "Maintenance in progress",
+      "maintenanceDescription": "The service is currently undergoing maintenance. Please try again soon.",
+      "unexpectedTitle": "An error occurred",
+      "unexpectedDescription": "An unexpected error has occurred.",
+      "backToPrevious": "Go back to the previous page",
+      "errorCode": "Error code: {{code}}"
+    },
+    "checkout": {
+      "generic": "A payment error occurred. Please try again.",
+      "sessionCreationFailed": "Failed to create a checkout session.",
+      "backendMockInUse": "The backend is using mock data. Please check the backend connection.",
+      "mockDataInstructions": "The backend is using mock data. Click the \"Force Real Backend\" button in the debug panel.",
+      "auth": "Authentication error occurred. Please sign in again.",
+      "network": "A network error occurred. Please check your internet connection.",
+      "timeout": "The request timed out. Please try again.",
+      "rateLimited": "Too many requests. Please wait and try again.",
+      "backendConnection": "Backend service is unavailable. Please try again later."
+    },
+    "forms": {
+      "paymentFieldsRequired": "Please complete all payment fields.",
+      "paymentProcessingError": "An error occurred while processing the payment."
+    },
+    "esim": {
+      "plansLoadFailed": "Failed to load eSIM plan information.",
+      "mockDataNotice": "eSIM service is temporarily unavailable, showing sample plans.",
+      "loadFailedFallback": "Failed to load eSIM data. Showing basic fallback information."
+    }
   },
   "confirmation": {
     "title": "Xác nhận kế hoạch du lịch",

@@ -17,7 +17,7 @@ const TravelStyle: React.FC = () => {
   const allInterests = [
     // 歴史・文化
     { id: 'history-culture', icon: '🏯', category: 'culture' },
-    { id: 'temples-shrine s', icon: '⛩️', category: 'culture' },
+    { id: 'temples-shrines', icon: '⛩️', category: 'culture' },
     { id: 'traditional-experience', icon: '🎎', category: 'culture' },
     { id: 'castles-historic-sites', icon: '🏰', category: 'culture' },
     { id: 'museums-galleries', icon: '📚', category: 'culture' },

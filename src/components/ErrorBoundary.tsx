@@ -1,4 +1,5 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
+import i18n from '../i18n/config';
 
 interface Props {
   children: ReactNode;
@@ -30,13 +31,13 @@ class ErrorBoundary extends Component<Props, State> {
       return this.props.fallback || (
         <div className="min-h-screen flex items-center justify-center bg-gray-50">
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-gray-900 mb-4">Something went wrong</h1>
-            <p className="text-gray-600 mb-4">We're sorry, but something unexpected happened.</p>
+            <h1 className="text-2xl font-bold text-gray-900 mb-4">{i18n.t('errors.boundaryTitle')}</h1>
+            <p className="text-gray-600 mb-4">{i18n.t('errors.boundaryMessage')}</p>
             <button
               onClick={() => window.location.reload()}
               className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
             >
-              Reload Page
+              {i18n.t('errors.reloadPage')}
             </button>
           </div>
         </div>

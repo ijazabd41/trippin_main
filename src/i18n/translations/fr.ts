@@ -24,7 +24,14 @@ export const fr = {
     "showMore": "En savoir plus ({{count}})",
     "showLess": "afficher moins",
     "selectAll": "Tout sélectionner",
-    "deselectAll": "Libérez tout"
+    "deselectAll": "Libérez tout",
+    "notAvailable": "Non disponible",
+    "authRequired": "Authentification requise",
+    "loadingSettings": "Chargement des paramètres...",
+    "loadingDetails": "Chargement des détails...",
+    "loadingTemplates": "Chargement des modèles...",
+    "loadingTrip": "Chargement du voyage...",
+    "loadingAdminData": "Chargement des données d'administration..."
   },
   "menu": {
     "home": "Maison",
@@ -1476,7 +1483,7 @@ export const fr = {
     "mild-spice": "Évitez les aliments épicés",
     "allergy-friendly": "Adapté aux allergies (noix, crustacés, etc.)",
     "organic-preference": "Orienté vers le bio",
-    "transportationMethods": "moyen de transport",
+    "transportationMethods": "Attractions",
     "shinkansen": "train à grande vitesse",
     "local-train": "Ligne conventionnelle",
     "bus": "bus",
@@ -1485,7 +1492,7 @@ export const fr = {
     "bicycle": "vélo",
     "ferry": "traversier",
     "airplane": "avion",
-    "accommodationTypes": "Hébergement",
+    "accommodationTypes": "Nourriture",
     "hotel": "Hôtel",
     "ryokan": "Auberge",
     "hostel": "auberge",
@@ -1670,6 +1677,7 @@ export const fr = {
     "shizuoka": "Shizuoka"
   },
   "errors": {
+
     "tripTitleRequired": "Veuillez saisir le titre du voyage",
     "destinationRequired": "Veuillez sélectionner ou saisir votre destination",
     "departureDateRequired": "Veuillez sélectionner votre date de départ",
@@ -1677,7 +1685,42 @@ export const fr = {
     "travelersRequired": "Veuillez sélectionner le nombre de voyageurs",
     "pastDate": "Veuillez sélectionner une date de départ après aujourd'hui",
     "invalidDateRange": "Veuillez sélectionner une date postérieure à votre date de départ pour votre date de retour.",
-    "travelersRange": "Le nombre de voyageurs varie de 1 à 20"
+    "travelersRange": "Le nombre de voyageurs varie de 1 à 20",
+"boundaryTitle": "Something went wrong",
+    "boundaryMessage": "We're sorry, but something unexpected happened.",
+    "reloadPage": "Reload page",
+    "pages": {
+      "notFoundTitle": "Page not found",
+      "notFoundDescription": "The page you are looking for might have been removed or temporarily unavailable.",
+      "serverErrorTitle": "Server error",
+      "serverErrorDescription": "There was a problem on our server. Please try again later.",
+      "maintenanceTitle": "Maintenance in progress",
+      "maintenanceDescription": "The service is currently undergoing maintenance. Please try again soon.",
+      "unexpectedTitle": "An error occurred",
+      "unexpectedDescription": "An unexpected error has occurred.",
+      "backToPrevious": "Go back to the previous page",
+      "errorCode": "Error code: {{code}}"
+    },
+    "checkout": {
+      "generic": "A payment error occurred. Please try again.",
+      "sessionCreationFailed": "Failed to create a checkout session.",
+      "backendMockInUse": "The backend is using mock data. Please check the backend connection.",
+      "mockDataInstructions": "The backend is using mock data. Click the \"Force Real Backend\" button in the debug panel.",
+      "auth": "Authentication error occurred. Please sign in again.",
+      "network": "A network error occurred. Please check your internet connection.",
+      "timeout": "The request timed out. Please try again.",
+      "rateLimited": "Too many requests. Please wait and try again.",
+      "backendConnection": "Backend service is unavailable. Please try again later."
+    },
+    "forms": {
+      "paymentFieldsRequired": "Please complete all payment fields.",
+      "paymentProcessingError": "An error occurred while processing the payment."
+    },
+    "esim": {
+      "plansLoadFailed": "Failed to load eSIM plan information.",
+      "mockDataNotice": "eSIM service is temporarily unavailable, showing sample plans.",
+      "loadFailedFallback": "Failed to load eSIM data. Showing basic fallback information."
+    }
   },
   "confirmation": {
     "title": "Confirmer le projet de voyage",

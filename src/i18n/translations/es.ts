@@ -24,7 +24,14 @@ export const es = {
     "showMore": "Ver más ({{count}})",
     "showLess": "mostrar menos",
     "selectAll": "Seleccionar todo",
-    "deselectAll": "Liberar todo"
+    "deselectAll": "Liberar todo",
+    "notAvailable": "No disponible",
+    "authRequired": "Se requiere autenticación",
+    "loadingSettings": "Cargando configuración...",
+    "loadingDetails": "Cargando detalles...",
+    "loadingTemplates": "Cargando plantillas...",
+    "loadingTrip": "Cargando viaje...",
+    "loadingAdminData": "Cargando datos de administración..."
   },
   "menu": {
     "home": "Hogar",
@@ -1476,7 +1483,7 @@ export const es = {
     "mild-spice": "Evite las comidas picantes",
     "allergy-friendly": "Apto para alérgicos (nueces, mariscos, etc.)",
     "organic-preference": "Orientado a lo orgánico",
-    "transportationMethods": "medios de transporte",
+    "transportationMethods": "Atracciones",
     "shinkansen": "tren bala",
     "local-train": "linea convencional",
     "bus": "autobús",
@@ -1485,7 +1492,7 @@ export const es = {
     "bicycle": "bicicleta",
     "ferry": "transportar",
     "airplane": "avión",
-    "accommodationTypes": "Alojamiento",
+    "accommodationTypes": "Comida",
     "hotel": "Hotel",
     "ryokan": "Posada",
     "hostel": "Albergue",
@@ -1670,6 +1677,7 @@ export const es = {
     "shizuoka": "Shizuoka"
   },
   "errors": {
+
     "tripTitleRequired": "Por favor introduce el título del viaje.",
     "destinationRequired": "Por favor seleccione o ingrese su destino",
     "departureDateRequired": "Por favor seleccione su fecha de salida",
@@ -1677,7 +1685,42 @@ export const es = {
     "travelersRequired": "Por favor seleccione el número de viajeros",
     "pastDate": "Por favor seleccione una fecha de salida después de hoy",
     "invalidDateRange": "Seleccione una fecha posterior a su fecha de salida para su fecha de regreso.",
-    "travelersRange": "El número de viajeros oscila entre 1 y 20."
+    "travelersRange": "El número de viajeros oscila entre 1 y 20.",
+"boundaryTitle": "Something went wrong",
+    "boundaryMessage": "We're sorry, but something unexpected happened.",
+    "reloadPage": "Reload page",
+    "pages": {
+      "notFoundTitle": "Page not found",
+      "notFoundDescription": "The page you are looking for might have been removed or temporarily unavailable.",
+      "serverErrorTitle": "Server error",
+      "serverErrorDescription": "There was a problem on our server. Please try again later.",
+      "maintenanceTitle": "Maintenance in progress",
+      "maintenanceDescription": "The service is currently undergoing maintenance. Please try again soon.",
+      "unexpectedTitle": "An error occurred",
+      "unexpectedDescription": "An unexpected error has occurred.",
+      "backToPrevious": "Go back to the previous page",
+      "errorCode": "Error code: {{code}}"
+    },
+    "checkout": {
+      "generic": "A payment error occurred. Please try again.",
+      "sessionCreationFailed": "Failed to create a checkout session.",
+      "backendMockInUse": "The backend is using mock data. Please check the backend connection.",
+      "mockDataInstructions": "The backend is using mock data. Click the \"Force Real Backend\" button in the debug panel.",
+      "auth": "Authentication error occurred. Please sign in again.",
+      "network": "A network error occurred. Please check your internet connection.",
+      "timeout": "The request timed out. Please try again.",
+      "rateLimited": "Too many requests. Please wait and try again.",
+      "backendConnection": "Backend service is unavailable. Please try again later."
+    },
+    "forms": {
+      "paymentFieldsRequired": "Please complete all payment fields.",
+      "paymentProcessingError": "An error occurred while processing the payment."
+    },
+    "esim": {
+      "plansLoadFailed": "Failed to load eSIM plan information.",
+      "mockDataNotice": "eSIM service is temporarily unavailable, showing sample plans.",
+      "loadFailedFallback": "Failed to load eSIM data. Showing basic fallback information."
+    }
   },
   "confirmation": {
     "title": "Confirmar plan de viaje",

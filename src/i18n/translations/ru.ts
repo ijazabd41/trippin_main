@@ -24,7 +24,14 @@ export const ru = {
     "showMore": "Посмотреть больше ({{count}})",
     "showLess": "меньше показывать",
     "selectAll": "Выбрать все",
-    "deselectAll": "Освободить все"
+    "deselectAll": "Освободить все",
+    "notAvailable": "Недоступно",
+    "authRequired": "Требуется аутентификация",
+    "loadingSettings": "Загрузка настроек...",
+    "loadingDetails": "Загрузка деталей...",
+    "loadingTemplates": "Загрузка шаблонов...",
+    "loadingTrip": "Загрузка поездки...",
+    "loadingAdminData": "Загрузка административных данных..."
   },
   "menu": {
     "home": "Дом",
@@ -1476,7 +1483,7 @@ export const ru = {
     "mild-spice": "Избегайте острой пищи",
     "allergy-friendly": "Подходит для аллергиков (орехи, моллюски и т. д.).",
     "organic-preference": "Органически ориентированный",
-    "transportationMethods": "средства передвижения",
+    "transportationMethods": "Достопримечательности",
     "shinkansen": "сверхскоростной поезд",
     "local-train": "Обычная линия",
     "bus": "автобус",
@@ -1485,7 +1492,7 @@ export const ru = {
     "bicycle": "велосипед",
     "ferry": "перевозить",
     "airplane": "самолет",
-    "accommodationTypes": "Размещение",
+    "accommodationTypes": "Еда",
     "hotel": "Отель",
     "ryokan": "гостиница",
     "hostel": "общежитие",
@@ -1670,6 +1677,7 @@ export const ru = {
     "shizuoka": "Сидзуока"
   },
   "errors": {
+
     "tripTitleRequired": "Пожалуйста, введите название поездки",
     "destinationRequired": "Пожалуйста, выберите или введите пункт назначения",
     "departureDateRequired": "Пожалуйста, выберите дату отъезда",
@@ -1677,7 +1685,42 @@ export const ru = {
     "travelersRequired": "Пожалуйста, выберите количество путешественников",
     "pastDate": "Пожалуйста, выберите дату отъезда после сегодняшнего дня",
     "invalidDateRange": "Пожалуйста, выберите дату позже даты отъезда для даты возвращения.",
-    "travelersRange": "Количество путешественников от 1 до 20."
+    "travelersRange": "Количество путешественников от 1 до 20.",
+"boundaryTitle": "Something went wrong",
+    "boundaryMessage": "We're sorry, but something unexpected happened.",
+    "reloadPage": "Reload page",
+    "pages": {
+      "notFoundTitle": "Page not found",
+      "notFoundDescription": "The page you are looking for might have been removed or temporarily unavailable.",
+      "serverErrorTitle": "Server error",
+      "serverErrorDescription": "There was a problem on our server. Please try again later.",
+      "maintenanceTitle": "Maintenance in progress",
+      "maintenanceDescription": "The service is currently undergoing maintenance. Please try again soon.",
+      "unexpectedTitle": "An error occurred",
+      "unexpectedDescription": "An unexpected error has occurred.",
+      "backToPrevious": "Go back to the previous page",
+      "errorCode": "Error code: {{code}}"
+    },
+    "checkout": {
+      "generic": "A payment error occurred. Please try again.",
+      "sessionCreationFailed": "Failed to create a checkout session.",
+      "backendMockInUse": "The backend is using mock data. Please check the backend connection.",
+      "mockDataInstructions": "The backend is using mock data. Click the \"Force Real Backend\" button in the debug panel.",
+      "auth": "Authentication error occurred. Please sign in again.",
+      "network": "A network error occurred. Please check your internet connection.",
+      "timeout": "The request timed out. Please try again.",
+      "rateLimited": "Too many requests. Please wait and try again.",
+      "backendConnection": "Backend service is unavailable. Please try again later."
+    },
+    "forms": {
+      "paymentFieldsRequired": "Please complete all payment fields.",
+      "paymentProcessingError": "An error occurred while processing the payment."
+    },
+    "esim": {
+      "plansLoadFailed": "Failed to load eSIM plan information.",
+      "mockDataNotice": "eSIM service is temporarily unavailable, showing sample plans.",
+      "loadFailedFallback": "Failed to load eSIM data. Showing basic fallback information."
+    }
   },
   "confirmation": {
     "title": "Подтвердить план поездки",

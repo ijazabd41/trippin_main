@@ -24,7 +24,14 @@ export const pl = {
     "showMore": "Zobacz więcej ({{count}})",
     "showLess": "wyświetlaj mniej",
     "selectAll": "Zaznacz wszystko",
-    "deselectAll": "Zwolnij wszystko"
+    "deselectAll": "Zwolnij wszystko",
+    "notAvailable": "Niedostępne",
+    "authRequired": "Wymagane uwierzytelnienie",
+    "loadingSettings": "Ładowanie ustawień...",
+    "loadingDetails": "Ładowanie szczegółów...",
+    "loadingTemplates": "Ładowanie szablonów...",
+    "loadingTrip": "Ładowanie podróży...",
+    "loadingAdminData": "Ładowanie danych administracyjnych..."
   },
   "menu": {
     "home": "Dom",
@@ -1478,7 +1485,7 @@ export const pl = {
     "mild-spice": "Unikaj pikantnych potraw",
     "allergy-friendly": "Przyjazny dla alergików (orzechy, skorupiaki itp.)",
     "organic-preference": "Zorientowany ekologicznie",
-    "transportationMethods": "środki transportu",
+    "transportationMethods": "Atrakcje",
     "shinkansen": "pociąg kulowy",
     "local-train": "Linia konwencjonalna",
     "bus": "autobus",
@@ -1487,7 +1494,7 @@ export const pl = {
     "bicycle": "rower",
     "ferry": "prom",
     "airplane": "samolot",
-    "accommodationTypes": "Zakwaterowanie",
+    "accommodationTypes": "Jedzenie",
     "hotel": "Hotel",
     "ryokan": "Karczma",
     "hostel": "schronisko",
@@ -1672,6 +1679,7 @@ export const pl = {
     "shizuoka": "Shizuoka"
   },
   "errors": {
+
     "tripTitleRequired": "Proszę wpisać tytuł wycieczki",
     "destinationRequired": "Proszę wybrać lub wpisać miejsce docelowe",
     "departureDateRequired": "Proszę wybrać datę wyjazdu",
@@ -1679,7 +1687,42 @@ export const pl = {
     "travelersRequired": "Proszę wybrać liczbę podróżnych",
     "pastDate": "Proszę wybrać datę wylotu późniejszą niż dzisiaj",
     "invalidDateRange": "Jako datę powrotu wybierz datę późniejszą niż data wyjazdu.",
-    "travelersRange": "Liczba podróżnych waha się od 1 do 20"
+    "travelersRange": "Liczba podróżnych waha się od 1 do 20",
+"boundaryTitle": "Something went wrong",
+    "boundaryMessage": "We're sorry, but something unexpected happened.",
+    "reloadPage": "Reload page",
+    "pages": {
+      "notFoundTitle": "Page not found",
+      "notFoundDescription": "The page you are looking for might have been removed or temporarily unavailable.",
+      "serverErrorTitle": "Server error",
+      "serverErrorDescription": "There was a problem on our server. Please try again later.",
+      "maintenanceTitle": "Maintenance in progress",
+      "maintenanceDescription": "The service is currently undergoing maintenance. Please try again soon.",
+      "unexpectedTitle": "An error occurred",
+      "unexpectedDescription": "An unexpected error has occurred.",
+      "backToPrevious": "Go back to the previous page",
+      "errorCode": "Error code: {{code}}"
+    },
+    "checkout": {
+      "generic": "A payment error occurred. Please try again.",
+      "sessionCreationFailed": "Failed to create a checkout session.",
+      "backendMockInUse": "The backend is using mock data. Please check the backend connection.",
+      "mockDataInstructions": "The backend is using mock data. Click the \"Force Real Backend\" button in the debug panel.",
+      "auth": "Authentication error occurred. Please sign in again.",
+      "network": "A network error occurred. Please check your internet connection.",
+      "timeout": "The request timed out. Please try again.",
+      "rateLimited": "Too many requests. Please wait and try again.",
+      "backendConnection": "Backend service is unavailable. Please try again later."
+    },
+    "forms": {
+      "paymentFieldsRequired": "Please complete all payment fields.",
+      "paymentProcessingError": "An error occurred while processing the payment."
+    },
+    "esim": {
+      "plansLoadFailed": "Failed to load eSIM plan information.",
+      "mockDataNotice": "eSIM service is temporarily unavailable, showing sample plans.",
+      "loadFailedFallback": "Failed to load eSIM data. Showing basic fallback information."
+    }
   },
   "confirmation": {
     "title": "Potwierdź plan podróży",

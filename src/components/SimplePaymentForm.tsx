@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { CreditCard, Lock, CheckCircle } from 'lucide-react';
 import { formatCurrency } from '../utils/currencyFormatter';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface SimplePaymentFormProps {
   amount: number;
@@ -18,6 +19,7 @@ const SimplePaymentForm: React.FC<SimplePaymentFormProps> = ({
   onPaymentError,
   disabled = false
 }) => {
+  const { t } = useLanguage();
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [cardInfo, setCardInfo] = useState({
@@ -31,7 +33,7 @@ const SimplePaymentForm: React.FC<SimplePaymentFormProps> = ({
     event.preventDefault();
 
     if (!cardInfo.number || !cardInfo.expiry || !cardInfo.cvv || !cardInfo.name) {
-      setError('すべてのフィールドを入力してください');
+      setError(t('errors.forms.paymentFieldsRequired'));
       return;
     }
 
@@ -46,7 +48,7 @@ const SimplePaymentForm: React.FC<SimplePaymentFormProps> = ({
       const mockPaymentMethodId = `pm_mock_${Date.now()}`;
       onPaymentSuccess(mockPaymentMethodId);
     } catch (err) {
-      const errorMessage = '決済処理中にエラーが発生しました';
+      const errorMessage = t('errors.forms.paymentProcessingError');
       setError(errorMessage);
       onPaymentError(errorMessage);
     } finally {

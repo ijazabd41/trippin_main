@@ -174,7 +174,7 @@ const CheckoutPage: React.FC = () => {
             console.log('🚀 Development mode - allowing mock session for testing');
             // Continue with mock session in development
           } else {
-            throw new Error('バックエンドがモックデータを使用しています。バックエンド接続を確認してください。');
+            throw new Error(t('errors.checkout.backendMockInUse'));
           }
         }
         
@@ -182,26 +182,26 @@ const CheckoutPage: React.FC = () => {
         window.location.href = result.data.sessionUrl;
       } else {
         console.error('❌ Checkout session creation failed:', result);
-        throw new Error(result.message || '決済セッションの作成に失敗しました');
+        throw new Error(result.message || t('errors.checkout.sessionCreationFailed'));
       }
     } catch (error: any) {
       console.error('❌ Checkout error:', error);
       
       // Provide more specific error messages
-      let errorMessage = '決済処理でエラーが発生しました。もう一度お試しください。';
+      let errorMessage = t('errors.checkout.generic');
       
       if (error.message?.includes('バックエンドサービス')) {
-        errorMessage = error.message;
+        errorMessage = t('errors.checkout.backendConnection');
       } else if (error.message?.includes('モックデータ')) {
-        errorMessage = 'バックエンドがモックデータを使用しています。デバッグパネルで「Force Real Backend」ボタンをクリックしてください。';
+        errorMessage = t('errors.checkout.mockDataInstructions');
       } else if (error.message?.includes('認証')) {
-        errorMessage = '認証エラーが発生しました。ログインし直してください。';
+        errorMessage = t('errors.checkout.auth');
       } else if (error.message?.includes('ネットワーク')) {
-        errorMessage = 'ネットワークエラーが発生しました。インターネット接続を確認してください。';
+        errorMessage = t('errors.checkout.network');
       } else if (error.message?.includes('タイムアウト')) {
-        errorMessage = 'リクエストがタイムアウトしました。もう一度お試しください。';
+        errorMessage = t('errors.checkout.timeout');
       } else if (error.message?.includes('多すぎます') || error.message?.includes('RATE_LIMITED')) {
-        errorMessage = 'リクエストが多すぎます。しばらく待ってからもう一度お試しください。';
+        errorMessage = t('errors.checkout.rateLimited');
       }
       
       setError(errorMessage);
