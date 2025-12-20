@@ -255,6 +255,11 @@ export const backendApiCall = async (endpoint: string, options: RequestInit = {}
   
   if (supabaseAnonKey && supabaseAnonKey !== 'your-anon-key') {
     defaultHeaders['apikey'] = supabaseAnonKey;
+    // For public endpoints, also add Authorization header with anon key
+    // (Supabase edge functions gateway requires both apikey and Authorization for some requests)
+    if (!token) {
+      defaultHeaders['Authorization'] = `Bearer ${supabaseAnonKey}`;
+    }
   } else {
     console.error('❌ VITE_SUPABASE_ANON_KEY not found - edge function requests will fail');
     console.error('Available sources:', {
@@ -266,7 +271,7 @@ export const backendApiCall = async (endpoint: string, options: RequestInit = {}
     console.error('Please set VITE_SUPABASE_ANON_KEY in your environment variables and rebuild');
   }
 
-  // Add authorization header if token is provided
+  // Add authorization header if token is provided (overrides the anon key Authorization)
   if (token) {
     defaultHeaders['Authorization'] = `Bearer ${token}`;
   }
@@ -613,7 +618,13 @@ export const backendHealthCheck = async (): Promise<boolean> => {
     // Add apikey header if available (required for Supabase edge functions)
     if (supabaseAnonKey && supabaseAnonKey !== 'your-anon-key') {
       headers['apikey'] = supabaseAnonKey;
-      console.log('✅ Health check - Adding apikey header');
+      // Also add Authorization header with Bearer token (some Supabase setups require both)
+      headers['Authorization'] = `Bearer ${supabaseAnonKey}`;
+      console.log('✅ Health check - Adding apikey and Authorization headers');
+      console.log('🔑 Header values:', {
+        apikey: supabaseAnonKey.substring(0, 20) + '...',
+        authorization: `Bearer ${supabaseAnonKey.substring(0, 20)}...`
+      });
     } else {
       console.error('❌ Health check - No apikey header will be sent!');
       console.error('This will cause 401 errors. Please ensure app-config.json is deployed correctly.');
