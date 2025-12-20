@@ -111,6 +111,11 @@ function isStaticAsset(url) {
 
 // Check if request is for API
 function isAPIRequest(url) {
+  // Bypass service worker for Supabase edge functions
+  if (url.hostname.includes('supabase.co') && url.pathname.includes('/functions/v1/')) {
+    return false; // Don't intercept Supabase edge function requests
+  }
+  
   return url.pathname.startsWith('/api') ||
          url.hostname.includes('execute-api') || 
          CACHEABLE_APIS.some(api => url.pathname.includes(api));

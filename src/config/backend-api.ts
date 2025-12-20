@@ -6,16 +6,34 @@ const getBackendUrl = (): string => {
     return 'http://localhost:3001';
   }
   
-  // Production - check multiple sources
-  const backendUrl = 
-    import.meta.env.VITE_BACKEND_URL ||
-    (typeof window !== 'undefined' && (window as any).__APP_CONFIG__?.backendUrl) ||
-    'https://fuskrbebtyccnmaprmbe.supabase.co/functions/v1/trippin-api'; // default to Supabase edge function
+  // Production - prioritize environment variable first
+  const envBackendUrl = import.meta.env.VITE_BACKEND_URL;
+  const configBackendUrl = typeof window !== 'undefined' && (window as any).__APP_CONFIG__?.backendUrl;
+  const defaultBackendUrl = 'https://fuskrbebtyccnmaprmbe.supabase.co/functions/v1/trippin-api';
   
-  console.log('🔗 Backend URL:', backendUrl, {
-    fromEnv: !!import.meta.env.VITE_BACKEND_URL,
-    fromConfig: !!(typeof window !== 'undefined' && (window as any).__APP_CONFIG__?.backendUrl),
-    config: typeof window !== 'undefined' ? (window as any).__APP_CONFIG__ : 'no window'
+  // Priority: 1. Environment variable, 2. app-config.json, 3. Default
+  let backendUrl = envBackendUrl || configBackendUrl || defaultBackendUrl;
+  
+  // Ensure URL is absolute (not relative)
+  if (backendUrl && !backendUrl.startsWith('http://') && !backendUrl.startsWith('https://')) {
+    console.warn('⚠️ Backend URL is relative, converting to absolute:', backendUrl);
+    backendUrl = `https://${backendUrl}`;
+  }
+  
+  // Remove trailing slash if present
+  if (backendUrl.endsWith('/')) {
+    backendUrl = backendUrl.slice(0, -1);
+  }
+  
+  console.log('🔗 Backend URL Resolution:', {
+    finalUrl: backendUrl,
+    fromEnv: !!envBackendUrl,
+    envValue: envBackendUrl || 'NOT SET',
+    fromConfig: !!configBackendUrl,
+    configValue: configBackendUrl || 'NOT SET',
+    usingDefault: !envBackendUrl && !configBackendUrl,
+    allEnvVars: Object.keys(import.meta.env).filter(k => k.includes('BACKEND') || k.includes('SUPABASE') || k.includes('VITE_')).slice(0, 10),
+    windowConfig: typeof window !== 'undefined' ? (window as any).__APP_CONFIG__ : 'no window'
   });
   
   return backendUrl;
