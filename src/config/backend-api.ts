@@ -14,15 +14,32 @@ const getBackendUrl = (): string => {
   // Priority: 1. Environment variable, 2. app-config.json, 3. Default
   let backendUrl = envBackendUrl || configBackendUrl || defaultBackendUrl;
   
+  // Validate and fix URL
+  if (!backendUrl) {
+    console.error('❌ No backend URL found, using default');
+    backendUrl = defaultBackendUrl;
+  }
+  
   // Ensure URL is absolute (not relative)
-  if (backendUrl && !backendUrl.startsWith('http://') && !backendUrl.startsWith('https://')) {
+  if (!backendUrl.startsWith('http://') && !backendUrl.startsWith('https://')) {
     console.warn('⚠️ Backend URL is relative, converting to absolute:', backendUrl);
-    backendUrl = `https://${backendUrl}`;
+    // If it starts with /, it's a relative path - prepend current origin
+    if (backendUrl.startsWith('/')) {
+      backendUrl = `${window.location.origin}${backendUrl}`;
+    } else {
+      backendUrl = `https://${backendUrl}`;
+    }
   }
   
   // Remove trailing slash if present
   if (backendUrl.endsWith('/')) {
     backendUrl = backendUrl.slice(0, -1);
+  }
+  
+  // Final validation
+  if (!backendUrl.startsWith('http://') && !backendUrl.startsWith('https://')) {
+    console.error('❌ CRITICAL: Backend URL is still not absolute!', backendUrl);
+    backendUrl = defaultBackendUrl; // Force use default
   }
   
   console.log('🔗 Backend URL Resolution:', {
@@ -201,7 +218,28 @@ export const backendApiCall = async (endpoint: string, options: RequestInit = {}
     );
   }
 
-  const url = `${BACKEND_API_CONFIG.BASE_URL}${endpoint}`;
+  // Get BASE_URL fresh each time (it's a getter)
+  const baseUrl = BACKEND_API_CONFIG.BASE_URL;
+  const url = `${baseUrl}${endpoint}`;
+  
+  console.log('🌐 Constructing API URL:', {
+    baseUrl,
+    endpoint,
+    finalUrl: url,
+    isAbsolute: url.startsWith('http://') || url.startsWith('https://'),
+    isRelative: url.startsWith('/')
+  });
+  
+  // Validate URL is absolute
+  if (!url.startsWith('http://') && !url.startsWith('https://')) {
+    console.error('❌ ERROR: Backend URL is not absolute!', {
+      baseUrl,
+      endpoint,
+      constructedUrl: url,
+      envVar: import.meta.env.VITE_BACKEND_URL,
+      config: typeof window !== 'undefined' ? (window as any).__APP_CONFIG__ : 'no window'
+    });
+  }
   
   const defaultHeaders: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -535,8 +573,13 @@ export const backendHealthCheck = async (): Promise<boolean> => {
     await ensureAppConfigLoaded();
     
     // Use the API test endpoint instead of the main health endpoint
-    const testUrl = `${BACKEND_API_CONFIG.BASE_URL}/api/test`;
-    console.log('🔍 Checking backend health at:', testUrl);
+    const baseUrl = BACKEND_API_CONFIG.BASE_URL;
+    const testUrl = `${baseUrl}/api/test`;
+    console.log('🔍 Checking backend health at:', testUrl, {
+      baseUrl,
+      endpoint: '/api/test',
+      isAbsolute: testUrl.startsWith('http://') || testUrl.startsWith('https://')
+    });
     
     // Get Supabase anon key for apikey header (required for edge functions)
     // Wait a bit for config to be available
