@@ -7,10 +7,14 @@ import Stripe from "https://esm.sh/stripe@14.7.0?target=deno";
 import OpenAI from "https://esm.sh/openai@4.20.1";
 
 // CORS headers helper
+// Note: Using "*" allows all origins. For production, you can restrict this
+// by setting CORS_ORIGIN environment variable, but Supabase edge functions
+// handle CORS at the gateway level, so "*" is fine here.
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
 };
 
 // Initialize Supabase clients
@@ -89,22 +93,30 @@ class Router {
     const url = new URL(req.url);
     const method = req.method;
     let pathname = url.pathname;
+    
+    console.log(`🔍 Router handling: original pathname="${pathname}"`);
 
     // Strip the function name prefix if present (e.g., /trippin-api/health -> /health)
     // Supabase includes the function name in the pathname
     if (pathname.startsWith('/trippin-api')) {
       pathname = pathname.replace('/trippin-api', '') || '/';
+      console.log(`🔍 Stripped /trippin-api prefix, new pathname="${pathname}"`);
     }
     // Also handle /functions/v1/trippin-api prefix if present
     if (pathname.startsWith('/functions/v1/trippin-api')) {
       pathname = pathname.replace('/functions/v1/trippin-api', '') || '/';
+      console.log(`🔍 Stripped /functions/v1/trippin-api prefix, new pathname="${pathname}"`);
     }
 
     const methodRoutes = this.routes.get(method);
-    if (!methodRoutes) return null;
+    if (!methodRoutes) {
+      console.log(`❌ No routes found for method: ${method}`);
+      return null;
+    }
 
     // Try exact match first
     if (methodRoutes.has(pathname)) {
+      console.log(`✅ Exact match found for pathname: "${pathname}"`);
       return await methodRoutes.get(pathname)!(req, {});
     }
 
@@ -112,10 +124,12 @@ class Router {
     for (const [pattern, handler] of methodRoutes.entries()) {
       const params = this.matchRoute(pattern, pathname);
       if (params !== null) {
+        console.log(`✅ Pattern match found: pattern="${pattern}", pathname="${pathname}"`);
         return await handler(req, params);
       }
     }
 
+    console.log(`❌ No route match found for pathname: "${pathname}"`);
     return null;
   }
 
@@ -153,7 +167,12 @@ router.add("GET", "/health", async () => {
 });
 
 // Test endpoint
-router.add("GET", "/api/test", async () => {
+router.add("GET", "/api/test", async (req) => {
+  console.log("✅ /api/test endpoint called");
+  console.log("Request URL:", req.url);
+  console.log("Request method:", req.method);
+  console.log("Request headers:", Object.fromEntries(req.headers.entries()));
+  
   return new Response(
     JSON.stringify({
       success: true,
@@ -1960,8 +1979,13 @@ router.add("GET", "/api/esim/orders", async (req) => {
 // ==================== MAIN HANDLER ====================
 
 serve(async (req) => {
+  const startTime = Date.now();
+  const url = new URL(req.url);
+  console.log(`[${new Date().toISOString()}] ${req.method} ${url.pathname}`);
+  
   // Handle CORS preflight
   if (req.method === "OPTIONS") {
+    console.log("✅ Handling OPTIONS preflight request");
     return new Response("ok", { headers: corsHeaders });
   }
 
@@ -1969,16 +1993,20 @@ serve(async (req) => {
     // Try to handle the request with router
     const response = await router.handle(req);
     if (response) {
+      const duration = Date.now() - startTime;
+      console.log(`✅ Request handled successfully in ${duration}ms`);
       return response;
     }
 
     // 404 for unmatched routes
+    console.log(`❌ Route not found: ${url.pathname}`);
     return new Response(
-      JSON.stringify({ error: "Endpoint not found", code: "NOT_FOUND", path: new URL(req.url).pathname }),
+      JSON.stringify({ error: "Endpoint not found", code: "NOT_FOUND", path: url.pathname }),
       { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
-    console.error("Error handling request:", error);
+    const duration = Date.now() - startTime;
+    console.error(`❌ Error handling request (${duration}ms):`, error);
     return new Response(
       JSON.stringify({
         error: "Internal server error",
