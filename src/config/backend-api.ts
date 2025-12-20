@@ -501,7 +501,7 @@ export const backendHealthCheck = async (): Promise<boolean> => {
     let supabaseAnonKey = 
       import.meta.env.VITE_SUPABASE_ANON_KEY ||
       (typeof window !== 'undefined' && (window as any).__APP_CONFIG__?.supabaseAnonKey) ||
-      (typeof window !== 'undefined' && (window as any).__SUPABASE_ANON_KEY;
+      (typeof window !== 'undefined' && (window as any).__SUPABASE_ANON_KEY);
     
     // If still not found, wait a bit more and try again
     if (!supabaseAnonKey || supabaseAnonKey === 'your-anon-key') {
