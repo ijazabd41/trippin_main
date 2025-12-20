@@ -263,11 +263,6 @@ class PlanGenerationService {
           }
         })
       });
-          max_tokens: 1500,
-          temperature: 0.5,
-          model: 'gpt-3.5-turbo'
-        })
-      });
 
       if (response.success && response.data) {
         return this.parsePracticalInfoResponse(response.data);
