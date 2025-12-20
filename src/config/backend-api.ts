@@ -1,6 +1,30 @@
 // Backend API configuration for Trippin with Supabase
+// Helper to get backend URL from multiple sources (called dynamically)
+const getBackendUrl = (): string => {
+  // Development mode - use localhost
+  if (import.meta.env.DEV) {
+    return 'http://localhost:3001';
+  }
+  
+  // Production - check multiple sources
+  const backendUrl = 
+    import.meta.env.VITE_BACKEND_URL ||
+    (typeof window !== 'undefined' && (window as any).__APP_CONFIG__?.backendUrl) ||
+    'https://fuskrbebtyccnmaprmbe.supabase.co/functions/v1/trippin-api'; // default to Supabase edge function
+  
+  console.log('🔗 Backend URL:', backendUrl, {
+    fromEnv: !!import.meta.env.VITE_BACKEND_URL,
+    fromConfig: !!(typeof window !== 'undefined' && (window as any).__APP_CONFIG__?.backendUrl),
+    config: typeof window !== 'undefined' ? (window as any).__APP_CONFIG__ : 'no window'
+  });
+  
+  return backendUrl;
+};
+
 export const BACKEND_API_CONFIG = {
-  BASE_URL: import.meta.env.DEV ? 'http://localhost:3001' : (import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001'),
+  get BASE_URL() {
+    return getBackendUrl();
+  },
   ENDPOINTS: {
     // Authentication
     AUTH: {
