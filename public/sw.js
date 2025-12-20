@@ -92,6 +92,16 @@ self.addEventListener('fetch', (event) => {
     return;
   }
   
+  // Bypass service worker for OAuth callback and authentication routes
+  // These routes need to handle URL parameters and hash fragments that the service worker might interfere with
+  if (url.pathname.includes('/supabase-auth/callback') || 
+      url.pathname.includes('/supabase-auth/verify-email') ||
+      url.pathname.includes('/auth/callback') ||
+      url.pathname.includes('/auth/verify')) {
+    event.respondWith(fetch(request));
+    return;
+  }
+  
   // Bypass service worker for media and range requests to avoid 206 partial caching issues
   if (url.pathname.match(/\.(mp4|webm|mp3|wav|m4a|ogg)$/i) || request.headers.get('range')) {
     event.respondWith(fetch(request));
