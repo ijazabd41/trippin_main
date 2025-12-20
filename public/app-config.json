@@ -1,5 +1,5 @@
 {
-  "supabaseUrl": "",
-  "supabaseAnonKey": "",
-  "backendUrl": ""
+  "supabaseUrl": "https://fuskrbebtyccnmaprmbe.supabase.co",
+  "supabaseAnonKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1c2tyYmVidHljY25tYXBybWJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAwMzg5ODMsImV4cCI6MjA3NTYxNDk4M30.pDtk2wpcDoN61EASc3Gk4acte4BJEnIpy0jYbSmiS04",
+  "backendUrl": "https://fuskrbebtyccnmaprmbe.supabase.co/functions/v1/trippin-api"
 }
