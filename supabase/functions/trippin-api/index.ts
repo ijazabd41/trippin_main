@@ -1218,6 +1218,96 @@ router.add("POST", "/api/openai/generate", async (req) => {
   }
 });
 
+// Alias route for /openai/generate (without /api prefix) for backward compatibility
+router.add("POST", "/openai/generate", async (req) => {
+  try {
+    const body = await parseBody(req);
+    const { tripData } = body;
+
+    if (!tripData) {
+      return new Response(
+        JSON.stringify({ success: false, message: "Trip data is required" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const openaiKey = Deno.env.get("OPENAI_API_KEY");
+    if (!openaiKey) {
+      // Return fallback plan
+      const fallbackPlan = {
+        id: `fallback-plan-${Date.now()}`,
+        title: `${tripData.destination || "Destination"} Adventure`,
+        destination: tripData.destination || "Unknown Destination",
+        duration: tripData.duration || 3,
+        budget: {
+          total: tripData.budget || 100000,
+          currency: tripData.currency || "JPY",
+          breakdown: {
+            accommodation: Math.round((tripData.budget || 100000) * 0.4),
+            transportation: Math.round((tripData.budget || 100000) * 0.2),
+            food: Math.round((tripData.budget || 100000) * 0.25),
+            activities: Math.round((tripData.budget || 100000) * 0.1),
+            miscellaneous: Math.round((tripData.budget || 100000) * 0.05),
+          },
+        },
+        itinerary: [
+          {
+            day: 1,
+            date: new Date().toISOString().split("T")[0],
+            theme: "Arrival and Orientation",
+            activities: [
+              {
+                time: "09:00",
+                title: "Arrival",
+                description: "Arrive at your destination",
+                location: tripData.destination || "Destination",
+                type: "transport",
+                duration: 120,
+                cost: 3000,
+              },
+            ],
+          },
+        ],
+      };
+
+      return new Response(
+        JSON.stringify({ success: true, data: fallbackPlan }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Use OpenAI API
+    const openai = new OpenAI({ apiKey: openaiKey });
+
+    const prompt = `Create a detailed travel itinerary for ${tripData.destination || "a destination"} for ${tripData.duration || 3} days with a budget of ${tripData.budget || 100000} ${tripData.currency || "JPY"}. Include daily activities, recommendations, and practical information.`;
+
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4",
+      messages: [
+        {
+          role: "system",
+          content: "You are a travel planning assistant. Create detailed, practical travel itineraries.",
+        },
+        { role: "user", content: prompt },
+      ],
+      temperature: 0.7,
+    });
+
+    const plan = JSON.parse(completion.choices[0].message.content || "{}");
+
+    return new Response(
+      JSON.stringify({ success: true, data: plan }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  } catch (error) {
+    console.error("OpenAI generate error:", error);
+    return new Response(
+      JSON.stringify({ success: false, message: "Failed to generate trip plan", error: error.message }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+});
+
 // ==================== GOOGLE MAPS ROUTES ====================
 
 // Get nearby places

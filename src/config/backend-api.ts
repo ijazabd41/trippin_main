@@ -123,6 +123,11 @@ export const BACKEND_API_CONFIG = {
       CREATE_CHECKOUT: '/api/subscriptions/create-checkout-session',
       VERIFY_PAYMENT: '/api/subscriptions/verify-payment',
       WEBHOOK: '/api/subscriptions/webhook'
+    },
+    // OpenAI
+    OPENAI: {
+      GENERATE: '/api/openai/generate',
+      CHAT: '/api/openai/chat'
     }
   },
   TIMEOUT: 30000, // 30 seconds
