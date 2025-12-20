@@ -1,5 +1,6 @@
 // Plan Generation Service with OpenAI Integration
 import { apiCall, API_CONFIG } from '../config/api';
+import { backendApiCall, BACKEND_API_CONFIG } from '../config/backend-api';
 import { backendService } from './BackendService';
 
 export interface PlanGenerationRequest {
@@ -135,13 +136,23 @@ class PlanGenerationService {
     const prompt = this.buildItineraryPrompt(request);
     
     try {
-      const response = await apiCall(API_CONFIG.ENDPOINTS.OPENAI_GENERATE, {
+      const response = await backendApiCall(BACKEND_API_CONFIG.ENDPOINTS.OPENAI.GENERATE, {
         method: 'POST',
         body: JSON.stringify({
-          prompt,
-          max_tokens: 4000,
-          temperature: 0.7,
-          model: 'gpt-4'
+          tripData: {
+            destination: request.destination,
+            startDate: request.startDate,
+            endDate: request.endDate,
+            travelers: request.travelers,
+            budget: request.budget,
+            currency: request.currency,
+            interests: request.interests,
+            accommodationType: request.accommodationType,
+            transportationType: request.transportationType,
+            dietaryRestrictions: request.dietaryRestrictions,
+            specialRequirements: request.specialRequirements,
+            language: request.language
+          }
         })
       });
 
@@ -161,13 +172,23 @@ class PlanGenerationService {
     const prompt = this.buildBudgetPrompt(request, itinerary);
     
     try {
-      const response = await apiCall(API_CONFIG.ENDPOINTS.OPENAI_GENERATE, {
+      const response = await backendApiCall(BACKEND_API_CONFIG.ENDPOINTS.OPENAI.GENERATE, {
         method: 'POST',
         body: JSON.stringify({
-          prompt,
-          max_tokens: 1000,
-          temperature: 0.3,
-          model: 'gpt-3.5-turbo'
+          tripData: {
+            destination: request.destination,
+            startDate: request.startDate,
+            endDate: request.endDate,
+            travelers: request.travelers,
+            budget: request.budget,
+            currency: request.currency,
+            interests: request.interests,
+            accommodationType: request.accommodationType,
+            transportationType: request.transportationType,
+            dietaryRestrictions: request.dietaryRestrictions,
+            specialRequirements: request.specialRequirements,
+            language: request.language
+          }
         })
       });
 
@@ -187,13 +208,23 @@ class PlanGenerationService {
     const prompt = this.buildRecommendationsPrompt(request, itinerary);
     
     try {
-      const response = await apiCall(API_CONFIG.ENDPOINTS.OPENAI_GENERATE, {
+      const response = await backendApiCall(BACKEND_API_CONFIG.ENDPOINTS.OPENAI.GENERATE, {
         method: 'POST',
         body: JSON.stringify({
-          prompt,
-          max_tokens: 2000,
-          temperature: 0.6,
-          model: 'gpt-3.5-turbo'
+          tripData: {
+            destination: request.destination,
+            startDate: request.startDate,
+            endDate: request.endDate,
+            travelers: request.travelers,
+            budget: request.budget,
+            currency: request.currency,
+            interests: request.interests,
+            accommodationType: request.accommodationType,
+            transportationType: request.transportationType,
+            dietaryRestrictions: request.dietaryRestrictions,
+            specialRequirements: request.specialRequirements,
+            language: request.language
+          }
         })
       });
 
@@ -213,10 +244,25 @@ class PlanGenerationService {
     const prompt = this.buildPracticalInfoPrompt(request);
     
     try {
-      const response = await apiCall(API_CONFIG.ENDPOINTS.OPENAI_GENERATE, {
+      const response = await backendApiCall(BACKEND_API_CONFIG.ENDPOINTS.OPENAI.GENERATE, {
         method: 'POST',
         body: JSON.stringify({
-          prompt,
+          tripData: {
+            destination: request.destination,
+            startDate: request.startDate,
+            endDate: request.endDate,
+            travelers: request.travelers,
+            budget: request.budget,
+            currency: request.currency,
+            interests: request.interests,
+            accommodationType: request.accommodationType,
+            transportationType: request.transportationType,
+            dietaryRestrictions: request.dietaryRestrictions,
+            specialRequirements: request.specialRequirements,
+            language: request.language
+          }
+        })
+      });
           max_tokens: 1500,
           temperature: 0.5,
           model: 'gpt-3.5-turbo'

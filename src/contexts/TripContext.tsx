@@ -93,7 +93,8 @@ export const TripProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const generateItinerary = async (tripData: any): Promise<any> => {
     try {
-      const result = await apiCall(API_CONFIG.ENDPOINTS.OPENAI_GENERATE, {
+      const { backendApiCall, BACKEND_API_CONFIG } = await import('../config/backend-api');
+      const result = await backendApiCall(BACKEND_API_CONFIG.ENDPOINTS.OPENAI.GENERATE, {
         method: 'POST',
         body: JSON.stringify({ tripData })
       });

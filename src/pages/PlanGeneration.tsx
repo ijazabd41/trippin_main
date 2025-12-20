@@ -6,6 +6,7 @@ import { useSupabaseAuth } from '../contexts/SupabaseAuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useBackendTrip } from '../contexts/BackendTripContext';
 import { apiCall, API_CONFIG } from '../config/api';
+import { backendApiCall, BACKEND_API_CONFIG } from '../config/backend-api';
 import MockDataNotice from '../components/MockDataNotice';
 import GeneratedPlanDisplay from '../components/GeneratedPlanDisplay';
 import { GeneratedPlan } from '../services/PlanGenerationService';
@@ -693,7 +694,8 @@ const PlanGeneration: React.FC = () => {
         
         console.log('🚀 Sending flattened data to OpenAI:', flattenedTripData);
         
-        const result = await apiCall(API_CONFIG.ENDPOINTS.OPENAI_GENERATE, {
+        // Use backendApiCall to route to Supabase edge function
+        const result = await backendApiCall(BACKEND_API_CONFIG.ENDPOINTS.OPENAI.GENERATE, {
           method: 'POST',
           body: JSON.stringify({ 
             tripData: flattenedTripData
