@@ -177,7 +177,13 @@ export const backendApiCall = async (endpoint: string, options: RequestInit = {}
     defaultHeaders['apikey'] = supabaseAnonKey;
   } else {
     console.error('❌ VITE_SUPABASE_ANON_KEY not found - edge function requests will fail');
-    console.error('Please set VITE_SUPABASE_ANON_KEY in your environment variables');
+    console.error('Available sources:', {
+      env: !!import.meta.env.VITE_SUPABASE_ANON_KEY,
+      envValue: import.meta.env.VITE_SUPABASE_ANON_KEY ? `${import.meta.env.VITE_SUPABASE_ANON_KEY.substring(0, 20)}...` : 'undefined',
+      appConfig: !!(typeof window !== 'undefined' && (window as any).__APP_CONFIG__?.supabaseAnonKey),
+      window: !!(typeof window !== 'undefined' && (window as any).__SUPABASE_ANON_KEY)
+    });
+    console.error('Please set VITE_SUPABASE_ANON_KEY in your environment variables and rebuild');
   }
 
   // Add authorization header if token is provided
@@ -459,18 +465,81 @@ export const paymentApiCall = async (endpoint: string, data: any, token?: string
   }, token);
 };
 
+// Helper function to load app-config.json if not already loaded
+const ensureAppConfigLoaded = async (): Promise<void> => {
+  if (typeof window === 'undefined') return;
+  
+  // If already loaded, return immediately
+  if ((window as any).__APP_CONFIG__) {
+    return;
+  }
+  
+  // Try to load app-config.json
+  try {
+    const resp = await fetch('/app-config.json', { cache: 'no-store' });
+    if (resp.ok) {
+      (window as any).__APP_CONFIG__ = await resp.json();
+      console.log('✅ Loaded app-config.json:', (window as any).__APP_CONFIG__);
+    }
+  } catch (error) {
+    console.warn('⚠️ Failed to load app-config.json:', error);
+  }
+};
+
 // Health check function
 export const backendHealthCheck = async (): Promise<boolean> => {
   try {
+    // Ensure app-config.json is loaded before health check
+    await ensureAppConfigLoaded();
+    
     // Use the API test endpoint instead of the main health endpoint
     const testUrl = `${BACKEND_API_CONFIG.BASE_URL}/api/test`;
     console.log('🔍 Checking backend health at:', testUrl);
+    
+    // Get Supabase anon key for apikey header (required for edge functions)
+    // Wait a bit for config to be available
+    let supabaseAnonKey = 
+      import.meta.env.VITE_SUPABASE_ANON_KEY ||
+      (typeof window !== 'undefined' && (window as any).__APP_CONFIG__?.supabaseAnonKey) ||
+      (typeof window !== 'undefined' && (window as any).__SUPABASE_ANON_KEY;
+    
+    // If still not found, wait a bit more and try again
+    if (!supabaseAnonKey || supabaseAnonKey === 'your-anon-key') {
+      await new Promise(resolve => setTimeout(resolve, 100));
+      supabaseAnonKey = 
+        import.meta.env.VITE_SUPABASE_ANON_KEY ||
+        (typeof window !== 'undefined' && (window as any).__APP_CONFIG__?.supabaseAnonKey) ||
+        (typeof window !== 'undefined' && (window as any).__SUPABASE_ANON_KEY);
+    }
+    
+    console.log('🔑 Health check - Anon key available:', !!supabaseAnonKey, supabaseAnonKey ? `${supabaseAnonKey.substring(0, 20)}...` : 'NOT FOUND');
+    console.log('🔑 Health check - Sources:', {
+      env: !!import.meta.env.VITE_SUPABASE_ANON_KEY,
+      appConfig: !!(typeof window !== 'undefined' && (window as any).__APP_CONFIG__?.supabaseAnonKey),
+      appConfigValue: typeof window !== 'undefined' && (window as any).__APP_CONFIG__ ? JSON.stringify((window as any).__APP_CONFIG__) : 'no window',
+      window: !!(typeof window !== 'undefined' && (window as any).__SUPABASE_ANON_KEY)
+    });
+    
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    };
+    
+    // Add apikey header if available (required for Supabase edge functions)
+    if (supabaseAnonKey && supabaseAnonKey !== 'your-anon-key') {
+      headers['apikey'] = supabaseAnonKey;
+      console.log('✅ Health check - Adding apikey header');
+    } else {
+      console.error('❌ Health check - No apikey header will be sent!');
+      console.error('This will cause 401 errors. Please ensure app-config.json is deployed correctly.');
+    }
     
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 5000);
     
     const response = await fetch(testUrl, {
       method: 'GET',
+      headers,
       signal: controller.signal
     });
     
