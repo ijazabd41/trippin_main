@@ -631,7 +631,7 @@ export const backendHealthCheck = async (): Promise<boolean> => {
     }
     
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 5000);
+    const timeoutId = setTimeout(() => controller.abort(), 15000); // Increase timeout to 15 seconds
     
     const response = await fetch(testUrl, {
       method: 'GET',
