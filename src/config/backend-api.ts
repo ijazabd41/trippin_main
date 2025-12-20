@@ -166,6 +166,20 @@ export const backendApiCall = async (endpoint: string, options: RequestInit = {}
     'Accept': 'application/json',
   };
 
+  // Add Supabase apikey header (required for edge functions)
+  // Try multiple sources for the anon key (same as SupabaseAuthContext)
+  const supabaseAnonKey = 
+    import.meta.env.VITE_SUPABASE_ANON_KEY ||
+    (typeof window !== 'undefined' && (window as any).__APP_CONFIG__?.supabaseAnonKey) ||
+    (typeof window !== 'undefined' && (window as any).__SUPABASE_ANON_KEY);
+  
+  if (supabaseAnonKey && supabaseAnonKey !== 'your-anon-key') {
+    defaultHeaders['apikey'] = supabaseAnonKey;
+  } else {
+    console.error('❌ VITE_SUPABASE_ANON_KEY not found - edge function requests will fail');
+    console.error('Please set VITE_SUPABASE_ANON_KEY in your environment variables');
+  }
+
   // Add authorization header if token is provided
   if (token) {
     defaultHeaders['Authorization'] = `Bearer ${token}`;

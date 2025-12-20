@@ -14,6 +14,8 @@ const corsHeaders = {
 };
 
 // Initialize Supabase clients
+// Note: SUPABASE_URL, SUPABASE_ANON_KEY, and SUPABASE_SERVICE_ROLE_KEY
+// are automatically provided by Supabase Edge Functions runtime
 const getSupabaseClient = (authHeader: string | null) => {
   const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
   const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
@@ -86,7 +88,17 @@ class Router {
   async handle(req: Request): Promise<Response | null> {
     const url = new URL(req.url);
     const method = req.method;
-    const pathname = url.pathname;
+    let pathname = url.pathname;
+
+    // Strip the function name prefix if present (e.g., /trippin-api/health -> /health)
+    // Supabase includes the function name in the pathname
+    if (pathname.startsWith('/trippin-api')) {
+      pathname = pathname.replace('/trippin-api', '') || '/';
+    }
+    // Also handle /functions/v1/trippin-api prefix if present
+    if (pathname.startsWith('/functions/v1/trippin-api')) {
+      pathname = pathname.replace('/functions/v1/trippin-api', '') || '/';
+    }
 
     const methodRoutes = this.routes.get(method);
     if (!methodRoutes) return null;
@@ -1182,6 +1194,764 @@ router.add("POST", "/api/openai/generate", async (req) => {
     console.error("OpenAI generate error:", error);
     return new Response(
       JSON.stringify({ success: false, message: "Failed to generate trip plan", error: error.message }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+});
+
+// ==================== GOOGLE MAPS ROUTES ====================
+
+// Get nearby places
+router.add("POST", "/api/google-maps", async (req) => {
+  try {
+    const body = await parseBody(req);
+    const { location, radius = "5000", types = [], type, keyword } = body;
+
+    if (!location) {
+      return new Response(
+        JSON.stringify({ success: false, message: "Location is required" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const googleMapsKey = Deno.env.get("GOOGLE_MAPS_API_KEY");
+    if (!googleMapsKey) {
+      // Return fallback data
+      const fallbackPlaces = [
+        {
+          id: "1",
+          name: "浅草寺",
+          nameEn: "Senso-ji Temple",
+          category: "temples-shrines",
+          rating: 4.8,
+          distance: "0.5km",
+          address: "東京都台東区浅草2-3-1",
+          lat: 35.7148,
+          lng: 139.7967,
+        },
+      ];
+
+      return new Response(
+        JSON.stringify({ success: true, data: fallbackPlaces, isMockData: true, message: "Google Maps API not configured" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Build Google Places API request
+    const params = new URLSearchParams({
+      location: location,
+      radius: radius,
+      key: googleMapsKey,
+    });
+
+    const resolvedType = type || (Array.isArray(types) && types.length > 0 ? types[0] : "point_of_interest");
+    if (resolvedType) {
+      params.append("type", resolvedType);
+    }
+    if (keyword) {
+      params.append("keyword", keyword);
+    }
+
+    const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?${params}`;
+    const response = await fetch(url);
+    const data = await response.json();
+
+    if (data.status !== "OK") {
+      throw new Error(`Google Places API error: ${data.status}`);
+    }
+
+    const places = data.results.map((place: any, index: number) => ({
+      id: place.place_id || `place-${index}`,
+      name: place.name,
+      nameEn: place.name,
+      category: place.types?.[0] || "point_of_interest",
+      rating: place.rating || 0,
+      distance: "Unknown",
+      address: place.vicinity || "Address not available",
+      lat: place.geometry.location.lat,
+      lng: place.geometry.location.lng,
+      image: place.photos && place.photos.length > 0
+        ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${place.photos[0].photo_reference}&key=${googleMapsKey}`
+        : null,
+    }));
+
+    return new Response(
+      JSON.stringify({ success: true, data: places, isMockData: false }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  } catch (error) {
+    console.error("Google Places API Error:", error);
+    return new Response(
+      JSON.stringify({ success: false, message: "Failed to fetch places", error: error.message }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+});
+
+// Get place details
+router.add("POST", "/api/google-maps/details", async (req) => {
+  try {
+    const body = await parseBody(req);
+    const { placeId, language } = body;
+
+    if (!placeId) {
+      return new Response(
+        JSON.stringify({ success: false, message: "placeId is required" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const googleMapsKey = Deno.env.get("GOOGLE_MAPS_API_KEY");
+    if (!googleMapsKey) {
+      return new Response(
+        JSON.stringify({ success: true, isMockData: true, data: null, message: "Google Maps API not configured" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const params = new URLSearchParams({
+      place_id: placeId,
+      key: googleMapsKey,
+      fields: "place_id,name,formatted_address,formatted_phone_number,opening_hours,website,url,geometry/location,rating,user_ratings_total,photos",
+    });
+    if (language) params.append("language", language);
+
+    const url = `https://maps.googleapis.com/maps/api/place/details/json?${params}`;
+    const response = await fetch(url);
+    const data = await response.json();
+
+    if (data.status !== "OK") {
+      throw new Error(`Google Place Details error: ${data.status}`);
+    }
+
+    const r = data.result;
+    const details = {
+      id: r.place_id,
+      name: r.name,
+      address: r.formatted_address,
+      phone: r.formatted_phone_number || null,
+      website: r.website || null,
+      url: r.url || null,
+      rating: r.rating || null,
+      userRatingsTotal: r.user_ratings_total || 0,
+      lat: r.geometry?.location?.lat,
+      lng: r.geometry?.location?.lng,
+      openingHours: r.opening_hours?.weekday_text || null,
+      photos: Array.isArray(r.photos) ? r.photos.slice(0, 5).map((p: any) =>
+        `https://maps.googleapis.com/maps/api/place/photo?maxwidth=600&photoreference=${p.photo_reference}&key=${googleMapsKey}`
+      ) : [],
+    };
+
+    return new Response(
+      JSON.stringify({ success: true, data: details, isMockData: false }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  } catch (error) {
+    console.error("Place Details API Error:", error);
+    return new Response(
+      JSON.stringify({ success: false, message: "Failed to fetch place details", error: error.message }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+});
+
+// ==================== GOOGLE TRANSLATE ROUTES ====================
+
+// Translate text
+router.add("POST", "/api/google-translate/translate", async (req) => {
+  try {
+    const body = await parseBody(req);
+    const { text, sourceLanguage, targetLanguage } = body;
+
+    if (!text) {
+      return new Response(
+        JSON.stringify({ success: false, message: "Text is required" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    if (!sourceLanguage || !targetLanguage) {
+      return new Response(
+        JSON.stringify({ success: false, message: "Source and target languages are required" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const translateKey = Deno.env.get("GOOGLE_TRANSLATE_API_KEY") || Deno.env.get("GOOGLE_MAPS_API_KEY");
+    if (!translateKey) {
+      // Fallback translation
+      const fallbackTranslations: Record<string, Record<string, string>> = {
+        "ja-en": { "こんにちは": "Hello", "ありがとう": "Thank you" },
+        "en-ja": { "Hello": "こんにちは", "Thank you": "ありがとう" },
+      };
+      const key = `${sourceLanguage}-${targetLanguage}`;
+      const translatedText = fallbackTranslations[key]?.[text] || `⚠️ Google Translate API not configured. Text: "${text}"`;
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          data: { translatedText, detectedSourceLanguage: sourceLanguage, sourceLanguage, targetLanguage },
+          isMockData: true,
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const params = new URLSearchParams({
+      key: translateKey,
+      q: text,
+      source: sourceLanguage,
+      target: targetLanguage,
+      format: "text",
+    });
+
+    const url = `https://translation.googleapis.com/language/translate/v2?${params}`;
+    const response = await fetch(url, { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" } });
+    const data = await response.json();
+
+    if (data.error) {
+      throw new Error(`Google Translate API error: ${data.error.message}`);
+    }
+
+    const translation = data.data.translations[0];
+
+    return new Response(
+      JSON.stringify({
+        success: true,
+        data: {
+          translatedText: translation.translatedText,
+          detectedSourceLanguage: translation.detectedSourceLanguage || sourceLanguage,
+          sourceLanguage,
+          targetLanguage,
+        },
+        isMockData: false,
+      }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  } catch (error) {
+    console.error("Google Translate API Error:", error);
+    return new Response(
+      JSON.stringify({ success: false, message: "Failed to translate text", error: error.message }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+});
+
+// Detect language
+router.add("POST", "/api/google-translate/detect", async (req) => {
+  try {
+    const body = await parseBody(req);
+    const { text } = body;
+
+    if (!text) {
+      return new Response(
+        JSON.stringify({ success: false, message: "Text is required" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const translateKey = Deno.env.get("GOOGLE_TRANSLATE_API_KEY") || Deno.env.get("GOOGLE_MAPS_API_KEY");
+    if (!translateKey) {
+      // Simple fallback detection
+      let detectedLanguage = "en";
+      if (/[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]/.test(text)) detectedLanguage = "ja";
+      else if (/[\u4E00-\u9FAF]/.test(text)) detectedLanguage = "zh";
+      else if (/[\uAC00-\uD7AF]/.test(text)) detectedLanguage = "ko";
+
+      return new Response(
+        JSON.stringify({ success: true, data: { language: detectedLanguage, confidence: 0.7 }, isMockData: true }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const params = new URLSearchParams({ key: translateKey, q: text });
+    const url = `https://translation.googleapis.com/language/translate/v2/detect?${params}`;
+    const response = await fetch(url, { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" } });
+    const data = await response.json();
+
+    if (data.error) {
+      throw new Error(`Google Translate Detect API error: ${data.error.message}`);
+    }
+
+    const detection = data.data.detections[0][0];
+
+    return new Response(
+      JSON.stringify({ success: true, data: { language: detection.language, confidence: detection.confidence }, isMockData: false }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  } catch (error) {
+    console.error("Google Translate Detect API Error:", error);
+    return new Response(
+      JSON.stringify({ success: false, message: "Failed to detect language", error: error.message }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+});
+
+// Get supported languages
+router.add("GET", "/api/google-translate/languages", async (req) => {
+  try {
+    const translateKey = Deno.env.get("GOOGLE_TRANSLATE_API_KEY") || Deno.env.get("GOOGLE_MAPS_API_KEY");
+    if (!translateKey) {
+      const fallbackLanguages = [
+        { language: "ja", name: "Japanese" },
+        { language: "en", name: "English" },
+        { language: "zh", name: "Chinese (Simplified)" },
+        { language: "ko", name: "Korean" },
+      ];
+
+      return new Response(
+        JSON.stringify({ success: true, data: fallbackLanguages, isMockData: true }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const params = new URLSearchParams({ key: translateKey, target: "en" });
+    const url = `https://translation.googleapis.com/language/translate/v2/languages?${params}`;
+    const response = await fetch(url);
+    const data = await response.json();
+
+    if (data.error) {
+      throw new Error(`Google Translate Languages API error: ${data.error.message}`);
+    }
+
+    return new Response(
+      JSON.stringify({ success: true, data: data.data.languages, isMockData: false }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  } catch (error) {
+    console.error("Google Translate Languages API Error:", error);
+    return new Response(
+      JSON.stringify({ success: false, message: "Failed to get supported languages", error: error.message }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+});
+
+// ==================== SUBSCRIPTIONS ROUTES ====================
+
+// Create checkout session
+router.add("POST", "/api/subscriptions/create-checkout-session", async (req) => {
+  const auth = await authenticateToken(req);
+  if (auth.error) {
+    return new Response(
+      JSON.stringify({ error: auth.error.message, code: auth.error.code }),
+      { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+
+  try {
+    const body = await parseBody(req);
+    const { planId, successUrl, cancelUrl } = body;
+
+    if (!planId || !successUrl || !cancelUrl) {
+      return new Response(
+        JSON.stringify({ error: "planId, successUrl, and cancelUrl are required", code: "MISSING_FIELDS" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
+    if (!stripeKey) {
+      return new Response(
+        JSON.stringify({ error: "Payments service unavailable", code: "PAYMENTS_UNCONFIGURED" }),
+        { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
+
+    const plans: Record<string, any> = {
+      premium: { name: "プレミアムプラン", price: 2500, currency: "JPY", interval: "month" },
+    };
+
+    const plan = plans[planId];
+    if (!plan) {
+      return new Response(
+        JSON.stringify({ error: "Invalid plan ID", code: "INVALID_PLAN" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      line_items: [
+        {
+          price_data: {
+            currency: plan.currency.toLowerCase(),
+            product_data: { name: plan.name, description: "AI搭載の旅行プランニングサービス" },
+            unit_amount: plan.price,
+            recurring: { interval: plan.interval },
+          },
+          quantity: 1,
+        },
+      ],
+      mode: "subscription",
+      success_url: `${successUrl}?session_id={CHECKOUT_SESSION_ID}&user_id=${auth.user.id}`,
+      cancel_url: cancelUrl,
+      customer_email: auth.user.email,
+      metadata: { user_id: auth.user.id, plan_id: planId, plan_name: plan.name },
+      subscription_data: { metadata: { user_id: auth.user.id, plan_id: planId } },
+    });
+
+    return new Response(
+      JSON.stringify({ success: true, data: { sessionId: session.id, sessionUrl: session.url } }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  } catch (error) {
+    console.error("Create checkout session error:", error);
+    return new Response(
+      JSON.stringify({ error: "Failed to create checkout session", code: "CHECKOUT_SESSION_ERROR" }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+});
+
+// Get subscription status
+router.add("GET", "/api/subscriptions/status", async (req) => {
+  const auth = await authenticateToken(req);
+  if (auth.error) {
+    return new Response(
+      JSON.stringify({ error: auth.error.message, code: auth.error.code }),
+      { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+
+  try {
+    const supabaseAdmin = getSupabaseAdmin();
+    const { data: user, error } = await supabaseAdmin
+      .from("users")
+      .select("is_premium, premium_expires_at, email")
+      .eq("id", auth.user.id)
+      .single();
+
+    if (error) {
+      return new Response(
+        JSON.stringify({ error: "Failed to fetch user status", code: "USER_STATUS_ERROR", details: error.message }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const isPremium = user.is_premium;
+    const expiresAt = user.premium_expires_at;
+    const isActive = isPremium && (!expiresAt || new Date(expiresAt) > new Date());
+
+    return new Response(
+      JSON.stringify({
+        success: true,
+        data: {
+          isPremium: isActive,
+          planName: isActive ? "プレミアムプラン" : "フリープラン",
+          amount: isActive ? 2500 : 0,
+          currency: "JPY",
+          interval: "month",
+          nextBillingDate: isActive ? expiresAt : null,
+          status: isActive ? "active" : "free",
+          expiresAt: expiresAt,
+          isActive: isActive,
+        },
+      }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  } catch (error) {
+    console.error("Get subscription status error:", error);
+    return new Response(
+      JSON.stringify({ error: "Failed to get subscription status", code: "SUBSCRIPTION_STATUS_ERROR" }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+});
+
+// ==================== ADDITIONAL PAYMENT ROUTES ====================
+
+// Confirm payment
+router.add("POST", "/api/payments/confirm", async (req) => {
+  const auth = await authenticateToken(req);
+  if (auth.error) {
+    return new Response(
+      JSON.stringify({ error: auth.error.message, code: auth.error.code }),
+      { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+
+  try {
+    const body = await parseBody(req);
+    const { payment_intent_id } = body;
+
+    if (!payment_intent_id) {
+      return new Response(
+        JSON.stringify({ error: "Payment intent ID is required", code: "MISSING_PAYMENT_INTENT" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
+    if (!stripeKey) {
+      return new Response(
+        JSON.stringify({ error: "Payments service unavailable", code: "PAYMENTS_UNCONFIGURED" }),
+        { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
+    const paymentIntent = await stripe.paymentIntents.retrieve(payment_intent_id);
+
+    if (paymentIntent.status !== "succeeded") {
+      return new Response(
+        JSON.stringify({ error: "Payment not successful", code: "PAYMENT_NOT_SUCCESSFUL", status: paymentIntent.status }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const supabase = getSupabaseClient(req.headers.get("authorization"));
+    const { data: payment, error: paymentError } = await supabase
+      .from("payments")
+      .update({
+        status: "paid",
+        transaction_id: paymentIntent.charges.data[0]?.id,
+        payment_method: paymentIntent.payment_method_types[0],
+        updated_at: new Date().toISOString(),
+      })
+      .eq("stripe_payment_intent_id", payment_intent_id)
+      .eq("user_id", auth.user.id)
+      .select()
+      .single();
+
+    if (paymentError) {
+      return new Response(
+        JSON.stringify({ error: "Failed to update payment record", code: "PAYMENT_UPDATE_ERROR", details: paymentError.message }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    return new Response(
+      JSON.stringify({ success: true, data: payment }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  } catch (error) {
+    console.error("Confirm payment error:", error);
+    return new Response(
+      JSON.stringify({ error: "Failed to confirm payment", code: "PAYMENT_CONFIRM_ERROR" }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+});
+
+// Get payment history
+router.add("GET", "/api/payments", async (req) => {
+  const auth = await authenticateToken(req);
+  if (auth.error) {
+    return new Response(
+      JSON.stringify({ error: auth.error.message, code: auth.error.code }),
+      { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+
+  try {
+    const url = new URL(req.url);
+    const status = url.searchParams.get("status");
+    const limit = parseInt(url.searchParams.get("limit") || "20");
+    const offset = parseInt(url.searchParams.get("offset") || "0");
+
+    const supabase = getSupabaseClient(req.headers.get("authorization"));
+    let query = supabase
+      .from("payments")
+      .select("*, bookings!payments_booking_id_fkey(*, trips!bookings_trip_id_fkey(title, destination))")
+      .eq("user_id", auth.user.id)
+      .order("created_at", { ascending: false })
+      .range(offset, offset + limit - 1);
+
+    if (status) {
+      query = query.eq("status", status);
+    }
+
+    const { data: payments, error } = await query;
+
+    if (error) {
+      return new Response(
+        JSON.stringify({ error: "Failed to fetch payments", code: "PAYMENTS_FETCH_ERROR" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    return new Response(
+      JSON.stringify({ success: true, data: payments }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  } catch (error) {
+    console.error("Get payments error:", error);
+    return new Response(
+      JSON.stringify({ error: "Failed to fetch payments", code: "PAYMENTS_FETCH_ERROR" }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+});
+
+// ==================== ESIM ROUTES ====================
+
+// Get eSIM plans
+router.add("GET", "/api/esim/plans", async (req) => {
+  try {
+    const esimKey = Deno.env.get("ESIMGO_API_KEY") || Deno.env.get("ESIM_TOKEN");
+    const esimBaseUrl = Deno.env.get("ESIMGO_BASE_URL") || Deno.env.get("ESIM_BASE") || "https://api.esim-go.com/v2.4";
+
+    if (!esimKey) {
+      return new Response(
+        JSON.stringify({ success: false, message: "eSIM API key not configured", isMockData: true, data: [] }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const url = `${esimBaseUrl}/catalogue?page=1`;
+    const response = await fetch(url, {
+      headers: { "X-API-Key": esimKey, "Content-Type": "application/json" },
+    });
+
+    if (!response.ok) {
+      throw new Error(`eSIM API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const bundles = data.bundles || [];
+
+    // Filter for Japan plans
+    const japanBundles = bundles.filter((bundle: any) => {
+      if (!bundle?.countries) return false;
+      return bundle.countries.some((country: any) => {
+        const iso = (country?.iso || country || "").toString().toUpperCase();
+        return iso === "JP" || iso === "JPN" || iso.includes("JAPAN");
+      });
+    });
+
+    return new Response(
+      JSON.stringify({ success: true, data: japanBundles, isMockData: false }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  } catch (error) {
+    console.error("Get eSIM plans error:", error);
+    return new Response(
+      JSON.stringify({ success: false, message: "Failed to fetch eSIM plans", error: error.message, data: [] }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+});
+
+// Purchase eSIM
+router.add("POST", "/api/esim/purchase", async (req) => {
+  const auth = await authenticateToken(req);
+  if (auth.error) {
+    return new Response(
+      JSON.stringify({ error: auth.error.message, code: auth.error.code }),
+      { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+
+  try {
+    const body = await parseBody(req);
+    const { planName, customerInfo } = body;
+
+    if (!planName || !customerInfo) {
+      return new Response(
+        JSON.stringify({ error: "Plan name and customer info are required", code: "MISSING_FIELDS" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const esimKey = Deno.env.get("ESIMGO_API_KEY") || Deno.env.get("ESIM_TOKEN");
+    const esimBaseUrl = Deno.env.get("ESIMGO_BASE_URL") || Deno.env.get("ESIM_BASE") || "https://api.esim-go.com/v2.4";
+
+    if (!esimKey) {
+      return new Response(
+        JSON.stringify({ error: "eSIM API key not configured", code: "ESIM_UNCONFIGURED" }),
+        { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Create order
+    const orderData = {
+      bundle: planName,
+      customer: customerInfo,
+      type: "validate", // Testing mode
+    };
+
+    const url = `${esimBaseUrl}/orders`;
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "X-API-Key": esimKey, "Content-Type": "application/json" },
+      body: JSON.stringify(orderData),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`eSIM API error: ${response.status} - ${errorText}`);
+    }
+
+    const orderResult = await response.json();
+
+    // Store order in database
+    const supabase = getSupabaseClient(req.headers.get("authorization"));
+    const { data: order, error: orderError } = await supabase
+      .from("esim_orders")
+      .insert({
+        user_id: auth.user.id,
+        plan_name: planName,
+        order_reference: orderResult.orderReference || orderResult.id,
+        status: "pending",
+        provider_data: orderResult,
+        created_at: new Date().toISOString(),
+      })
+      .select()
+      .single();
+
+    return new Response(
+      JSON.stringify({
+        success: true,
+        data: { order: order || orderResult, message: "Order created successfully" },
+      }),
+      { status: 201, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  } catch (error) {
+    console.error("Purchase eSIM error:", error);
+    return new Response(
+      JSON.stringify({ error: "Failed to purchase eSIM", code: "ESIM_PURCHASE_ERROR", details: error.message }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+});
+
+// Get eSIM orders
+router.add("GET", "/api/esim/orders", async (req) => {
+  const auth = await authenticateToken(req);
+  if (auth.error) {
+    return new Response(
+      JSON.stringify({ error: auth.error.message, code: auth.error.code }),
+      { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+
+  try {
+    const supabase = getSupabaseClient(req.headers.get("authorization"));
+    const { data: orders, error } = await supabase
+      .from("esim_orders")
+      .select("*")
+      .eq("user_id", auth.user.id)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      return new Response(
+        JSON.stringify({ error: "Failed to fetch orders", code: "ORDERS_FETCH_ERROR" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    return new Response(
+      JSON.stringify({ success: true, data: orders || [] }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  } catch (error) {
+    console.error("Get eSIM orders error:", error);
+    return new Response(
+      JSON.stringify({ error: "Failed to fetch orders", code: "ORDERS_FETCH_ERROR" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }

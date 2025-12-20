@@ -33,28 +33,26 @@ This is a Supabase Edge Function that replaces the Express.js backend server. It
 
 ### Environment Variables
 
-Set the following secrets in your Supabase project:
+**Important:** `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY` are automatically provided by Supabase Edge Functions. You don't need to set them!
+
+Only set your custom secrets:
 
 ```bash
-# Required
-SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_ANON_KEY=your-anon-key
-SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
-
-# Optional (for full functionality)
-OPENAI_API_KEY=your-openai-key
-STRIPE_SECRET_KEY=your-stripe-secret-key
-FRONTEND_URL=https://your-frontend-url.com
-```
-
-To set secrets:
-```bash
-supabase secrets set SUPABASE_URL=https://your-project.supabase.co
-supabase secrets set SUPABASE_ANON_KEY=your-anon-key
-supabase secrets set SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+# Optional but recommended for full functionality
+supabase secrets set FRONTEND_URL=https://your-frontend-url.com
 supabase secrets set OPENAI_API_KEY=your-openai-key
 supabase secrets set STRIPE_SECRET_KEY=your-stripe-secret-key
-supabase secrets set FRONTEND_URL=https://your-frontend-url.com
+```
+
+Or use an env file:
+```bash
+# Create .env.secrets file (don't commit!)
+FRONTEND_URL=https://your-frontend-url.com
+OPENAI_API_KEY=your-openai-key
+STRIPE_SECRET_KEY=your-stripe-secret-key
+
+# Set all at once
+supabase secrets set --env-file .env.secrets
 ```
 
 ### Deploy
@@ -110,6 +108,27 @@ http://localhost:54321/functions/v1/trippin-api
 
 ### Payments
 - `POST /api/payments/create-intent` - Create Stripe payment intent
+- `POST /api/payments/confirm` - Confirm payment
+- `GET /api/payments` - Get payment history
+- `GET /api/payments/:id` - Get single payment
+
+### Subscriptions
+- `POST /api/subscriptions/create-checkout-session` - Create premium subscription checkout
+- `GET /api/subscriptions/status` - Get subscription status
+
+### Google Maps
+- `POST /api/google-maps` - Get nearby places
+- `POST /api/google-maps/details` - Get place details
+
+### Google Translate
+- `POST /api/google-translate/translate` - Translate text
+- `POST /api/google-translate/detect` - Detect language
+- `GET /api/google-translate/languages` - Get supported languages
+
+### eSIM
+- `GET /api/esim/plans` - Get available eSIM plans (Japan only)
+- `POST /api/esim/purchase` - Purchase eSIM plan
+- `GET /api/esim/orders` - Get user's eSIM orders
 
 ### OpenAI
 - `POST /api/openai/generate` - Generate trip plan with AI

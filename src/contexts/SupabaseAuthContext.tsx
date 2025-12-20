@@ -45,6 +45,17 @@ const envSupabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'your-anon-
 const supabaseUrl = (window as any).__APP_CONFIG__?.supabaseUrl || runtimeConfig.supabaseUrl || envSupabaseUrl;
 const supabaseAnonKey = (window as any).__APP_CONFIG__?.supabaseAnonKey || runtimeConfig.supabaseAnonKey || envSupabaseAnonKey;
 
+// Helper function to get the correct frontend URL for redirects
+const getFrontendUrl = (): string => {
+  // Use environment variable if set (for production)
+  const envFrontendUrl = import.meta.env.VITE_FRONTEND_URL;
+  if (envFrontendUrl) {
+    return envFrontendUrl;
+  }
+  // Fall back to window.location.origin (works for both dev and prod)
+  return window.location.origin;
+};
+
 // Check if Supabase is properly configured
 const isSupabaseConfigured = supabaseUrl !== 'https://your-project.supabase.co' && supabaseAnonKey !== 'your-anon-key' && !!supabaseUrl && !!supabaseAnonKey;
 
@@ -591,7 +602,7 @@ export const SupabaseAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/supabase-auth/callback`,
+          redirectTo: `${getFrontendUrl()}/supabase-auth/callback`,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent'
@@ -905,7 +916,7 @@ export const SupabaseAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
         return { error: new Error('Password reset is unavailable in mock mode') };
       }
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/supabase-auth/reset-password`
+        redirectTo: `${getFrontendUrl()}/supabase-auth/reset-password`
       });
 
       return { error };
