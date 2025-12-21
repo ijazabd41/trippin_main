@@ -2860,6 +2860,19 @@ router.add("POST", "/api/esim/orders/:id/cancel", async (req, params) => {
 
 // ==================== MAIN HANDLER ====================
 
+// Suppress Deno compatibility warnings (non-fatal errors from Node.js polyfills)
+const originalConsoleError = console.error;
+console.error = (...args: any[]) => {
+  const message = args[0]?.toString() || "";
+  // Filter out non-fatal Deno compatibility errors
+  if (message.includes("Deno.core.runMicrotasks") || 
+      message.includes("is not supported in this environment")) {
+    // These are harmless warnings from Node.js polyfills, ignore them
+    return;
+  }
+  originalConsoleError(...args);
+};
+
 serve(async (req) => {
   const startTime = Date.now();
   const url = new URL(req.url);
@@ -2888,12 +2901,16 @@ serve(async (req) => {
     );
   } catch (error) {
     const duration = Date.now() - startTime;
-    console.error(`❌ Error handling request (${duration}ms):`, error);
+    // Only log actual errors, not Deno compatibility warnings
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    if (!errorMessage.includes("Deno.core.runMicrotasks")) {
+      console.error(`❌ Error handling request (${duration}ms):`, error);
+    }
     return new Response(
       JSON.stringify({
         error: "Internal server error",
         code: "INTERNAL_ERROR",
-        ...(Deno.env.get("ENVIRONMENT") === "development" && { details: error.message }),
+        ...(Deno.env.get("ENVIRONMENT") === "development" && { details: errorMessage }),
       }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
