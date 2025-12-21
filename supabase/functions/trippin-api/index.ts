@@ -2490,6 +2490,186 @@ router.add("GET", "/api/subscriptions/status", async (req) => {
   }
 });
 
+// Cancel subscription
+router.add("POST", "/api/subscriptions/cancel", async (req) => {
+  const auth = await authenticateToken(req);
+  if (auth.error) {
+    return new Response(
+      JSON.stringify({ error: auth.error.message, code: auth.error.code }),
+      { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+
+  try {
+    console.log("🔄 Cancel subscription request for user:", auth.user.id, auth.user.email);
+
+    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
+    const supabaseAdmin = getSupabaseAdmin();
+
+    if (!stripeKey) {
+      console.log("⚠️ Stripe not configured, updating database only");
+      // If Stripe is not configured, just update the database
+      const { error: updateError } = await supabaseAdmin
+        .from("users")
+        .update({
+          is_premium: false,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", auth.user.id);
+
+      if (updateError) {
+        throw new Error(`Failed to update user: ${updateError.message}`);
+      }
+
+      // Create notification
+      await supabaseAdmin.from("notifications").insert({
+        user_id: auth.user.id,
+        type: "subscription_cancelled",
+        title: "Subscription Cancelled",
+        message: "Your premium subscription has been cancelled.",
+        metadata: {
+          cancelled_at: new Date().toISOString(),
+        },
+      });
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          message: "Subscription cancelled successfully (Stripe not configured)",
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
+
+    // Try to find customer by email first
+    let customerId = null;
+    try {
+      const customers = await stripe.customers.list({
+        email: auth.user.email,
+        limit: 1,
+      });
+
+      if (customers.data.length > 0) {
+        customerId = customers.data[0].id;
+        console.log("✅ Found Stripe customer:", customerId);
+      }
+    } catch (stripeError) {
+      console.warn("⚠️ Could not find Stripe customer by email:", stripeError.message);
+    }
+
+    // If no customer found, try to find subscriptions by user ID in metadata
+    let subscription = null;
+    if (customerId) {
+      try {
+        const subscriptions = await stripe.subscriptions.list({
+          customer: customerId,
+          status: "active",
+          limit: 1,
+        });
+
+        if (subscriptions.data.length > 0) {
+          subscription = subscriptions.data[0];
+          console.log("✅ Found active subscription:", subscription.id);
+        }
+      } catch (stripeError) {
+        console.warn("⚠️ Could not find subscriptions for customer:", stripeError.message);
+      }
+    }
+
+    // If no subscription found via customer, try to find by user ID in metadata
+    if (!subscription) {
+      try {
+        const subscriptions = await stripe.subscriptions.list({
+          status: "active",
+          limit: 100, // Get more to search through
+        });
+
+        // Find subscription with matching user ID in metadata
+        subscription = subscriptions.data.find(
+          (sub) => sub.metadata && sub.metadata.user_id === auth.user.id
+        );
+
+        if (subscription) {
+          console.log("✅ Found subscription by user ID metadata:", subscription.id);
+        }
+      } catch (stripeError) {
+        console.warn("⚠️ Could not search subscriptions by metadata:", stripeError.message);
+      }
+    }
+
+    if (subscription) {
+      // Cancel the subscription in Stripe (set to cancel at period end)
+      try {
+        await stripe.subscriptions.update(subscription.id, {
+          cancel_at_period_end: true,
+        });
+        console.log("✅ Subscription cancelled in Stripe (will cancel at period end)");
+      } catch (stripeError) {
+        console.warn("⚠️ Could not cancel subscription in Stripe:", stripeError.message);
+        // Continue with database update even if Stripe fails
+      }
+    } else {
+      console.log("⚠️ No active subscription found in Stripe, updating database only");
+    }
+
+    // Update user status in database
+    const expiresAt = subscription
+      ? new Date(subscription.current_period_end * 1000).toISOString()
+      : new Date().toISOString();
+
+    const { error: updateError } = await supabaseAdmin
+      .from("users")
+      .update({
+        is_premium: false,
+        premium_expires_at: expiresAt,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", auth.user.id);
+
+    if (updateError) {
+      throw new Error(`Failed to update user: ${updateError.message}`);
+    }
+
+    // Create notification
+    await supabaseAdmin.from("notifications").insert({
+      user_id: auth.user.id,
+      type: "subscription_cancelled",
+      title: "Subscription Cancelled",
+      message:
+        "Your premium subscription has been cancelled and will expire at the end of your current billing period.",
+      metadata: {
+        subscription_id: subscription?.id || null,
+        expires_at: expiresAt,
+      },
+    });
+
+    console.log("✅ Subscription cancellation completed");
+    return new Response(
+      JSON.stringify({
+        success: true,
+        message: "Subscription cancelled successfully",
+        data: {
+          expiresAt: expiresAt,
+          subscriptionId: subscription?.id || null,
+        },
+      }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  } catch (error) {
+    console.error("❌ Cancel subscription error:", error);
+    return new Response(
+      JSON.stringify({
+        error: "Failed to cancel subscription",
+        code: "SUBSCRIPTION_CANCEL_ERROR",
+        details: error.message,
+      }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+});
+
 // Verify payment - check if checkout session was successful
 router.add("POST", "/api/subscriptions/verify-payment", async (req) => {
   const auth = await authenticateToken(req);
