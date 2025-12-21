@@ -1337,19 +1337,211 @@ Return the response as a valid JSON object with this structure:
 });
 
 // Alias route for /openai/generate (without /api prefix) for backward compatibility
-// This route redirects to the main /api/openai/generate handler
+// This route uses the same handler as /api/openai/generate
 router.add("POST", "/openai/generate", async (req) => {
-  // Create a new request with the correct path
-  const url = new URL(req.url);
-  url.pathname = url.pathname.replace("/openai/generate", "/api/openai/generate");
-  const newReq = new Request(url.toString(), {
-    method: req.method,
-    headers: req.headers,
-    body: req.body,
-  });
-  
-  // Call the main handler
-  return await router.handle(newReq);
+  try {
+    const body = await parseBody(req);
+    const { tripData } = body;
+
+    if (!tripData) {
+      return new Response(
+        JSON.stringify({ success: false, message: "Trip data is required" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const openaiKey = Deno.env.get("OPENAI_API_KEY");
+    if (!openaiKey) {
+      // Return fallback plan
+      const duration = tripData.startDate && tripData.endDate 
+        ? Math.ceil((new Date(tripData.endDate).getTime() - new Date(tripData.startDate).getTime()) / (1000 * 60 * 60 * 24))
+        : tripData.duration || 3;
+      
+      const fallbackPlan = {
+        id: `fallback-plan-${Date.now()}`,
+        title: `${tripData.destination || "Destination"} Adventure`,
+        destination: tripData.destination || "Unknown Destination",
+        duration: duration,
+        budget: {
+          total: tripData.budget || 100000,
+          currency: tripData.currency || "JPY",
+          breakdown: {
+            accommodation: Math.round((tripData.budget || 100000) * 0.4),
+            transportation: Math.round((tripData.budget || 100000) * 0.2),
+            food: Math.round((tripData.budget || 100000) * 0.25),
+            activities: Math.round((tripData.budget || 100000) * 0.1),
+            miscellaneous: Math.round((tripData.budget || 100000) * 0.05),
+          },
+        },
+        itinerary: [
+          {
+            day: 1,
+            date: tripData.startDate || new Date().toISOString().split("T")[0],
+            theme: "Arrival and Orientation",
+            activities: [
+              {
+                time: "09:00",
+                title: "Arrival",
+                description: "Arrive at your destination",
+                location: tripData.destination || "Destination",
+                type: "transport",
+                duration: 120,
+                cost: 3000,
+              },
+            ],
+          },
+        ],
+      };
+
+      return new Response(
+        JSON.stringify({ success: true, data: fallbackPlan }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Use OpenAI API (same logic as main endpoint)
+    const openai = new OpenAI({ apiKey: openaiKey });
+
+    const duration = tripData.startDate && tripData.endDate 
+      ? Math.ceil((new Date(tripData.endDate).getTime() - new Date(tripData.startDate).getTime()) / (1000 * 60 * 60 * 24))
+      : tripData.duration || 3;
+
+    const prompt = `Create a detailed travel itinerary for ${tripData.destination || "a destination"} for ${duration} days with a budget of ${tripData.budget || 100000} ${tripData.currency || "JPY"}. 
+
+Include:
+- Daily activities with times, locations, and descriptions
+- Budget breakdown by category
+- Practical information (transportation, tips, etc.)
+- Recommendations based on interests: ${Array.isArray(tripData.interests) ? tripData.interests.join(", ") : tripData.interests || "general travel"}
+
+Return the response as a valid JSON object with this structure:
+{
+  "title": "Trip title",
+  "destination": "destination name",
+  "duration": ${duration},
+  "budget": {
+    "total": ${tripData.budget || 100000},
+    "currency": "${tripData.currency || "JPY"}",
+    "breakdown": {
+      "accommodation": 0,
+      "transportation": 0,
+      "food": 0,
+      "activities": 0,
+      "miscellaneous": 0
+    }
+  },
+  "itinerary": [
+    {
+      "day": 1,
+      "date": "YYYY-MM-DD",
+      "theme": "Day theme",
+      "activities": [
+        {
+          "time": "HH:MM",
+          "title": "Activity title",
+          "description": "Activity description",
+          "location": "Location name",
+          "type": "activity type",
+          "duration": 120,
+          "cost": 0
+        }
+      ]
+    }
+  ]
+}`;
+
+    console.log("Calling OpenAI API with prompt length:", prompt.length);
+
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4",
+      messages: [
+        {
+          role: "system",
+          content: "You are a travel planning assistant. Always respond with valid JSON only, no additional text or markdown formatting.",
+        },
+        { role: "user", content: prompt },
+      ],
+      temperature: 0.7,
+      response_format: { type: "json_object" },
+    });
+
+    console.log("OpenAI API response received");
+
+    const content = completion.choices[0]?.message?.content;
+    if (!content) {
+      throw new Error("OpenAI API returned empty response");
+    }
+
+    // Try to parse JSON, handle both JSON and markdown-wrapped JSON
+    let plan;
+    try {
+      // Remove markdown code blocks if present
+      const cleanedContent = content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+      plan = JSON.parse(cleanedContent);
+    } catch (parseError) {
+      console.error("Failed to parse OpenAI response as JSON:", parseError);
+      console.error("Response content:", content.substring(0, 500));
+      // Return a structured fallback plan
+      plan = {
+        id: `fallback-plan-${Date.now()}`,
+        title: `${tripData.destination || "Destination"} Adventure`,
+        destination: tripData.destination || "Unknown Destination",
+        duration: duration,
+        budget: {
+          total: tripData.budget || 100000,
+          currency: tripData.currency || "JPY",
+          breakdown: {
+            accommodation: Math.round((tripData.budget || 100000) * 0.4),
+            transportation: Math.round((tripData.budget || 100000) * 0.2),
+            food: Math.round((tripData.budget || 100000) * 0.25),
+            activities: Math.round((tripData.budget || 100000) * 0.1),
+            miscellaneous: Math.round((tripData.budget || 100000) * 0.05),
+          },
+        },
+        itinerary: [
+          {
+            day: 1,
+            date: tripData.startDate || new Date().toISOString().split("T")[0],
+            theme: "Arrival and Orientation",
+            activities: [
+              {
+                time: "09:00",
+                title: "Arrival",
+                description: "Arrive at your destination",
+                location: tripData.destination || "Destination",
+                type: "transport",
+                duration: 120,
+                cost: 3000,
+              },
+            ],
+          },
+        ],
+        note: "AI response was not in valid JSON format, using fallback plan",
+        rawResponse: content.substring(0, 200),
+      };
+    }
+
+    return new Response(
+      JSON.stringify({ success: true, data: plan }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  } catch (error) {
+    console.error("OpenAI generate error:", error);
+    console.error("Error details:", {
+      message: error.message,
+      stack: error.stack,
+      name: error.name,
+    });
+    return new Response(
+      JSON.stringify({ 
+        success: false, 
+        message: "Failed to generate trip plan", 
+        error: error.message || "Unknown error",
+        details: Deno.env.get("ENVIRONMENT") === "development" ? error.stack : undefined
+      }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
 });
 
 // ==================== GOOGLE MAPS ROUTES ====================
