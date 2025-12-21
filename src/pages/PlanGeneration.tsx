@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Sparkles, Calendar, MapPin, Users, DollarSign, Clock, Check, Download, Share2, Star, Car, Hotel, Plane, AlertCircle } from 'lucide-react';
@@ -30,7 +30,7 @@ const PlanGeneration: React.FC = () => {
   const [showMockNotice, setShowMockNotice] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [savedTripId, setSavedTripId] = useState<string | null>(null);
-  const isGeneratingRef = React.useRef(false); // Use ref to prevent re-render issues
+  const isGeneratingRef = useRef(false); // Use ref to prevent re-render issues
 
   useEffect(() => {
     console.log('PlanGeneration component mounted');
@@ -685,7 +685,7 @@ const PlanGeneration: React.FC = () => {
     return text;
   };
 
-  const generatePlan = React.useCallback(async (tripData: any) => {
+  const generatePlan = useCallback(async (tripData: any) => {
     // Prevent concurrent generation using ref
     if (isGeneratingRef.current) {
       console.warn('⚠️ Plan generation already in progress, ignoring duplicate call');
