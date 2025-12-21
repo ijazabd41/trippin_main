@@ -60,7 +60,7 @@ const PlanGeneration: React.FC = () => {
     } else {
       console.warn('No trip data found, cannot generate plan');
       setIsLoading(false);
-      setNoticeMessage('旅行データが見つかりません。最初からやり直してください。');
+      setNoticeMessage(t('planGeneration.errors.noTripData'));
       setShowMockNotice(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -224,7 +224,7 @@ const PlanGeneration: React.FC = () => {
     // Create a comprehensive plan based on user data
     const plan = {
       id: `user-plan-${Date.now()}`,
-      title: `${destination} Adventure`,
+      title: `${destination} ${t('planGeneration.themes.adventure')}`,
       destination: destination,
       duration: duration,
       budget: {
@@ -282,34 +282,34 @@ const PlanGeneration: React.FC = () => {
       activities.push(
         {
           time: '09:00',
-          title: `Arrival at ${destination}`,
-          description: 'Arrive and check into accommodation',
+          title: t('planGeneration.activities.arrival', { destination }),
+          description: t('planGeneration.activities.arrivalDescription'),
           location: destination,
           type: 'transport',
           duration: 120,
           cost: 3000,
-          tips: 'Get local transportation pass',
-          bookingInfo: 'Book in advance for better prices'
+          tips: t('planGeneration.tips.getTransportPass'),
+          bookingInfo: t('planGeneration.tips.bookInAdvance')
         },
         {
           time: '12:00',
-          title: 'Check into Hotel',
-          description: 'Check into your accommodation',
+          title: t('planGeneration.activities.checkInHotel'),
+          description: t('planGeneration.activities.checkInDescription'),
           location: destination,
           type: 'accommodation',
           duration: 60,
           cost: 0,
-          tips: 'Store luggage if early check-in not available'
+          tips: t('planGeneration.tips.storeLuggage')
         },
         {
           time: '14:00',
-          title: 'Local Lunch',
-          description: 'Try local cuisine',
+          title: t('planGeneration.activities.localLunch'),
+          description: t('planGeneration.activities.localLunchDescription'),
           location: destination,
           type: 'dining',
           duration: 90,
           cost: 1500,
-          tips: 'Ask locals for recommendations'
+          tips: t('planGeneration.tips.askLocals')
         }
       );
     } else {
@@ -317,39 +317,39 @@ const PlanGeneration: React.FC = () => {
       if (interests.includes('culture')) {
         activities.push({
           time: '09:00',
-          title: 'Cultural Site Visit',
-          description: 'Explore historical and cultural attractions',
+          title: t('planGeneration.activities.culturalSiteVisit'),
+          description: t('planGeneration.activities.culturalSiteDescription'),
           location: destination,
           type: 'sightseeing',
           duration: 180,
           cost: 2000,
-          tips: 'Arrive early to avoid crowds'
+          tips: t('planGeneration.tips.arriveEarly')
         });
       }
       
       if (interests.includes('food')) {
         activities.push({
           time: '12:00',
-          title: 'Local Food Experience',
-          description: 'Try authentic local dishes',
+          title: t('planGeneration.activities.localFoodExperience'),
+          description: t('planGeneration.activities.localFoodDescription'),
           location: destination,
           type: 'dining',
           duration: 120,
           cost: 2500,
-          tips: 'Try street food for authentic experience'
+          tips: t('planGeneration.tips.tryStreetFood')
         });
       }
       
       if (interests.includes('nature')) {
         activities.push({
           time: '15:00',
-          title: 'Nature Exploration',
-          description: 'Visit parks or natural attractions',
+          title: t('planGeneration.activities.natureExploration'),
+          description: t('planGeneration.activities.natureDescription'),
           location: destination,
-          type: 'nature',
+          type: 'activity',
           duration: 120,
           cost: 1000,
-          tips: 'Bring comfortable walking shoes'
+          tips: t('planGeneration.tips.comfortableShoes')
         });
       }
     }
@@ -359,11 +359,11 @@ const PlanGeneration: React.FC = () => {
 
   const getDayTheme = (day: number, interests: string[]) => {
     const themes = [
-      'Arrival and Orientation',
-      'Cultural Exploration',
-      'Local Experiences',
-      'Adventure and Discovery',
-      'Relaxation and Reflection'
+      t('planGeneration.themes.arrival'),
+      t('planGeneration.themes.cultural'),
+      t('planGeneration.themes.local'),
+      t('planGeneration.themes.adventure'),
+      t('planGeneration.themes.relaxation')
     ];
     
     if (day === 1) return themes[0];
@@ -383,18 +383,18 @@ const PlanGeneration: React.FC = () => {
     if (interests.includes('food')) {
       recommendations.restaurants.push(
         {
-          name: 'Local Market',
-          cuisine: 'Local',
+          name: t('planGeneration.recommendations.localMarket'),
+          cuisine: t('planGeneration.recommendations.localCuisine'),
           priceRange: '$',
           location: destination,
-          description: 'Fresh local ingredients and authentic flavors'
+          description: t('planGeneration.recommendations.freshIngredients')
         },
         {
-          name: 'Traditional Restaurant',
-          cuisine: 'Traditional',
+          name: t('planGeneration.recommendations.traditionalRestaurant'),
+          cuisine: t('planGeneration.recommendations.traditionalCuisine'),
           priceRange: '$$',
           location: destination,
-          description: 'Authentic local cuisine in traditional setting'
+          description: t('planGeneration.recommendations.authenticCuisine')
         }
       );
     }
@@ -402,17 +402,17 @@ const PlanGeneration: React.FC = () => {
     if (interests.includes('culture')) {
       recommendations.attractions.push(
         {
-          name: 'Historic Temple',
-          type: 'Cultural',
+          name: t('planGeneration.recommendations.historicTemple'),
+          type: t('planGeneration.recommendations.culturalType'),
           location: destination,
-          description: 'Historic religious site',
+          description: t('planGeneration.recommendations.historicTemple'),
           bestTime: 'Morning'
         },
         {
-          name: 'Museum',
-          type: 'Museum',
+          name: t('planGeneration.recommendations.museum'),
+          type: t('planGeneration.recommendations.museum'),
           location: destination,
-          description: 'Local history and culture',
+          description: t('planGeneration.recommendations.museumDescription'),
           bestTime: 'Afternoon'
         }
       );
@@ -420,10 +420,10 @@ const PlanGeneration: React.FC = () => {
     
     recommendations.transportation.push(
       {
-        type: 'Local Pass',
-        description: 'Unlimited local transportation',
+        type: t('planGeneration.recommendations.localPass'),
+        description: t('planGeneration.recommendations.unlimitedTransport'),
         cost: 2000,
-        tips: 'Buy at station or online'
+        tips: t('planGeneration.recommendations.buyAtStation')
       }
     );
     
@@ -432,11 +432,31 @@ const PlanGeneration: React.FC = () => {
 
   const createPracticalInfo = (destination: string) => {
     return {
-      weather: 'Check local weather forecast before traveling',
-      packingList: ['Clothes', 'Passport', 'Camera', 'Charger', 'Comfortable shoes'],
-      localCustoms: ['Respect local traditions', 'Learn basic phrases', 'Follow local etiquette'],
-      emergencyContacts: ['Police: 110', 'Ambulance: 119', 'Tourist helpline'],
-      usefulPhrases: ['Hello', 'Thank you', 'Excuse me', 'Where is...?', 'How much?']
+      weather: t('planGeneration.practicalInfo.weatherCheck'),
+      packingList: [
+        t('planGeneration.practicalInfo.packingItems.clothes'),
+        t('planGeneration.practicalInfo.packingItems.passport'),
+        t('planGeneration.practicalInfo.packingItems.camera'),
+        t('planGeneration.practicalInfo.packingItems.charger'),
+        t('planGeneration.practicalInfo.packingItems.comfortableShoes')
+      ],
+      localCustoms: [
+        t('planGeneration.practicalInfo.customs.respectTraditions'),
+        t('planGeneration.practicalInfo.customs.learnPhrases'),
+        t('planGeneration.practicalInfo.customs.followEtiquette')
+      ],
+      emergencyContacts: [
+        t('planGeneration.practicalInfo.emergencyContacts.police'),
+        t('planGeneration.practicalInfo.emergencyContacts.ambulance'),
+        t('planGeneration.practicalInfo.emergencyContacts.helpline')
+      ],
+      usefulPhrases: [
+        t('planGeneration.practicalInfo.phrases.hello'),
+        t('planGeneration.practicalInfo.phrases.thankYou'),
+        t('planGeneration.practicalInfo.phrases.excuseMe'),
+        t('planGeneration.practicalInfo.phrases.whereIs'),
+        t('planGeneration.practicalInfo.phrases.howMuch')
+      ]
     };
   };
 
@@ -541,18 +561,21 @@ const PlanGeneration: React.FC = () => {
     let text = '';
     
     // Header
-    text += `========================================\n`;
+    text += `${t('planGeneration.download.header')}\n`;
     text += `${plan.title}\n`;
-    text += `========================================\n\n`;
+    text += `${t('planGeneration.download.header')}\n\n`;
     
     // Basic Info
-    text += `目的地: ${plan.destination}\n`;
-    text += `期間: ${plan.duration}日間\n`;
-    text += `予算: ${plan.budget?.currency || 'JPY'} ${plan.budget?.total?.toLocaleString() || '0'}\n\n`;
+    text += `${t('planGeneration.download.destination', { destination: plan.destination })}\n`;
+    text += `${t('planGeneration.download.duration', { duration: plan.duration })}\n`;
+    text += `${t('planGeneration.download.budget', { 
+      currency: plan.budget?.currency || 'JPY', 
+      amount: plan.budget?.total?.toLocaleString() || '0' 
+    })}\n\n`;
     
     // Budget Breakdown
     if (plan.budget?.breakdown) {
-      text += `予算内訳:\n`;
+      text += `${t('planGeneration.download.budgetBreakdown')}\n`;
       Object.entries(plan.budget.breakdown).forEach(([category, amount]) => {
         text += `  ${category}: ${plan.budget?.currency || 'JPY'} ${amount.toLocaleString()}\n`;
       });
@@ -560,60 +583,98 @@ const PlanGeneration: React.FC = () => {
     }
     
     // Itinerary
-    text += `日程:\n`;
-    text += `========================================\n`;
+    text += `${t('planGeneration.download.itinerary')}\n`;
+    text += `${t('planGeneration.download.header')}\n`;
     
     plan.itinerary?.forEach((day, index) => {
-      text += `\n${day.day}日目 - ${day.theme || '観光'}\n`;
-      text += `日付: ${day.date}\n`;
+      text += `\n${t('planGeneration.download.dayHeader', { 
+        day: day.day, 
+        theme: day.theme || t('planGeneration.themes.sightseeing') 
+      })}\n`;
+      text += `${t('planGeneration.download.date', { date: day.date })}\n`;
       text += `----------------------------------------\n`;
       
       day.activities?.forEach((activity) => {
         text += `${activity.time} - ${activity.title}\n`;
-        text += `  場所: ${activity.location}\n`;
-        text += `  説明: ${activity.description}\n`;
+        text += `  ${t('planGeneration.display.location')}: ${activity.location}\n`;
+        text += `  ${t('planGeneration.download.description', { description: activity.description })}\n`;
         if (activity.duration) {
-          text += `  所要時間: ${activity.duration}分\n`;
+          text += `  ${t('planGeneration.download.durationMinutes', { duration: activity.duration })}\n`;
         }
         if (activity.cost && activity.cost > 0) {
-          text += `  費用: ${plan.budget?.currency || 'JPY'} ${activity.cost.toLocaleString()}\n`;
+          text += `  ${t('planGeneration.download.cost', { 
+            currency: plan.budget?.currency || 'JPY', 
+            amount: activity.cost.toLocaleString() 
+          })}\n`;
         }
         if (activity.tips) {
-          text += `  ヒント: ${activity.tips}\n`;
+          text += `  ${t('planGeneration.download.tips', { tips: activity.tips })}\n`;
         }
         text += `\n`;
       });
     });
     
     // Recommendations
-    if (plan.recommendations && plan.recommendations.length > 0) {
-      text += `\nおすすめスポット:\n`;
-      text += `========================================\n`;
-      plan.recommendations.forEach((rec) => {
-        text += `${rec.name}\n`;
-        text += `  説明: ${rec.description}\n`;
-        text += `  場所: ${rec.location}\n`;
-        if (rec.cost) {
-          text += `  費用: ${plan.budget?.currency || 'JPY'} ${rec.cost.toLocaleString()}\n`;
-        }
-        if (rec.rating) {
-          text += `  評価: ${rec.rating}\n`;
-        }
-        text += `\n`;
-      });
+    if (plan.recommendations && 
+        (plan.recommendations.restaurants?.length > 0 || 
+         plan.recommendations.attractions?.length > 0 || 
+         plan.recommendations.transportation?.length > 0)) {
+      text += `\n${t('planGeneration.download.recommendations')}\n`;
+      text += `${t('planGeneration.download.header')}\n`;
+      
+      // Handle restaurants
+      if (plan.recommendations.restaurants) {
+        plan.recommendations.restaurants.forEach((rec: any) => {
+          text += `${rec.name}\n`;
+          text += `  ${t('planGeneration.download.description', { description: rec.description })}\n`;
+          text += `  ${t('planGeneration.display.location')}: ${rec.location}\n`;
+          if (rec.priceRange) {
+            text += `  ${t('planGeneration.download.cost', { 
+              currency: plan.budget?.currency || 'JPY', 
+              amount: rec.priceRange 
+            })}\n`;
+          }
+          text += `\n`;
+        });
+      }
+      
+      // Handle attractions
+      if (plan.recommendations.attractions) {
+        plan.recommendations.attractions.forEach((rec: any) => {
+          text += `${rec.name}\n`;
+          text += `  ${t('planGeneration.download.description', { description: rec.description })}\n`;
+          text += `  ${t('planGeneration.display.location')}: ${rec.location}\n`;
+          text += `\n`;
+        });
+      }
+      
+      // Handle transportation
+      if (plan.recommendations.transportation) {
+        plan.recommendations.transportation.forEach((rec: any) => {
+          text += `${rec.type}\n`;
+          text += `  ${t('planGeneration.download.description', { description: rec.description })}\n`;
+          if (rec.cost) {
+            text += `  ${t('planGeneration.download.cost', { 
+              currency: plan.budget?.currency || 'JPY', 
+              amount: rec.cost.toLocaleString() 
+            })}\n`;
+          }
+          text += `\n`;
+        });
+      }
     }
     
     // Practical Info
     if (plan.practicalInfo) {
-      text += `\n実用情報:\n`;
-      text += `========================================\n`;
+      text += `\n${t('planGeneration.download.practicalInfo')}\n`;
+      text += `${t('planGeneration.download.header')}\n`;
       
       if (plan.practicalInfo.weather) {
-        text += `天気: ${plan.practicalInfo.weather}\n`;
+        text += `${t('planGeneration.download.weather', { weather: plan.practicalInfo.weather })}\n`;
       }
       
       if (plan.practicalInfo.packingList && plan.practicalInfo.packingList.length > 0) {
-        text += `持参品:\n`;
+        text += `${t('planGeneration.download.packingList')}\n`;
         plan.practicalInfo.packingList.forEach((item) => {
           text += `  - ${item}\n`;
         });
@@ -621,7 +682,7 @@ const PlanGeneration: React.FC = () => {
       }
       
       if (plan.practicalInfo.localCustoms && plan.practicalInfo.localCustoms.length > 0) {
-        text += `現地のマナー:\n`;
+        text += `${t('planGeneration.download.localCustoms')}\n`;
         plan.practicalInfo.localCustoms.forEach((custom) => {
           text += `  - ${custom}\n`;
         });
@@ -629,7 +690,7 @@ const PlanGeneration: React.FC = () => {
       }
       
       if (plan.practicalInfo.emergencyContacts && plan.practicalInfo.emergencyContacts.length > 0) {
-        text += `緊急連絡先:\n`;
+        text += `${t('planGeneration.download.emergencyContacts')}\n`;
         plan.practicalInfo.emergencyContacts.forEach((contact) => {
           text += `  - ${contact}\n`;
         });
@@ -637,7 +698,7 @@ const PlanGeneration: React.FC = () => {
       }
       
       if (plan.practicalInfo.usefulPhrases && plan.practicalInfo.usefulPhrases.length > 0) {
-        text += `便利なフレーズ:\n`;
+        text += `${t('planGeneration.download.usefulPhrases')}\n`;
         plan.practicalInfo.usefulPhrases.forEach((phrase) => {
           text += `  - ${phrase}\n`;
         });
@@ -646,10 +707,12 @@ const PlanGeneration: React.FC = () => {
     }
     
     // Footer
-    text += `\n========================================\n`;
-    text += `このプランは ${new Date().toLocaleDateString('ja-JP')} に生成されました。\n`;
-    text += `Trippin - あなたの旅のパートナー\n`;
-    text += `========================================\n`;
+    text += `\n${t('planGeneration.download.header')}\n`;
+    text += `${t('planGeneration.download.footer', { 
+      date: new Date().toLocaleDateString(currentLanguage === 'ja' ? 'ja-JP' : 'en-US') 
+    })}\n`;
+    text += `${t('planGeneration.download.footerTagline')}\n`;
+    text += `${t('planGeneration.download.header')}\n`;
     
     return text;
   };
@@ -735,6 +798,13 @@ const PlanGeneration: React.FC = () => {
           aiEnhancedPlan = result.data;
           logDebug('✅ OpenAI API call successful', result.data);
           console.log('🎯 Frontend received AI plan (COMPLETE):', JSON.stringify(result.data, null, 2));
+          console.log('🔍 Checking practical info sources:', {
+            hasPractical_information: !!result.data.practical_information,
+            hasPracticalInformation: !!result.data.practicalInformation,
+            hasPracticalInfo: !!result.data.practicalInfo,
+            practical_informationKeys: result.data.practical_information ? Object.keys(result.data.practical_information) : [],
+            practicalInformationKeys: result.data.practicalInformation ? Object.keys(result.data.practicalInformation) : []
+          });
         } else {
           console.warn('⚠️ OpenAI API response missing data:', result);
         }
@@ -745,22 +815,138 @@ const PlanGeneration: React.FC = () => {
           status: apiError.status,
           endpoint: apiError.endpoint
         });
-        setNoticeMessage('AI処理が利用できないため、基本プランを表示しています。');
+        setNoticeMessage(t('planGeneration.errors.aiUnavailable'));
         setShowMockNotice(true);
       }
       
       // Use AI enhanced plan if available, otherwise use user plan
       let finalPlan = aiEnhancedPlan || userPlan;
       
-      // Ensure the plan has all required properties
-      if (finalPlan && !finalPlan.budget) {
-        finalPlan.budget = userPlan.budget;
-      }
-      if (finalPlan && !finalPlan.recommendations) {
-        finalPlan.recommendations = userPlan.recommendations;
-      }
-      if (finalPlan && !finalPlan.practicalInfo) {
-        finalPlan.practicalInfo = userPlan.practicalInfo;
+      // Transform OpenAI response structure to match frontend expectations
+      if (finalPlan) {
+        // Handle practical_information (snake_case) or practicalInformation (camelCase) -> practicalInfo
+        // Prioritize OpenAI data over hardcoded practicalInfo
+        // The edge function returns "practicalInformation" (camelCase)
+        const practicalInfoSource = finalPlan.practical_information || finalPlan.practicalInformation || finalPlan.practicalInfo;
+        
+        if (practicalInfoSource) {
+          // Merge OpenAI practical info with existing practicalInfo, prioritizing OpenAI data
+          // Start with existing practicalInfo (if any), then override with OpenAI data
+          const existingPracticalInfo = finalPlan.practicalInfo || {};
+          
+          finalPlan.practicalInfo = {
+            // Standard fields - use OpenAI if available, otherwise keep existing or fallback to userPlan
+            weather: practicalInfoSource.weather || existingPracticalInfo.weather || userPlan.practicalInfo?.weather || t('planGeneration.practicalInfo.weatherCheck'),
+            packingList: practicalInfoSource.packingList || existingPracticalInfo.packingList || userPlan.practicalInfo?.packingList || [],
+            localCustoms: practicalInfoSource.localCustoms || existingPracticalInfo.localCustoms || userPlan.practicalInfo?.localCustoms || [],
+            emergencyContacts: practicalInfoSource.emergencyContacts || existingPracticalInfo.emergencyContacts || userPlan.practicalInfo?.emergencyContacts || [],
+            usefulPhrases: practicalInfoSource.usefulPhrases || existingPracticalInfo.usefulPhrases || userPlan.practicalInfo?.usefulPhrases || [],
+            // CRITICAL: Always prioritize transportation and tips from OpenAI response (practicalInformation)
+            // These are the most important fields from OpenAI and should override any hardcoded values
+            transportation: practicalInfoSource.transportation || existingPracticalInfo.transportation,
+            tips: practicalInfoSource.tips || existingPracticalInfo.tips
+          };
+          
+          console.log('🔄 Transformed practical information to practicalInfo:', {
+            source: finalPlan.practical_information ? 'practical_information' : (finalPlan.practicalInformation ? 'practicalInformation' : 'none'),
+            hasTransportation: !!finalPlan.practicalInfo.transportation,
+            hasTips: !!finalPlan.practicalInfo.tips,
+            transportation: finalPlan.practicalInfo.transportation,
+            tips: finalPlan.practicalInfo.tips,
+            practicalInfoSourceKeys: practicalInfoSource ? Object.keys(practicalInfoSource) : []
+          });
+        } else if (finalPlan.practicalInfo) {
+          // If practicalInfo exists but no practical_information/practicalInformation, ensure it has the structure
+          finalPlan.practicalInfo = {
+            ...finalPlan.practicalInfo,
+            transportation: finalPlan.practicalInfo.transportation,
+            tips: finalPlan.practicalInfo.tips
+          };
+        }
+        
+        // Handle recommendations structure transformation
+        if (finalPlan.recommendations) {
+          // Check if recommendations is in OpenAI format (object with keys like nature_scenery, gluten_free, etc.)
+          // vs expected format (object with restaurants, attractions, transportation arrays)
+          const hasOpenAIFormat = !Array.isArray(finalPlan.recommendations) && 
+              !finalPlan.recommendations.restaurants && 
+              !finalPlan.recommendations.attractions && 
+              !finalPlan.recommendations.transportation &&
+              (finalPlan.recommendations.nature_scenery || 
+               finalPlan.recommendations.gluten_free || 
+               finalPlan.recommendations.temples_shrines ||
+               Object.keys(finalPlan.recommendations).some(key => key.includes('_')));
+          
+          if (hasOpenAIFormat) {
+            // Transform the OpenAI recommendations format to expected format
+            const transformedRecommendations: any = {
+              restaurants: [],
+              attractions: [],
+              transportation: []
+            };
+            
+            // Extract all recommendation keys and transform them
+            Object.keys(finalPlan.recommendations).forEach((key) => {
+              const value = finalPlan.recommendations[key];
+              
+              // Handle restaurant/food recommendations
+              if (key.includes('free') || key.includes('restaurant') || key.includes('food') || key.includes('dining') || key.includes('cuisine')) {
+                transformedRecommendations.restaurants.push({
+                  name: key.split('_').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
+                  cuisine: key.split('_').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
+                  priceRange: '$$',
+                  location: finalPlan.destination,
+                  description: value
+                });
+              }
+              // Handle attraction/scenery recommendations
+              else if (key.includes('nature') || key.includes('scenery') || key.includes('temple') || key.includes('shrine') || key.includes('attraction') || key.includes('sight')) {
+                transformedRecommendations.attractions.push({
+                  name: key.split('_').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
+                  type: key.includes('temple') || key.includes('shrine') ? 'Religious Site' : 'Nature',
+                  location: finalPlan.destination,
+                  description: value,
+                  bestTime: 'Morning'
+                });
+              }
+              // Handle transportation recommendations
+              else if (key.includes('transport') || key.includes('transit')) {
+                transformedRecommendations.transportation.push({
+                  type: key.split('_').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
+                  description: value,
+                  cost: finalPlan.budget?.breakdown?.transportation || 0,
+                  tips: ''
+                });
+              }
+            });
+            
+            // Extract transportation from practical_information or practicalInformation if available and not already added
+            const practicalInfoSource = finalPlan.practical_information || finalPlan.practicalInformation;
+            if (practicalInfoSource?.transportation && transformedRecommendations.transportation.length === 0) {
+              transformedRecommendations.transportation.push({
+                type: 'Local Transportation',
+                description: practicalInfoSource.transportation,
+                cost: finalPlan.budget?.breakdown?.transportation || 0,
+                tips: practicalInfoSource.tips || ''
+              });
+            }
+            
+            finalPlan.recommendations = transformedRecommendations;
+            console.log('🔄 Transformed recommendations from OpenAI format:', transformedRecommendations);
+          }
+        }
+        
+        // Ensure the plan has all required properties (fallback to userPlan if missing)
+        if (!finalPlan.budget) {
+          finalPlan.budget = userPlan.budget;
+        }
+        if (!finalPlan.recommendations || 
+            (!finalPlan.recommendations.restaurants && !finalPlan.recommendations.attractions && !finalPlan.recommendations.transportation)) {
+          finalPlan.recommendations = userPlan.recommendations;
+        }
+        if (!finalPlan.practicalInfo) {
+          finalPlan.practicalInfo = userPlan.practicalInfo;
+        }
       }
 
       logDebug('Final plan created', finalPlan);
@@ -792,11 +978,11 @@ const PlanGeneration: React.FC = () => {
           itineraryLength: finalPlan.itinerary?.length || 0
         });
       } else {
-        throw new Error('プラン生成に失敗しました');
+        throw new Error(t('planGeneration.errors.planGenerationFailed'));
       }
     } catch (error) {
       logDebug('Error in plan generation', error);
-      setNoticeMessage('プランの生成中にエラーが発生しました。');
+      setNoticeMessage(t('planGeneration.errors.planGenerationError'));
       setShowMockNotice(true);
     } finally {
       if (progressInterval) {
