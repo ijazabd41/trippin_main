@@ -141,7 +141,8 @@ export const BACKEND_API_CONFIG = {
       CANCEL: '/api/esim/orders/:id/cancel'
     }
   },
-  TIMEOUT: 30000, // 30 seconds
+  TIMEOUT: 30000, // 30 seconds (default)
+  OPENAI_TIMEOUT: 60000, // 60 seconds for OpenAI endpoints
   RETRY_ATTEMPTS: 3,
   RETRY_DELAY: 1000 // 1 second
 };

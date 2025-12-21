@@ -4,7 +4,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
 import Stripe from "https://esm.sh/stripe@14.7.0?target=deno";
-// Using direct fetch instead of OpenAI SDK to avoid Deno compatibility issues
+import OpenAI from "https://esm.sh/openai@4.20.1";
 
 // CORS headers helper
 // Note: Using "*" allows all origins. For production, you can restrict this
@@ -1190,7 +1190,9 @@ router.add("POST", "/api/openai/generate", async (req) => {
       );
     }
 
-    // Use OpenAI API via direct fetch (avoiding SDK compatibility issues with Deno)
+    // Use OpenAI API
+    const openai = new OpenAI({ apiKey: openaiKey });
+
     // Build a more detailed prompt
     const duration = tripData.startDate && tripData.endDate 
       ? Math.ceil((new Date(tripData.endDate).getTime() - new Date(tripData.startDate).getTime()) / (1000 * 60 * 60 * 24))
@@ -1242,33 +1244,19 @@ Return the response as a valid JSON object with this structure:
 
     console.log("Calling OpenAI API with prompt length:", prompt.length);
 
-    // Call OpenAI API directly using fetch
-    const openaiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${openaiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "gpt-4",
-        messages: [
-          {
-            role: "system",
-            content: "You are a travel planning assistant. Always respond with valid JSON only, no additional text or markdown formatting. Do not wrap the JSON in code blocks.",
-          },
-          { role: "user", content: prompt },
-        ],
-        temperature: 0.7,
-        max_tokens: 4000,
-      }),
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4",
+      messages: [
+        {
+          role: "system",
+          content: "You are a travel planning assistant. Always respond with valid JSON only, no additional text or markdown formatting.",
+        },
+        { role: "user", content: prompt },
+      ],
+      temperature: 0.7,
+      max_tokens: 3000, // Limit response size to speed up generation
     });
 
-    if (!openaiResponse.ok) {
-      const errorText = await openaiResponse.text();
-      throw new Error(`OpenAI API error: ${openaiResponse.status} ${openaiResponse.statusText} - ${errorText}`);
-    }
-
-    const completion = await openaiResponse.json();
     console.log("OpenAI API response received");
 
     const content = completion.choices[0]?.message?.content;
@@ -1411,7 +1399,9 @@ router.add("POST", "/openai/generate", async (req) => {
       );
     }
 
-    // Use OpenAI API via direct fetch (avoiding SDK compatibility issues with Deno)
+    // Use OpenAI API (same logic as main endpoint)
+    const openai = new OpenAI({ apiKey: openaiKey });
+
     const duration = tripData.startDate && tripData.endDate 
       ? Math.ceil((new Date(tripData.endDate).getTime() - new Date(tripData.startDate).getTime()) / (1000 * 60 * 60 * 24))
       : tripData.duration || 3;
@@ -1462,33 +1452,19 @@ Return the response as a valid JSON object with this structure:
 
     console.log("Calling OpenAI API with prompt length:", prompt.length);
 
-    // Call OpenAI API directly using fetch
-    const openaiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${openaiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "gpt-4",
-        messages: [
-          {
-            role: "system",
-            content: "You are a travel planning assistant. Always respond with valid JSON only, no additional text or markdown formatting. Do not wrap the JSON in code blocks.",
-          },
-          { role: "user", content: prompt },
-        ],
-        temperature: 0.7,
-        max_tokens: 4000,
-      }),
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4",
+      messages: [
+        {
+          role: "system",
+          content: "You are a travel planning assistant. Always respond with valid JSON only, no additional text or markdown formatting.",
+        },
+        { role: "user", content: prompt },
+      ],
+      temperature: 0.7,
+      max_tokens: 3000, // Limit response size to speed up generation
     });
 
-    if (!openaiResponse.ok) {
-      const errorText = await openaiResponse.text();
-      throw new Error(`OpenAI API error: ${openaiResponse.status} ${openaiResponse.statusText} - ${errorText}`);
-    }
-
-    const completion = await openaiResponse.json();
     console.log("OpenAI API response received");
 
     const content = completion.choices[0]?.message?.content;
