@@ -309,7 +309,9 @@ export const backendApiCall = async (endpoint: string, options: RequestInit = {}
 
   const makeRequest = async (): Promise<any> => {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), BACKEND_API_CONFIG.TIMEOUT);
+    // Use longer timeout for OpenAI endpoints
+    const timeout = endpoint.includes('/openai/') ? BACKEND_API_CONFIG.OPENAI_TIMEOUT : BACKEND_API_CONFIG.TIMEOUT;
+    const timeoutId = setTimeout(() => controller.abort(), timeout);
 
     try {
       const response = await fetch(url, {
