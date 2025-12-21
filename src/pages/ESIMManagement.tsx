@@ -82,9 +82,24 @@ const ESIMManagement: React.FC = () => {
       
       // Load user's eSIM orders
       const ordersResult = await backendService.getESIMOrders(token);
-      if (ordersResult.success && ordersResult.data) {
+      console.log('📦 ESIM Orders Result:', {
+        success: ordersResult.success,
+        hasData: !!ordersResult.data,
+        dataType: Array.isArray(ordersResult.data) ? 'array' : typeof ordersResult.data,
+        dataLength: Array.isArray(ordersResult.data) ? ordersResult.data.length : 'N/A',
+        firstOrder: Array.isArray(ordersResult.data) && ordersResult.data.length > 0 ? ordersResult.data[0] : null
+      });
+      
+      if (ordersResult.success && ordersResult.data && Array.isArray(ordersResult.data) && ordersResult.data.length > 0) {
         // Fetch detailed order information for each order
         const userPlansPromises = ordersResult.data.map(async (order: any) => {
+          console.log('🔄 Processing order:', {
+            id: order.id,
+            plan_name: order.plan_name,
+            status: order.status,
+            hasPlanDetails: !!order.plan_details,
+            hasProviderData: !!order.provider_data
+          });
           // Normalize date strings - ensure they're valid ISO strings
           const normalizeDate = (date: any): string | undefined => {
             if (!date) return undefined;
