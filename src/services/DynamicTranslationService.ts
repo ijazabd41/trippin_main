@@ -1,4 +1,5 @@
 import { apiCall } from '../utils/api';
+import { backendApiCall, BACKEND_API_CONFIG } from '../config/backend-api';
 
 export interface LanguageInfo {
   code: string;
@@ -162,14 +163,17 @@ class DynamicTranslationService {
    */
   async translateText(text: string, targetLanguage: string, sourceLanguage: string = 'en'): Promise<string> {
     try {
-      const result = await apiCall('/google-translate/translate', {
-        method: 'POST',
-        body: JSON.stringify({
-          text,
-          sourceLanguage,
-          targetLanguage
-        })
-      });
+      const result = await backendApiCall(
+        BACKEND_API_CONFIG.ENDPOINTS.GOOGLE_TRANSLATE.TRANSLATE,
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            text,
+            sourceLanguage,
+            targetLanguage
+          })
+        }
+      );
 
       if (result.success && result.data) {
         return result.data.translatedText;

@@ -144,6 +144,12 @@ export const BACKEND_API_CONFIG = {
     GOOGLE_MAPS: {
       SEARCH: '/api/google-maps',
       DETAILS: '/api/google-maps/details'
+    },
+    // Google Translate
+    GOOGLE_TRANSLATE: {
+      TRANSLATE: '/api/google-translate/translate',
+      DETECT: '/api/google-translate/detect',
+      LANGUAGES: '/api/google-translate/languages'
     }
   },
   TIMEOUT: 30000, // 30 seconds (default)

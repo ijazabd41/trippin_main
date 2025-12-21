@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Languages, Camera, Upload, Mic, Volume2, Copy, X, Loader, ArrowRight } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { apiCall, API_CONFIG, APIError } from '../config/api';
+import { backendApiCall, BACKEND_API_CONFIG } from '../config/backend-api';
 import { handleAWSError, globalErrorHandler } from '../utils/errorHandler';
 import MockDataNotice from '../components/MockDataNotice';
 
@@ -48,10 +49,13 @@ const TranslationTool: React.FC = () => {
 
   const detectLanguage = async (text: string) => {
     try {
-      const result = await apiCall('/google-translate/detect', {
-        method: 'POST',
-        body: JSON.stringify({ text })
-      });
+      const result = await backendApiCall(
+        BACKEND_API_CONFIG.ENDPOINTS.GOOGLE_TRANSLATE.DETECT,
+        {
+          method: 'POST',
+          body: JSON.stringify({ text })
+        }
+      );
 
       if (result.success && result.data) {
         return result.data.language;
@@ -82,14 +86,17 @@ const TranslationTool: React.FC = () => {
         }
       }
       
-      const result = await apiCall('/google-translate/translate', {
-        method: 'POST',
-        body: JSON.stringify({
-          text: inputText,
-          sourceLanguage: actualSourceLanguage,
-          targetLanguage
-        })
-      });
+      const result = await backendApiCall(
+        BACKEND_API_CONFIG.ENDPOINTS.GOOGLE_TRANSLATE.TRANSLATE,
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            text: inputText,
+            sourceLanguage: actualSourceLanguage,
+            targetLanguage
+          })
+        }
+      );
 
       if (result.success && result.data) {
         if (result.isMockData) {
@@ -360,14 +367,17 @@ const TranslationTool: React.FC = () => {
         }
       }
       
-      const result = await apiCall('/google-translate/translate', {
-        method: 'POST',
-        body: JSON.stringify({
-          text: recordingText,
-          sourceLanguage: actualSourceLanguage,
-          targetLanguage
-        })
-      });
+      const result = await backendApiCall(
+        BACKEND_API_CONFIG.ENDPOINTS.GOOGLE_TRANSLATE.TRANSLATE,
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            text: recordingText,
+            sourceLanguage: actualSourceLanguage,
+            targetLanguage
+          })
+        }
+      );
 
       if (result.success && result.data) {
         if (result.isMockData) {
