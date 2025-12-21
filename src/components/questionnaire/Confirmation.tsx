@@ -47,7 +47,7 @@ interface CompletionData {
 const Confirmation: React.FC = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
-  const { user } = useSupabaseAuth();
+  const { user, session } = useSupabaseAuth();
   const [allData, setAllData] = useState<CompletionData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -123,8 +123,8 @@ const Confirmation: React.FC = () => {
       
       console.log('✅ Plan generated successfully:', generatedPlan);
 
-      // Save the plan to backend
-      const planId = await planGenerationService.savePlan(generatedPlan, user?.id);
+      // Save the plan to backend (pass session token, not user ID)
+      const planId = await planGenerationService.savePlan(generatedPlan, session?.access_token);
 
       // Store the complete data and generated plan
       const completeData = {

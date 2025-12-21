@@ -1252,15 +1252,15 @@ Return the response as a valid JSON object with this structure:
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "gpt-4",
-        messages: [
-          {
-            role: "system",
+      model: "gpt-4",
+      messages: [
+        {
+          role: "system",
             content: "You are a travel planning assistant. Always respond with valid JSON only, no additional text or markdown formatting.",
-          },
-          { role: "user", content: prompt },
-        ],
-        temperature: 0.7,
+        },
+        { role: "user", content: prompt },
+      ],
+      temperature: 0.7,
         max_tokens: 3000, // Limit response size to speed up generation
       }),
     });
@@ -1282,8 +1282,18 @@ Return the response as a valid JSON object with this structure:
     let plan;
     try {
       // Remove markdown code blocks if present
-      const cleanedContent = content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
-      plan = JSON.parse(cleanedContent);
+      let cleanedContent = content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+      
+      // Handle escaped newlines - if content has literal \n characters, they need to be handled
+      // But if it's already valid JSON with actual newlines, we need to be careful
+      // Try parsing first, if it fails, try cleaning escaped sequences
+      try {
+        plan = JSON.parse(cleanedContent);
+      } catch (firstError) {
+        // If first parse fails, try handling escaped sequences
+        cleanedContent = cleanedContent.replace(/\\n/g, "\n").replace(/\\t/g, "\t").replace(/\\"/g, '"');
+        plan = JSON.parse(cleanedContent);
+      }
     } catch (parseError) {
       console.error("Failed to parse OpenAI response as JSON:", parseError);
       console.error("Response content:", content.substring(0, 500));
@@ -1502,8 +1512,18 @@ Return the response as a valid JSON object with this structure:
     let plan;
     try {
       // Remove markdown code blocks if present
-      const cleanedContent = content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
-      plan = JSON.parse(cleanedContent);
+      let cleanedContent = content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+      
+      // Handle escaped newlines - if content has literal \n characters, they need to be handled
+      // But if it's already valid JSON with actual newlines, we need to be careful
+      // Try parsing first, if it fails, try cleaning escaped sequences
+      try {
+        plan = JSON.parse(cleanedContent);
+      } catch (firstError) {
+        // If first parse fails, try handling escaped sequences
+        cleanedContent = cleanedContent.replace(/\\n/g, "\n").replace(/\\t/g, "\t").replace(/\\"/g, '"');
+        plan = JSON.parse(cleanedContent);
+      }
     } catch (parseError) {
       console.error("Failed to parse OpenAI response as JSON:", parseError);
       console.error("Response content:", content.substring(0, 500));

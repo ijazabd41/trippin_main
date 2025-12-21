@@ -624,7 +624,7 @@ Format as JSON:
   }
 
   // Save generated plan to backend
-  async savePlan(plan: GeneratedPlan, userId?: string): Promise<string> {
+  async savePlan(plan: GeneratedPlan, token?: string): Promise<string> {
     try {
       const tripData = {
         title: plan.title,
@@ -641,7 +641,7 @@ Format as JSON:
         practical_info: plan.practicalInfo
       };
 
-      const response = await backendService.createTrip(tripData, userId);
+      const response = await backendService.createTrip(tripData, token);
       
       if (response.success) {
         return response.data.id;
