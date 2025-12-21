@@ -1,17 +1,13 @@
 // Backend API configuration for Trippin with Supabase
 // Helper to get backend URL from multiple sources (called dynamically)
+// Always uses Supabase Edge Functions (even in development)
 const getBackendUrl = (): string => {
-  // Development mode - use localhost
-  if (import.meta.env.DEV) {
-    return 'http://localhost:3001';
-  }
-  
-  // Production - prioritize environment variable first
+  // Always use Supabase Edge Functions - prioritize environment variable first
   const envBackendUrl = import.meta.env.VITE_BACKEND_URL;
   const configBackendUrl = typeof window !== 'undefined' && (window as any).__APP_CONFIG__?.backendUrl;
   const defaultBackendUrl = 'https://fuskrbebtyccnmaprmbe.supabase.co/functions/v1/trippin-api';
   
-  // Priority: 1. Environment variable, 2. app-config.json, 3. Default
+  // Priority: 1. Environment variable, 2. app-config.json, 3. Default Supabase URL
   let backendUrl = envBackendUrl || configBackendUrl || defaultBackendUrl;
   
   // Validate and fix URL
