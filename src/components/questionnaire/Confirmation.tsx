@@ -118,9 +118,37 @@ const Confirmation: React.FC = () => {
       console.log('🔍 Travel style from localStorage:', allData.travelStyle);
       console.log('🔍 Detailed preferences from localStorage:', allData.detailedPreferences);
 
-      // Generate the plan using OpenAI
-      const generatedPlan = await planGenerationService.generatePlan(planRequest);
+      // Generate the plan using single API call (not PlanGenerationService which makes 4 calls)
+      const flattenedTripData = {
+        destination: planRequest.destination,
+        startDate: planRequest.startDate,
+        endDate: planRequest.endDate,
+        travelers: planRequest.travelers,
+        budget: planRequest.budget,
+        currency: planRequest.currency,
+        interests: planRequest.interests,
+        accommodationType: planRequest.accommodationType,
+        transportationType: planRequest.transportationType,
+        dietaryRestrictions: planRequest.dietaryRestrictions,
+        specialRequirements: planRequest.specialRequirements,
+        language: planRequest.language
+      };
       
+      console.log('🚀 Calling OpenAI API directly (single call):', flattenedTripData);
+      
+      const { backendApiCall, BACKEND_API_CONFIG } = await import('../../config/backend-api');
+      const result = await backendApiCall(BACKEND_API_CONFIG.ENDPOINTS.OPENAI.GENERATE, {
+        method: 'POST',
+        body: JSON.stringify({ 
+          tripData: flattenedTripData
+        })
+      });
+      
+      if (!result.success || !result.data) {
+        throw new Error('Failed to generate plan');
+      }
+      
+      const generatedPlan = result.data;
       console.log('✅ Plan generated successfully:', generatedPlan);
 
       // Save the plan to backend (pass session token, not user ID)
