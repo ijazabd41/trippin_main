@@ -322,9 +322,19 @@ export const backendApiCall = async (endpoint: string, options: RequestInit = {}
     }
   };
 
+  // Log headers without exposing full token
+  const logHeaders = { ...defaultHeaders };
+  if (logHeaders['Authorization']) {
+    logHeaders['Authorization'] = logHeaders['Authorization'].substring(0, 20) + '...';
+  }
+  if (logHeaders['apikey']) {
+    logHeaders['apikey'] = logHeaders['apikey'].substring(0, 20) + '...';
+  }
+  
   console.log(`🚀 Backend API Request: ${options.method || 'GET'} ${url}`, {
     endpoint,
-    headers: defaultHeaders,
+    headers: logHeaders,
+    hasToken: !!token,
     body: options.body ? JSON.parse(options.body as string) : undefined
   });
 

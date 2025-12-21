@@ -100,6 +100,12 @@ const CheckoutPage: React.FC = () => {
       setIsCancelling(true);
       setError(null);
 
+      console.log('🔄 Cancelling subscription with token:', {
+        hasToken: !!session.access_token,
+        tokenLength: session.access_token?.length || 0,
+        tokenPreview: session.access_token?.substring(0, 20) + '...' || 'none'
+      });
+
       const result = await backendApiCall(BACKEND_API_CONFIG.ENDPOINTS.SUBSCRIPTIONS.CANCEL, {
         method: 'POST'
       }, session.access_token);

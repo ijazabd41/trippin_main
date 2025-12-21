@@ -55,16 +55,25 @@ const authenticateToken = async (req: Request): Promise<{ user: any; error: any 
   }
 
   try {
-    const supabase = getSupabaseClient(authHeader);
-    const { data: { user }, error } = await supabase.auth.getUser(token);
+    // Use admin client to verify JWT token (more reliable)
+    const supabaseAdmin = getSupabaseAdmin();
+    const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
 
-    if (error || !user) {
+    if (error) {
+      console.error("❌ Token validation error:", error.message);
+      return { user: null, error: { message: error.message || "Invalid or expired token", code: "UNAUTHORIZED" } };
+    }
+
+    if (!user) {
+      console.error("❌ No user found for token");
       return { user: null, error: { message: "Invalid or expired token", code: "UNAUTHORIZED" } };
     }
 
+    console.log("✅ Token validated successfully for user:", user.id);
     return { user, error: null };
-  } catch (error) {
-    return { user: null, error: { message: "Authentication failed", code: "AUTH_ERROR" } };
+  } catch (error: any) {
+    console.error("❌ Authentication exception:", error.message || error);
+    return { user: null, error: { message: error.message || "Authentication failed", code: "AUTH_ERROR" } };
   }
 };
 
