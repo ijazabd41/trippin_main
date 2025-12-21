@@ -188,19 +188,38 @@ const ESIMManagement: React.FC = () => {
             ? order.usage 
             : calculateUsageFromPlan(order.plan_details) || { used: 0, total: 0 };
 
+          // Extract plan details from order - check multiple possible locations
+          const planDetails = order.plan_details || order.provider_data?.planDetails || {};
+          const planName = planDetails.name || order.plan_name || order.planId || 'Unknown Plan';
+          const dataAmount = planDetails.dataAmount || order.data_amount || '3GB';
+          const validity = planDetails.validity || order.validity || '15日';
+          const price = planDetails.price || order.price || { amount: 3500, currency: 'JPY' };
+          const orderReference = order.esim_provider_order_id || order.order_reference || order.provider_data?.orderReference;
+          
           const basePlan: ESIMPlanLocal = {
             id: order.id, // This is the database order ID, used for deletion
-            name: order.plan_details?.name || order.planId,
-            dataAmount: order.plan_details?.dataAmount || '3GB',
-            validity: order.plan_details?.validity || '15日',
-            price: order.plan_details?.price || { amount: 3500, currency: 'JPY' },
-            status: order.status as 'active' | 'inactive' | 'expired',
+            name: planName,
+            dataAmount: dataAmount,
+            validity: validity,
+            price: typeof price === 'object' ? price : { amount: price || 3500, currency: 'JPY' },
+            status: (order.status || 'inactive') as 'active' | 'inactive' | 'expired',
             usage: baseUsage,
             activationDate: baseActivationDate,
             expiryDate: baseExpiryDate,
-            orderReference: order.esim_provider_order_id,
-            bundleState: order.usage_data?.bundleState || undefined
+            orderReference: orderReference,
+            bundleState: order.usage_data?.bundleState || order.provider_data?.bundleState || undefined
           };
+          
+          console.log('✅ Created base plan:', {
+            id: basePlan.id,
+            name: basePlan.name,
+            dataAmount: basePlan.dataAmount,
+            validity: basePlan.validity,
+            status: basePlan.status,
+            hasActivationDate: !!basePlan.activationDate,
+            hasExpiryDate: !!basePlan.expiryDate,
+            usage: basePlan.usage
+          });
           
           console.log('📋 Base plan created:', {
             id: basePlan.id,
