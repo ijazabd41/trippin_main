@@ -1919,6 +1919,194 @@ router.add("GET", "/api/google-translate/languages", async (req) => {
   }
 });
 
+// Translate image text using Google Vision API + Google Translate API
+router.add("POST", "/api/google-translate/image-translate", async (req) => {
+  try {
+    const body = await parseBody(req);
+    const { image, sourceLanguage = "auto", targetLanguage = "en" } = body;
+
+    if (!image) {
+      return new Response(
+        JSON.stringify({ success: false, message: "Image data is required" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const translateKey = Deno.env.get("GOOGLE_TRANSLATE_API_KEY") || Deno.env.get("GOOGLE_MAPS_API_KEY");
+    if (!translateKey) {
+      return new Response(
+        JSON.stringify({
+          success: true,
+          data: {
+            translatedText: "⚠️ Google Translate API not configured\n\nTo enable image translation:\n1. Get a Google Translate API key\n2. Add GOOGLE_TRANSLATE_API_KEY to your environment\n\nNote: This requires both Google Vision API and Google Translate API to be enabled.",
+            detectedLanguage: sourceLanguage === "auto" ? "en" : sourceLanguage,
+          },
+          isMockData: true,
+          message: "Google Translate API not configured. Image translation requires both Google Vision API and Google Translate API.",
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Step 1: Use Google Vision API to extract text from image
+    const visionResponse = await fetch(`https://vision.googleapis.com/v1/images:annotate?key=${translateKey}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        requests: [{
+          image: { content: image },
+          features: [{ type: "TEXT_DETECTION", maxResults: 10 }],
+        }],
+      }),
+    });
+
+    if (!visionResponse.ok) {
+      throw new Error(`Google Vision API error: ${visionResponse.status} ${visionResponse.statusText}`);
+    }
+
+    const visionData = await visionResponse.json();
+
+    if (!visionData.responses || !visionData.responses[0] || !visionData.responses[0].textAnnotations || visionData.responses[0].textAnnotations.length === 0) {
+      return new Response(
+        JSON.stringify({
+          success: true,
+          data: {
+            translatedText: "No text found in the image.",
+            detectedLanguage: sourceLanguage === "auto" ? "en" : sourceLanguage,
+          },
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const extractedText = visionData.responses[0].textAnnotations[0].description;
+
+    // Step 2: Use Google Translate API to translate the extracted text
+    const translateResponse = await fetch(`https://translation.googleapis.com/language/translate/v2?key=${translateKey}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        q: extractedText,
+        source: sourceLanguage === "auto" ? undefined : sourceLanguage,
+        target: targetLanguage,
+        format: "text",
+      }),
+    });
+
+    if (!translateResponse.ok) {
+      throw new Error(`Google Translate API error: ${translateResponse.status} ${translateResponse.statusText}`);
+    }
+
+    const translateData = await translateResponse.json();
+
+    return new Response(
+      JSON.stringify({
+        success: true,
+        data: {
+          translatedText: translateData.data.translations[0].translatedText,
+          originalText: extractedText,
+          detectedLanguage: translateData.data.translations[0].detectedSourceLanguage || sourceLanguage,
+        },
+      }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  } catch (error) {
+    console.error("Google image translation error:", error);
+    return new Response(
+      JSON.stringify({ success: false, message: "Failed to translate image text", error: error.message }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+});
+
+// Speech-to-Text using Google Speech-to-Text API
+router.add("POST", "/api/google-translate/speech-to-text", async (req) => {
+  try {
+    const body = await parseBody(req);
+    const { audio, language = "en-US" } = body;
+
+    if (!audio) {
+      return new Response(
+        JSON.stringify({ success: false, message: "Audio data is required" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const translateKey = Deno.env.get("GOOGLE_TRANSLATE_API_KEY") || Deno.env.get("GOOGLE_MAPS_API_KEY");
+    if (!translateKey) {
+      return new Response(
+        JSON.stringify({
+          success: true,
+          data: {
+            transcript: "⚠️ Google Speech-to-Text API not configured\n\nTo enable speech-to-text:\n1. Get a Google Speech-to-Text API key\n2. Add GOOGLE_TRANSLATE_API_KEY to your environment\n\nNote: This requires Google Speech-to-Text API to be enabled.",
+            confidence: 0.0,
+          },
+          isMockData: true,
+          message: "Google Speech-to-Text API not configured. Please type your text instead.",
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Use Google Speech-to-Text API
+    const speechResponse = await fetch(`https://speech.googleapis.com/v1/speech:recognize?key=${translateKey}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        config: {
+          encoding: "WEBM_OPUS",
+          sampleRateHertz: 48000,
+          languageCode: language,
+          enableAutomaticPunctuation: true,
+          model: "latest_long",
+        },
+        audio: { content: audio },
+      }),
+    });
+
+    if (!speechResponse.ok) {
+      const errorData = await speechResponse.json();
+      console.error("Google Speech-to-Text API Error:", errorData);
+      throw new Error(`Google Speech-to-Text API error: ${speechResponse.status} ${speechResponse.statusText}`);
+    }
+
+    const speechData = await speechResponse.json();
+
+    if (!speechData.results || speechData.results.length === 0) {
+      return new Response(
+        JSON.stringify({
+          success: true,
+          data: {
+            transcript: "No speech detected in the audio.",
+            confidence: 0.0,
+          },
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const result = speechData.results[0];
+    const alternative = result.alternatives[0];
+
+    return new Response(
+      JSON.stringify({
+        success: true,
+        data: {
+          transcript: alternative.transcript,
+          confidence: alternative.confidence || 0.0,
+        },
+      }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  } catch (error) {
+    console.error("Google Speech-to-Text error:", error);
+    return new Response(
+      JSON.stringify({ success: false, message: "Failed to process speech-to-text", error: error.message }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+});
+
 // ==================== SUBSCRIPTIONS ROUTES ====================
 
 // Create checkout session

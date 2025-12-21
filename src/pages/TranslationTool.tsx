@@ -148,14 +148,17 @@ const TranslationTool: React.FC = () => {
     try {
       const base64Image = await fileToBase64(imageFile);
       
-      const result = await apiCall('/google-translate/image-translate', {
-        method: 'POST',
-        body: JSON.stringify({
-          image: base64Image,
-          sourceLanguage: autoDetect ? 'auto' : sourceLanguage,
-          targetLanguage
-        })
-      });
+      const result = await backendApiCall(
+        BACKEND_API_CONFIG.ENDPOINTS.GOOGLE_TRANSLATE.IMAGE_TRANSLATE,
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            image: base64Image,
+            sourceLanguage: autoDetect ? 'auto' : sourceLanguage,
+            targetLanguage
+          })
+        }
+      );
       
       if (result.success && result.data) {
         if (result.isMockData) {
@@ -270,13 +273,16 @@ const TranslationTool: React.FC = () => {
       setRecordingText(t('translation.processingSpeech'));
       
       // Call Google Speech-to-Text API
-      const result = await apiCall('/google-translate/speech-to-text', {
-        method: 'POST',
-        body: JSON.stringify({
-          audio: base64Audio,
-          language: getLanguageCode(sourceLanguage)
-        })
-      });
+      const result = await backendApiCall(
+        BACKEND_API_CONFIG.ENDPOINTS.GOOGLE_TRANSLATE.SPEECH_TO_TEXT,
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            audio: base64Audio,
+            language: getLanguageCode(sourceLanguage)
+          })
+        }
+      );
       
       if (result.success && result.data) {
         if (result.isMockData) {

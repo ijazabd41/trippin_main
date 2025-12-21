@@ -149,7 +149,9 @@ export const BACKEND_API_CONFIG = {
     GOOGLE_TRANSLATE: {
       TRANSLATE: '/api/google-translate/translate',
       DETECT: '/api/google-translate/detect',
-      LANGUAGES: '/api/google-translate/languages'
+      LANGUAGES: '/api/google-translate/languages',
+      IMAGE_TRANSLATE: '/api/google-translate/image-translate',
+      SPEECH_TO_TEXT: '/api/google-translate/speech-to-text'
     }
   },
   TIMEOUT: 30000, // 30 seconds (default)
