@@ -435,13 +435,35 @@ Format as JSON:
   // Parse AI responses
   private parseItineraryResponse(data: any, request: PlanGenerationRequest) {
     try {
+      console.log('🔍 Parsing itinerary response, data type:', typeof data, 'keys:', data ? Object.keys(data) : 'null');
+      
       if (typeof data === 'string') {
         const parsed = JSON.parse(data);
-        return parsed.itinerary || [];
+        console.log('📋 Parsed string data, looking for itinerary:', parsed.itinerary ? 'found' : 'not found');
+        return parsed.itinerary || parsed || [];
       }
-      return data.itinerary || [];
+      
+      // Handle different response structures
+      if (Array.isArray(data)) {
+        console.log('📋 Data is array, returning as-is');
+        return data;
+      }
+      
+      if (data.itinerary) {
+        console.log('📋 Found itinerary property');
+        return data.itinerary;
+      }
+      
+      // If data is the itinerary object itself
+      if (data.day || data.activities) {
+        console.log('📋 Data appears to be itinerary object, wrapping in array');
+        return [data];
+      }
+      
+      console.warn('⚠️ Unexpected itinerary data structure:', data);
+      return data || [];
     } catch (error) {
-      console.warn('Failed to parse itinerary response:', error);
+      console.error('❌ Failed to parse itinerary response:', error, 'data:', data);
       return this.generateFallbackItinerary(request);
     }
   }
