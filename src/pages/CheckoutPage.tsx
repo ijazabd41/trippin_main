@@ -105,11 +105,21 @@ const CheckoutPage: React.FC = () => {
       }, session.access_token);
 
       if (result.success) {
-        alert(t('checkout.cancelSuccess'));
-        // Reload the page to refresh the user profile
-        window.location.reload();
+        console.log('✅ Subscription cancelled successfully:', result);
+        // Show success message
+        setError(null);
+        // Refresh user profile instead of full page reload
+        if (window.location.reload) {
+          // Small delay to ensure backend updates are processed
+          setTimeout(() => {
+            window.location.reload();
+          }, 1000);
+        } else {
+          // Fallback: navigate to dashboard
+          navigate('/dashboard');
+        }
       } else {
-        throw new Error(result.error || t('checkout.cancelFailed'));
+        throw new Error(result.error || result.message || t('checkout.cancelFailed'));
       }
     } catch (error: any) {
       console.error('❌ Failed to cancel subscription:', error);
