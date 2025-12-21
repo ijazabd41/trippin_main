@@ -1254,7 +1254,6 @@ Return the response as a valid JSON object with this structure:
         { role: "user", content: prompt },
       ],
       temperature: 0.7,
-      response_format: { type: "json_object" },
     });
 
     console.log("OpenAI API response received");
@@ -1462,7 +1461,6 @@ Return the response as a valid JSON object with this structure:
         { role: "user", content: prompt },
       ],
       temperature: 0.7,
-      response_format: { type: "json_object" },
     });
 
     console.log("OpenAI API response received");
