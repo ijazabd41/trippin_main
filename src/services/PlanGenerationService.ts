@@ -156,9 +156,14 @@ class PlanGenerationService {
         })
       });
 
+      console.log('📥 Itinerary API response:', { success: response.success, hasData: !!response.data, dataKeys: response.data ? Object.keys(response.data) : [] });
+      
       if (response.success && response.data) {
-        return this.parseItineraryResponse(response.data, request);
+        const parsed = this.parseItineraryResponse(response.data, request);
+        console.log('✅ Parsed itinerary:', { days: parsed?.length || 0 });
+        return parsed;
       } else {
+        console.warn('⚠️ Itinerary response missing data, using fallback');
         throw new Error('Failed to generate itinerary');
       }
     } catch (error) {
@@ -228,9 +233,14 @@ class PlanGenerationService {
         })
       });
 
+      console.log('📥 Recommendations API response:', { success: response.success, hasData: !!response.data, dataKeys: response.data ? Object.keys(response.data) : [] });
+      
       if (response.success && response.data) {
-        return this.parseRecommendationsResponse(response.data);
+        const parsed = this.parseRecommendationsResponse(response.data);
+        console.log('✅ Parsed recommendations:', { hasRestaurants: !!parsed?.restaurants, hasAttractions: !!parsed?.attractions });
+        return parsed;
       } else {
+        console.warn('⚠️ Recommendations response missing data, using fallback');
         return this.generateFallbackRecommendations(request);
       }
     } catch (error) {
@@ -264,9 +274,14 @@ class PlanGenerationService {
         })
       });
 
+      console.log('📥 Practical Info API response:', { success: response.success, hasData: !!response.data, dataKeys: response.data ? Object.keys(response.data) : [] });
+      
       if (response.success && response.data) {
-        return this.parsePracticalInfoResponse(response.data);
+        const parsed = this.parsePracticalInfoResponse(response.data);
+        console.log('✅ Parsed practical info:', { hasWeather: !!parsed?.weather, hasPackingList: !!parsed?.packingList });
+        return parsed;
       } else {
+        console.warn('⚠️ Practical info response missing data, using fallback');
         return this.generateFallbackPracticalInfo(request);
       }
     } catch (error) {
