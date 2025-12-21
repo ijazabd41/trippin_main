@@ -305,25 +305,75 @@ const TranslationTool: React.FC = () => {
 
   // Text-to-Speech functionality
   const speakText = (text: string, language: string) => {
+    // Check if browser supports speech synthesis
+    if (!('speechSynthesis' in window)) {
+      console.error('Speech synthesis not supported in this browser');
+      setShowMockNotice(true);
+      setNoticeMessage('このブラウザでは音声読み上げがサポートされていません。');
+      return;
+    }
+
+    // Cancel any ongoing speech
     if (speechSynthesisRef.current) {
       speechSynthesis.cancel();
     }
 
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = getLanguageCode(language);
-    utterance.rate = 0.9;
-    utterance.pitch = 1;
-    utterance.volume = 1;
-
-    utterance.onstart = () => setIsPlaying(true);
-    utterance.onend = () => setIsPlaying(false);
-    utterance.onerror = (event) => {
-      console.error('Speech synthesis error:', event);
-      setIsPlaying(false);
+    // Wait for voices to be loaded
+    const loadVoices = () => {
+      return new Promise<void>((resolve) => {
+        const voices = speechSynthesis.getVoices();
+        if (voices.length > 0) {
+          resolve();
+        } else {
+          speechSynthesis.onvoiceschanged = () => {
+            speechSynthesis.onvoiceschanged = null;
+            resolve();
+          };
+        }
+      });
     };
 
-    speechSynthesisRef.current = utterance;
-    speechSynthesis.speak(utterance);
+    loadVoices().then(() => {
+      const utterance = new SpeechSynthesisUtterance(text);
+      const langCode = getLanguageCode(language);
+      utterance.lang = langCode;
+      utterance.rate = 0.9;
+      utterance.pitch = 1;
+      utterance.volume = 1;
+
+      // Try to find a voice matching the language
+      const voices = speechSynthesis.getVoices();
+      const matchingVoice = voices.find(voice => 
+        voice.lang.startsWith(langCode.split('-')[0]) || 
+        voice.lang === langCode
+      );
+      if (matchingVoice) {
+        utterance.voice = matchingVoice;
+      }
+
+      utterance.onstart = () => {
+        setIsPlaying(true);
+        setShowMockNotice(false);
+      };
+      utterance.onend = () => {
+        setIsPlaying(false);
+        speechSynthesisRef.current = null;
+      };
+      utterance.onerror = (event) => {
+        console.error('Speech synthesis error:', event);
+        setIsPlaying(false);
+        setShowMockNotice(true);
+        setNoticeMessage(`音声読み上げエラー: ${event.error || 'Unknown error'}`);
+        speechSynthesisRef.current = null;
+      };
+
+      speechSynthesisRef.current = utterance;
+      speechSynthesis.speak(utterance);
+    }).catch((error) => {
+      console.error('Error loading voices:', error);
+      setShowMockNotice(true);
+      setNoticeMessage('音声を読み込めませんでした。');
+    });
   };
 
   const stopSpeaking = () => {
