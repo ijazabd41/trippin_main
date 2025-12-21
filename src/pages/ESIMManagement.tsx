@@ -169,15 +169,23 @@ const ESIMManagement: React.FC = () => {
             return null;
           };
 
+          // Extract plan details from order - check multiple possible locations (do this first)
+          const planDetails = order.plan_details || order.provider_data?.planDetails || {};
+          const planName = planDetails.name || order.plan_name || order.planId || 'Unknown Plan';
+          const dataAmount = planDetails.dataAmount || order.data_amount || '3GB';
+          const validity = planDetails.validity || order.validity || '15日';
+          const price = planDetails.price || order.price || { amount: 3500, currency: 'JPY' };
+          const orderReference = order.esim_provider_order_id || order.order_reference || order.provider_data?.orderReference;
+
           const baseActivationDate = normalizeDate(order.purchase_date || order.created_at || order.activated_at);
           // Calculate expiry date - try multiple sources
           let baseExpiryDate = normalizeDate(order.expiry_date);
-          if (!baseExpiryDate && baseActivationDate && order.plan_details?.validity) {
-            baseExpiryDate = calculateExpiryDate(baseActivationDate, order.plan_details.validity);
+          if (!baseExpiryDate && baseActivationDate && validity) {
+            baseExpiryDate = calculateExpiryDate(baseActivationDate, validity);
             if (baseExpiryDate) {
               console.log('✅ Calculated base expiry date:', {
                 activationDate: baseActivationDate,
-                validity: order.plan_details.validity,
+                validity: validity,
                 expiryDate: baseExpiryDate
               });
             }
@@ -186,15 +194,7 @@ const ESIMManagement: React.FC = () => {
           // Calculate usage from plan if not available
           const baseUsage = order.usage && order.usage.total > 0 
             ? order.usage 
-            : calculateUsageFromPlan(order.plan_details) || { used: 0, total: 0 };
-
-          // Extract plan details from order - check multiple possible locations
-          const planDetails = order.plan_details || order.provider_data?.planDetails || {};
-          const planName = planDetails.name || order.plan_name || order.planId || 'Unknown Plan';
-          const dataAmount = planDetails.dataAmount || order.data_amount || '3GB';
-          const validity = planDetails.validity || order.validity || '15日';
-          const price = planDetails.price || order.price || { amount: 3500, currency: 'JPY' };
-          const orderReference = order.esim_provider_order_id || order.order_reference || order.provider_data?.orderReference;
+            : calculateUsageFromPlan({ dataAmount: dataAmount }) || { used: 0, total: 0 };
           
           const basePlan: ESIMPlanLocal = {
             id: order.id, // This is the database order ID, used for deletion
