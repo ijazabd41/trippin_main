@@ -84,51 +84,76 @@ export interface GeneratedPlan {
 
 class PlanGenerationService {
   private isGenerating: boolean = false;
+  private generationPromise: Promise<GeneratedPlan> | null = null;
 
   // Generate a comprehensive travel plan using OpenAI
   async generatePlan(request: PlanGenerationRequest): Promise<GeneratedPlan> {
-    if (this.isGenerating) {
-      throw new Error('Plan generation already in progress');
+    // If already generating, return the existing promise
+    if (this.isGenerating && this.generationPromise) {
+      console.warn('⚠️ Plan generation already in progress, returning existing promise');
+      return this.generationPromise;
+    }
+
+    // Check localStorage for existing plan with same destination
+    const existingPlanKey = `trippin-plan-${request.destination}-${request.startDate}`;
+    const existingPlan = localStorage.getItem(existingPlanKey);
+    if (existingPlan) {
+      try {
+        const plan = JSON.parse(existingPlan);
+        console.log('✅ Found existing plan in cache, returning it');
+        return plan;
+      } catch (error) {
+        console.warn('Failed to parse cached plan:', error);
+      }
     }
 
     this.isGenerating = true;
 
-    try {
-      console.log('🚀 Starting plan generation for:', request.destination);
+    // Create and store the promise
+    this.generationPromise = (async () => {
+      try {
+        console.log('🚀 Starting plan generation for:', request.destination);
 
-      // Step 1: Generate main itinerary using OpenAI
-      const itinerary = await this.generateItinerary(request);
-      
-      // Step 2: Generate budget breakdown
-      const budget = await this.generateBudget(request, itinerary);
-      
-      // Step 3: Generate recommendations
-      const recommendations = await this.generateRecommendations(request, itinerary);
-      
-      // Step 4: Generate practical information
-      const practicalInfo = await this.generatePracticalInfo(request);
+        // Step 1: Generate main itinerary using OpenAI
+        const itinerary = await this.generateItinerary(request);
+        
+        // Step 2: Generate budget breakdown
+        const budget = await this.generateBudget(request, itinerary);
+        
+        // Step 3: Generate recommendations
+        const recommendations = await this.generateRecommendations(request, itinerary);
+        
+        // Step 4: Generate practical information
+        const practicalInfo = await this.generatePracticalInfo(request);
 
-      const plan: GeneratedPlan = {
-        id: `plan-${Date.now()}`,
-        title: `${request.destination} Adventure`,
-        destination: request.destination,
-        duration: this.calculateDuration(request.startDate, request.endDate),
-        budget,
-        itinerary,
-        recommendations,
-        practicalInfo,
-        createdAt: new Date().toISOString()
-      };
+        const plan: GeneratedPlan = {
+          id: `plan-${Date.now()}`,
+          title: `${request.destination} Adventure`,
+          destination: request.destination,
+          duration: this.calculateDuration(request.startDate, request.endDate),
+          budget,
+          itinerary,
+          recommendations,
+          practicalInfo,
+          createdAt: new Date().toISOString()
+        };
 
-      console.log('✅ Plan generation completed');
-      return plan;
+        // Cache the plan
+        localStorage.setItem(existingPlanKey, JSON.stringify(plan));
 
-    } catch (error) {
-      console.error('❌ Plan generation failed:', error);
-      throw error;
-    } finally {
-      this.isGenerating = false;
-    }
+        console.log('✅ Plan generation completed');
+        return plan;
+
+      } catch (error) {
+        console.error('❌ Plan generation failed:', error);
+        throw error;
+      } finally {
+        this.isGenerating = false;
+        this.generationPromise = null;
+      }
+    })();
+
+    return this.generationPromise;
   }
 
   // Generate detailed itinerary using OpenAI

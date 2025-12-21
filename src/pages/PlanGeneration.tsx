@@ -30,10 +30,50 @@ const PlanGeneration: React.FC = () => {
   const [showMockNotice, setShowMockNotice] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [savedTripId, setSavedTripId] = useState<string | null>(null);
+  const isGeneratingRef = React.useRef(false); // Use ref to prevent re-render issues
 
   useEffect(() => {
     console.log('PlanGeneration component mounted');
     console.log('Current localStorage keys:', Object.keys(localStorage));
+    
+    // Prevent multiple calls using ref
+    if (isGeneratingRef.current) {
+      console.log('⚠️ Plan generation already in progress, skipping...');
+      return;
+    }
+    
+    // First check if we already have a generated plan
+    const existingPlan = localStorage.getItem('trippin-generated-plan');
+    if (existingPlan) {
+      try {
+        const plan = JSON.parse(existingPlan);
+        console.log('✅ Found existing plan in localStorage, loading it...');
+        setGeneratedPlan(plan);
+        setIsLoading(false);
+        return;
+      } catch (error) {
+        console.warn('Failed to parse existing plan, will generate new one:', error);
+      }
+    }
+    
+    // Check if generation is already in progress (from previous session)
+    const generatingFlag = localStorage.getItem('trippin-generating-plan');
+    if (generatingFlag) {
+      console.log('⚠️ Found generation flag, waiting for completion...');
+      // Clear stale flag if it's older than 5 minutes
+      try {
+        const flagTime = parseInt(generatingFlag);
+        if (Date.now() - flagTime > 5 * 60 * 1000) {
+          console.log('Clearing stale generation flag');
+          localStorage.removeItem('trippin-generating-plan');
+        } else {
+          console.log('Generation in progress, skipping new generation');
+          return;
+        }
+      } catch (error) {
+        localStorage.removeItem('trippin-generating-plan');
+      }
+    }
     
     // First try to load existing plan, if not found, generate new one
     const tripData = JSON.parse(localStorage.getItem('trippin-complete-data') || '{}');
@@ -55,7 +95,7 @@ const PlanGeneration: React.FC = () => {
       console.log('No trip data found, loading existing plan...');
       loadGeneratedPlan();
     }
-  }, []);
+  }, []); // Empty deps - only run once on mount
 
   const loadGeneratedPlan = () => {
     console.log('Loading generated plan...');
@@ -645,26 +685,56 @@ const PlanGeneration: React.FC = () => {
     return text;
   };
 
-  const generatePlan = async (tripData: any) => {
+  const generatePlan = React.useCallback(async (tripData: any) => {
+    // Prevent concurrent generation using ref
+    if (isGeneratingRef.current) {
+      console.warn('⚠️ Plan generation already in progress, ignoring duplicate call');
+      return;
+    }
+
+    // Check if plan already exists for this trip data
+    const existingPlan = localStorage.getItem('trippin-generated-plan');
+    if (existingPlan) {
+      try {
+        const plan = JSON.parse(existingPlan);
+        const tripDestination = tripData.basicInfo?.destination || tripData.destination;
+        if (plan.destination === tripDestination) {
+          console.log('✅ Found existing plan for this destination, using it');
+          setGeneratedPlan(plan);
+          setIsLoading(false);
+          return;
+        }
+      } catch (error) {
+        console.warn('Failed to parse existing plan:', error);
+      }
+    }
+
     console.log('generatePlan called with:', tripData);
+    isGeneratingRef.current = true; // Set flag immediately using ref
     setIsLoading(true);
     setProgress(0);
     setShowMockNotice(false);
     setNoticeMessage(null);
+    
+    // Set generation flag in localStorage to prevent duplicate calls across page refreshes
+    localStorage.setItem('trippin-generating-plan', Date.now().toString());
+    
     logDebug('Starting plan generation process', tripData);
     
-    // Simulate progress updates
-    const progressInterval = setInterval(() => {
-      setProgress(prev => {
-        const newProgress = prev + Math.random() * 10;
-        if (Math.floor(newProgress / 10) > Math.floor(prev / 10)) {
-          logDebug(`Progress: ${Math.floor(newProgress)}%`);
-        }
-        return newProgress > 95 ? 95 : newProgress;
-      });
-    }, 1000);
+    let progressInterval: NodeJS.Timeout | null = null;
     
     try {
+      // Simulate progress updates
+      progressInterval = setInterval(() => {
+        setProgress(prev => {
+          const newProgress = prev + Math.random() * 10;
+          if (Math.floor(newProgress / 10) > Math.floor(prev / 10)) {
+            logDebug(`Progress: ${Math.floor(newProgress)}%`);
+          }
+          return newProgress > 95 ? 95 : newProgress;
+        });
+      }, 1000);
+      
       logDebug('Preparing to call OpenAI generate function');
       
       // Create a comprehensive plan based on user data
@@ -672,7 +742,7 @@ const PlanGeneration: React.FC = () => {
       const userPlan = createUserPlan(tripData);
       console.log('Created user plan:', userPlan);
       
-      // Try to call OpenAI API first
+      // Try to call OpenAI API first - ONLY ONCE
       let aiEnhancedPlan = null;
       try {
         // Flatten the nested data structure for the API
@@ -692,9 +762,9 @@ const PlanGeneration: React.FC = () => {
           generateMultiplePlans: true
         };
         
-        console.log('🚀 Sending flattened data to OpenAI:', flattenedTripData);
+        console.log('🚀 Sending flattened data to OpenAI (SINGLE CALL):', flattenedTripData);
         
-        // Use backendApiCall to route to Supabase edge function
+        // Use backendApiCall to route to Supabase edge function - SINGLE CALL
         const result = await backendApiCall(BACKEND_API_CONFIG.ENDPOINTS.OPENAI.GENERATE, {
           method: 'POST',
           body: JSON.stringify({ 
@@ -702,13 +772,28 @@ const PlanGeneration: React.FC = () => {
           })
         });
 
+        console.log('📥 OpenAI API response received:', {
+          success: result.success,
+          hasData: !!result.data,
+          dataKeys: result.data ? Object.keys(result.data) : [],
+          dataType: typeof result.data,
+          isArray: Array.isArray(result.data)
+        });
+
         if (result.success && result.data) {
           aiEnhancedPlan = result.data;
-          logDebug('OpenAI API call successful', result.data);
-          console.log('🎯 Frontend received AI plan:', JSON.stringify(result.data, null, 2));
+          logDebug('✅ OpenAI API call successful - stopping here', result.data);
+          console.log('🎯 Frontend received AI plan (COMPLETE):', JSON.stringify(result.data, null, 2));
+        } else {
+          console.warn('⚠️ OpenAI API response missing data:', result);
         }
-      } catch (apiError) {
-        logDebug('OpenAI API call failed, using enhanced plan', apiError);
+      } catch (apiError: any) {
+        logDebug('❌ OpenAI API call failed, using enhanced plan', apiError);
+        console.error('API Error details:', {
+          message: apiError.message,
+          status: apiError.status,
+          endpoint: apiError.endpoint
+        });
         setNoticeMessage('AI処理が利用できないため、基本プランを表示しています。');
         setShowMockNotice(true);
       }
@@ -738,15 +823,20 @@ const PlanGeneration: React.FC = () => {
       console.log('📋 Complete final plan:', JSON.stringify(finalPlan, null, 2));
       
       if (finalPlan) {
-        // Set the generated plan
+        // Set the generated plan FIRST before any other state updates
         setGeneratedPlan(finalPlan);
+        
+        // Store the plan in localStorage IMMEDIATELY
+        localStorage.setItem('trippin-generated-plan', JSON.stringify(finalPlan));
+        
+        // Clear generation flag in localStorage
+        localStorage.removeItem('trippin-generating-plan');
+        
+        // Then update loading state
         setIsLoading(false);
         setProgress(100);
         
-        // Store the plan in localStorage
-        localStorage.setItem('trippin-generated-plan', JSON.stringify(finalPlan));
-        
-        logDebug('Plan generation completed successfully');
+        logDebug('✅ Plan generation completed successfully - NO MORE API CALLS');
       } else {
         throw new Error('プラン生成に失敗しました');
       }
@@ -754,13 +844,18 @@ const PlanGeneration: React.FC = () => {
       logDebug('Error in plan generation', error);
       setNoticeMessage('プランの生成中にエラーが発生しました。');
       setShowMockNotice(true);
+      // Clear generation flag on error
+      localStorage.removeItem('trippin-generating-plan');
     } finally {
-      clearInterval(progressInterval);
+      if (progressInterval) {
+        clearInterval(progressInterval);
+      }
       setProgress(100);
       setIsLoading(false);
-      logDebug('Plan generation process completed');
+      isGeneratingRef.current = false; // Clear flag using ref
+      logDebug('Plan generation process completed - flag cleared');
     }
-  };
+  }, [currentLanguage]); // Only depend on currentLanguage
 
 
 
