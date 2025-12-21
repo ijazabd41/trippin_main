@@ -505,6 +505,26 @@ export const backendApiCall = async (endpoint: string, options: RequestInit = {}
       if (contentType && contentType.includes('application/json')) {
         const data = await response.json();
         console.log(`✅ Backend API Success:`, { endpoint, data });
+        
+        // Log full response for OpenAI endpoints to verify completeness
+        if (endpoint.includes('/openai/')) {
+          const responseSize = JSON.stringify(data).length;
+          console.log(`📥 OpenAI Response received:`, {
+            endpoint,
+            responseSize,
+            hasSuccess: !!data.success,
+            hasData: !!data.data,
+            dataSize: data.data ? JSON.stringify(data.data).length : 0,
+            dataStructure: data.data ? {
+              hasTitle: !!data.data.title,
+              hasDestination: !!data.data.destination,
+              hasItinerary: !!data.data.itinerary,
+              itineraryLength: data.data.itinerary?.length || 0,
+              totalActivities: data.data.itinerary?.reduce((sum: number, day: any) => sum + (day?.activities?.length || 0), 0) || 0
+            } : null
+          });
+        }
+        
         return data;
       } else {
         const text = await response.text();

@@ -1261,7 +1261,7 @@ Return the response as a valid JSON object with this structure:
         { role: "user", content: prompt },
       ],
       temperature: 0.7,
-        max_tokens: 3000, // Limit response size to speed up generation
+        max_tokens: 4000, // Increased from 3000 to allow for more complete responses
       }),
     });
 
@@ -1272,10 +1272,35 @@ Return the response as a valid JSON object with this structure:
 
     const completion = await openaiResponse.json();
     console.log("OpenAI API response received");
+    
+    // Log full response structure for debugging
+    console.log("OpenAI completion structure:", {
+      hasChoices: !!completion.choices,
+      choicesLength: completion.choices?.length || 0,
+      hasMessage: !!completion.choices?.[0]?.message,
+      hasContent: !!completion.choices?.[0]?.message?.content,
+      contentLength: completion.choices?.[0]?.message?.content?.length || 0,
+      usage: completion.usage || 'not provided',
+      finishReason: completion.choices?.[0]?.finish_reason || 'not provided'
+    });
 
     const content = completion.choices[0]?.message?.content;
     if (!content) {
+      console.error("OpenAI API returned empty content. Full completion:", JSON.stringify(completion, null, 2));
       throw new Error("OpenAI API returned empty response");
+    }
+
+    // Log content length and preview to verify full response
+    console.log("OpenAI content received:", {
+      length: content.length,
+      preview: content.substring(0, 200),
+      endsWithCompleteJson: content.trim().endsWith('}') || content.trim().endsWith(']'),
+      finishReason: completion.choices?.[0]?.finish_reason
+    });
+
+    // Check if response was truncated due to token limit
+    if (completion.choices?.[0]?.finish_reason === 'length') {
+      console.warn("⚠️ OpenAI response was truncated due to token limit! Consider increasing max_tokens.");
     }
 
     // Try to parse JSON, handle both JSON and markdown-wrapped JSON
@@ -1289,14 +1314,29 @@ Return the response as a valid JSON object with this structure:
       // Try parsing first, if it fails, try cleaning escaped sequences
       try {
         plan = JSON.parse(cleanedContent);
+        console.log("✅ Successfully parsed OpenAI JSON response");
+        console.log("Parsed plan structure:", {
+          hasTitle: !!plan.title,
+          hasDestination: !!plan.destination,
+          hasDuration: !!plan.duration,
+          hasBudget: !!plan.budget,
+          hasItinerary: !!plan.itinerary,
+          itineraryLength: plan.itinerary?.length || 0,
+          totalActivities: plan.itinerary?.reduce((sum: number, day: any) => sum + (day.activities?.length || 0), 0) || 0,
+          hasRecommendations: !!plan.recommendations,
+          hasPracticalInfo: !!plan.practicalInfo
+        });
       } catch (firstError) {
         // If first parse fails, try handling escaped sequences
         cleanedContent = cleanedContent.replace(/\\n/g, "\n").replace(/\\t/g, "\t").replace(/\\"/g, '"');
         plan = JSON.parse(cleanedContent);
+        console.log("✅ Successfully parsed OpenAI JSON after cleaning escaped sequences");
       }
     } catch (parseError) {
       console.error("Failed to parse OpenAI response as JSON:", parseError);
-      console.error("Response content:", content.substring(0, 500));
+      console.error("Response content length:", content.length);
+      console.error("Response content preview (first 500 chars):", content.substring(0, 500));
+      console.error("Response content preview (last 500 chars):", content.substring(Math.max(0, content.length - 500)));
       // Return a structured fallback plan
       plan = {
         id: `fallback-plan-${Date.now()}`,
@@ -1336,6 +1376,23 @@ Return the response as a valid JSON object with this structure:
         rawResponse: content.substring(0, 200),
       };
     }
+
+    // Log the plan being sent to frontend
+    const planJson = JSON.stringify(plan);
+    console.log("📤 Sending plan to frontend:", {
+      planSize: planJson.length,
+      planStructure: {
+        hasTitle: !!plan.title,
+        hasDestination: !!plan.destination,
+        hasDuration: !!plan.duration,
+        hasBudget: !!plan.budget,
+        hasItinerary: !!plan.itinerary,
+        itineraryLength: plan.itinerary?.length || 0,
+        totalActivities: plan.itinerary?.reduce((sum: number, day: any) => sum + (day.activities?.length || 0), 0) || 0,
+        hasRecommendations: !!plan.recommendations,
+        hasPracticalInfo: !!plan.practicalInfo
+      }
+    });
 
     return new Response(
       JSON.stringify({ success: true, data: plan }),
