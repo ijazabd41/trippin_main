@@ -2066,6 +2066,472 @@ router.add("GET", "/api/esim/orders", async (req) => {
   }
 });
 
+// Get single eSIM order
+router.add("GET", "/api/esim/orders/:id", async (req, params) => {
+  const auth = await authenticateToken(req);
+  if (auth.error) {
+    return new Response(
+      JSON.stringify({ error: auth.error.message, code: auth.error.code }),
+      { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+
+  try {
+    const supabase = getSupabaseClient(req.headers.get("authorization"));
+    const { data: order, error } = await supabase
+      .from("esim_orders")
+      .select("*")
+      .eq("id", params.id)
+      .eq("user_id", auth.user.id)
+      .single();
+
+    if (error || !order) {
+      return new Response(
+        JSON.stringify({ error: "Order not found", code: "ORDER_NOT_FOUND" }),
+        { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    return new Response(
+      JSON.stringify({ success: true, data: order }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  } catch (error) {
+    console.error("Get eSIM order error:", error);
+    return new Response(
+      JSON.stringify({ error: "Failed to fetch order", code: "ORDER_FETCH_ERROR" }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+});
+
+// Get order details from eSIM provider by orderReference
+router.add("GET", "/api/esim/orders/:orderReference/details", async (req, params) => {
+  const auth = await authenticateToken(req);
+  if (auth.error) {
+    return new Response(
+      JSON.stringify({ error: auth.error.message, code: auth.error.code }),
+      { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+
+  try {
+    const { orderReference } = params;
+    if (!orderReference) {
+      return new Response(
+        JSON.stringify({ success: false, error: "Order reference is required", code: "MISSING_ORDER_REFERENCE" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const supabaseAdmin = getSupabaseAdmin();
+    const { data: userOrder, error: orderError } = await supabaseAdmin
+      .from("esim_orders")
+      .select("*")
+      .eq("esim_provider_order_id", orderReference)
+      .eq("user_id", auth.user.id)
+      .single();
+
+    if (orderError || !userOrder) {
+      return new Response(
+        JSON.stringify({ success: false, error: "Order not found or access denied", code: "ORDER_NOT_FOUND" }),
+        { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Check if manual assignment
+    const isManualAssignment = orderReference.startsWith("manual-");
+    let orderDetails = null;
+
+    if (!isManualAssignment) {
+      const esimKey = Deno.env.get("ESIMGO_API_KEY") || Deno.env.get("ESIM_TOKEN");
+      const esimBaseUrl = Deno.env.get("ESIMGO_BASE_URL") || Deno.env.get("ESIM_BASE") || "https://api.esim-go.com/v2.4";
+
+      if (esimKey) {
+        try {
+          const url = `${esimBaseUrl}/orders/${encodeURIComponent(orderReference)}`;
+          const response = await fetch(url, {
+            headers: { "X-API-Key": esimKey, "Content-Type": "application/json" },
+          });
+
+          if (response.ok) {
+            orderDetails = await response.json();
+          }
+        } catch (apiError) {
+          console.warn("Failed to fetch order details from eSIM Go API:", apiError);
+        }
+      }
+    }
+
+    // Extract eSIM details
+    let esimDetails = null;
+    let qrCode = null;
+    let activationCode = null;
+    let iccid = null;
+    let createdDate = null;
+    let expiryDate = null;
+
+    if (orderDetails) {
+      const rawCreatedDate = orderDetails.createdDate || orderDetails.created_date || orderDetails.created || userOrder.purchase_date || userOrder.created_at;
+      if (rawCreatedDate) {
+        try {
+          const date = new Date(rawCreatedDate);
+          if (!isNaN(date.getTime())) {
+            createdDate = date.toISOString();
+          }
+        } catch (e) {
+          console.warn("Failed to parse createdDate:", rawCreatedDate);
+        }
+      }
+
+      if (orderDetails.order && Array.isArray(orderDetails.order) && orderDetails.order.length > 0) {
+        const firstOrder = orderDetails.order[0];
+        if (firstOrder.esims && Array.isArray(firstOrder.esims) && firstOrder.esims.length > 0) {
+          const firstEsim = firstOrder.esims[0];
+          iccid = firstEsim.iccid || iccid;
+          activationCode = firstEsim.matchingId || activationCode;
+          const smdpAddress = firstEsim.smdpAddress;
+
+          if (smdpAddress && activationCode) {
+            qrCode = `LPA:1$${smdpAddress}$${activationCode}`;
+          }
+        }
+      }
+
+      // Calculate expiry date
+      if (createdDate && userOrder.plan_details?.validity && !expiryDate) {
+        const validityStr = userOrder.plan_details.validity;
+        const daysMatch = validityStr.match(/(\d+)/);
+        if (daysMatch) {
+          const days = parseInt(daysMatch[1], 10);
+          const expiry = new Date(createdDate);
+          expiry.setDate(expiry.getDate() + days);
+          expiryDate = expiry.toISOString();
+        }
+      }
+    }
+
+    return new Response(
+      JSON.stringify({
+        success: true,
+        data: {
+          order: userOrder,
+          orderDetails: orderDetails,
+          esimDetails: {
+            iccid,
+            activationCode,
+            qrCode,
+            createdDate,
+            expiryDate,
+          },
+        },
+      }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  } catch (error) {
+    console.error("Get eSIM order details error:", error);
+    return new Response(
+      JSON.stringify({ error: "Failed to fetch order details", code: "ORDER_DETAILS_ERROR" }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+});
+
+// Activate eSIM
+router.add("POST", "/api/esim/orders/:id/activate", async (req, params) => {
+  const auth = await authenticateToken(req);
+  if (auth.error) {
+    return new Response(
+      JSON.stringify({ error: auth.error.message, code: auth.error.code }),
+      { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+
+  try {
+    const supabase = getSupabaseClient(req.headers.get("authorization"));
+    const { data: order, error: orderError } = await supabase
+      .from("esim_orders")
+      .select("*")
+      .eq("id", params.id)
+      .eq("user_id", auth.user.id)
+      .single();
+
+    if (orderError || !order) {
+      return new Response(
+        JSON.stringify({ error: "Order not found", code: "ORDER_NOT_FOUND" }),
+        { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    if (order.status !== "pending") {
+      return new Response(
+        JSON.stringify({ error: "Order cannot be activated", code: "INVALID_ACTIVATION_STATUS" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Try to activate via eSIM Go API
+    let activationResult = null;
+    const esimKey = Deno.env.get("ESIMGO_API_KEY") || Deno.env.get("ESIM_TOKEN");
+    const esimBaseUrl = Deno.env.get("ESIMGO_BASE_URL") || Deno.env.get("ESIM_BASE") || "https://api.esim-go.com/v2.4";
+
+    if (esimKey && order.esim_provider_order_id) {
+      try {
+        // Fetch assignment details as activation confirmation
+        const url = `${esimBaseUrl}/esims/assignments/${encodeURIComponent(order.esim_provider_order_id)}`;
+        const response = await fetch(url, {
+          headers: { "X-API-Key": esimKey, "Content-Type": "application/json" },
+        });
+
+        if (response.ok) {
+          activationResult = await response.json();
+        }
+      } catch (apiError) {
+        console.warn("Failed to activate via eSIM Go API:", apiError);
+      }
+    }
+
+    // Update order status
+    const { error: updateError } = await supabase
+      .from("esim_orders")
+      .update({
+        status: "active",
+        activated_at: new Date().toISOString(),
+      })
+      .eq("id", params.id);
+
+    if (updateError) {
+      return new Response(
+        JSON.stringify({ error: "Failed to update order status", code: "ORDER_UPDATE_ERROR" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    return new Response(
+      JSON.stringify({ success: true, data: activationResult }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  } catch (error) {
+    console.error("Activate eSIM error:", error);
+    return new Response(
+      JSON.stringify({ error: "Failed to activate eSIM", code: "ESIM_ACTIVATION_ERROR" }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+});
+
+// Get eSIM usage
+router.add("GET", "/api/esim/orders/:id/usage", async (req, params) => {
+  const auth = await authenticateToken(req);
+  if (auth.error) {
+    return new Response(
+      JSON.stringify({ error: auth.error.message, code: auth.error.code }),
+      { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+
+  try {
+    const supabase = getSupabaseClient(req.headers.get("authorization"));
+    const { data: order, error: orderError } = await supabase
+      .from("esim_orders")
+      .select("*")
+      .eq("id", params.id)
+      .eq("user_id", auth.user.id)
+      .single();
+
+    if (orderError || !order) {
+      return new Response(
+        JSON.stringify({ error: "Order not found", code: "ORDER_NOT_FOUND" }),
+        { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const isUnlimited = order.plan_details?.unlimited === true ||
+      order.plan_details?.dataAmount === "Unlimited" ||
+      (typeof order.plan_details?.dataAmount === "string" && order.plan_details.dataAmount.toLowerCase().includes("unlimited"));
+
+    let usage = null;
+    const esimKey = Deno.env.get("ESIMGO_API_KEY") || Deno.env.get("ESIM_TOKEN");
+    const esimBaseUrl = Deno.env.get("ESIMGO_BASE_URL") || Deno.env.get("ESIM_BASE") || "https://api.esim-go.com/v2.4";
+
+    if (esimKey && order.esim_provider_order_id) {
+      try {
+        const url = `${esimBaseUrl}/esims/assignments/${encodeURIComponent(order.esim_provider_order_id)}`;
+        const response = await fetch(url, {
+          headers: { "X-API-Key": esimKey, "Content-Type": "application/json" },
+        });
+
+        if (response.ok) {
+          usage = await response.json();
+        }
+      } catch (apiError) {
+        console.warn("Failed to fetch usage from eSIM Go API:", apiError);
+      }
+    }
+
+    let assignment = null;
+    if (usage) {
+      if (Array.isArray(usage) && usage.length > 0) {
+        assignment = usage[0];
+      } else if (typeof usage === "object") {
+        assignment = usage;
+      }
+    }
+
+    let usageData = order.usage_data || {};
+
+    if (assignment && !isUnlimited) {
+      const dataRemainingMb = assignment.dataRemainingMb || assignment["Data Remaining MB"] || assignment.dataRemaining || assignment.remainingData || null;
+      const dataUsedMb = assignment.dataUsedMb || assignment["Data Used MB"] || assignment.dataUsed || assignment.usedData || null;
+      const dataTotalMb = assignment.dataTotalMb || assignment["Data Total MB"] || assignment.dataTotal || assignment.totalData || null;
+
+      if (dataRemainingMb !== null || dataUsedMb !== null || dataTotalMb !== null) {
+        const totalGB = dataTotalMb ? (dataTotalMb / 1024) : 0;
+        let usedGB = 0;
+        if (dataUsedMb !== null) {
+          usedGB = dataUsedMb / 1024;
+        } else if (dataRemainingMb !== null && dataTotalMb !== null) {
+          usedGB = Math.max(0, (dataTotalMb - dataRemainingMb) / 1024);
+        }
+
+        usageData = {
+          dataRemainingMb: dataRemainingMb || (totalGB > 0 ? (totalGB - usedGB) * 1024 : null),
+          dataUsedMb: dataUsedMb || (usedGB * 1024),
+          dataTotalMb: dataTotalMb || (totalGB * 1024),
+          usedGB: Number(usedGB.toFixed(2)),
+          totalGB: Number(totalGB.toFixed(2)),
+          lastUpdated: new Date().toISOString(),
+          ...usageData,
+        };
+      }
+    } else if (isUnlimited) {
+      usageData = {
+        ...usageData,
+        unlimited: true,
+        lastUpdated: new Date().toISOString(),
+      };
+    }
+
+    // Persist usage snapshot
+    await supabase
+      .from("esim_orders")
+      .update({ usage_data: usageData })
+      .eq("id", params.id);
+
+    return new Response(
+      JSON.stringify({
+        success: true,
+        data: {
+          orderId: order.id,
+          unlimited: isUnlimited,
+          ...(isUnlimited
+            ? { unlimited: true, message: "Unlimited data plan" }
+            : {
+                usedGB: usageData.usedGB || 0,
+                totalGB: usageData.totalGB || 0,
+                dataRemainingMb: usageData.dataRemainingMb,
+                dataUsedMb: usageData.dataUsedMb,
+                dataTotalMb: usageData.dataTotalMb,
+                percentage: usageData.totalGB > 0 ? Math.round(((usageData.usedGB || 0) / usageData.totalGB) * 100) : 0,
+              }),
+          lastUpdated: usageData.lastUpdated || new Date().toISOString(),
+          raw: assignment || usage,
+        },
+      }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  } catch (error) {
+    console.error("Get eSIM usage error:", error);
+    return new Response(
+      JSON.stringify({ error: "Failed to fetch usage", code: "USAGE_FETCH_ERROR", details: error.message }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+});
+
+// Cancel eSIM order
+router.add("POST", "/api/esim/orders/:id/cancel", async (req, params) => {
+  const auth = await authenticateToken(req);
+  if (auth.error) {
+    return new Response(
+      JSON.stringify({ error: auth.error.message, code: auth.error.code }),
+      { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+
+  try {
+    const supabase = getSupabaseClient(req.headers.get("authorization"));
+    const { data: order, error: orderError } = await supabase
+      .from("esim_orders")
+      .select("*")
+      .eq("id", params.id)
+      .eq("user_id", auth.user.id)
+      .single();
+
+    if (orderError || !order) {
+      return new Response(
+        JSON.stringify({ error: "Order not found", code: "ORDER_NOT_FOUND" }),
+        { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    if (order.status === "active") {
+      return new Response(
+        JSON.stringify({ error: "Active eSIM cannot be cancelled", code: "ACTIVE_ESIM_CANNOT_CANCEL" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Try to cancel via eSIM Go API (may not be supported)
+    let cancelResult = null;
+    const esimKey = Deno.env.get("ESIMGO_API_KEY") || Deno.env.get("ESIM_TOKEN");
+    const esimBaseUrl = Deno.env.get("ESIMGO_BASE_URL") || Deno.env.get("ESIM_BASE") || "https://api.esim-go.com/v2.4";
+
+    if (esimKey && order.esim_provider_order_id) {
+      try {
+        const url = `${esimBaseUrl}/orders/${encodeURIComponent(order.esim_provider_order_id)}/cancel`;
+        const response = await fetch(url, {
+          method: "POST",
+          headers: { "X-API-Key": esimKey, "Content-Type": "application/json" },
+        });
+
+        if (response.ok) {
+          cancelResult = await response.json();
+        }
+      } catch (cancelError) {
+        console.warn("Cancel endpoint not available, updating status only:", cancelError);
+      }
+    }
+
+    // Update order status
+    const { error: updateError } = await supabase
+      .from("esim_orders")
+      .update({
+        status: "cancelled",
+        cancelled_at: new Date().toISOString(),
+      })
+      .eq("id", params.id);
+
+    if (updateError) {
+      return new Response(
+        JSON.stringify({ error: "Failed to update order status", code: "ORDER_UPDATE_ERROR" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    return new Response(
+      JSON.stringify({ success: true, data: cancelResult }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  } catch (error) {
+    console.error("Cancel eSIM order error:", error);
+    return new Response(
+      JSON.stringify({ error: "Failed to cancel order", code: "ORDER_CANCEL_ERROR" }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+});
+
 // ==================== MAIN HANDLER ====================
 
 serve(async (req) => {

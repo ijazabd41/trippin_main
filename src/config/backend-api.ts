@@ -128,6 +128,17 @@ export const BACKEND_API_CONFIG = {
     OPENAI: {
       GENERATE: '/api/openai/generate',
       CHAT: '/api/openai/chat'
+    },
+    // ESIM
+    ESIM: {
+      PLANS: '/api/esim/plans',
+      PURCHASE: '/api/esim/purchase',
+      ORDERS: '/api/esim/orders',
+      ORDER_DETAIL: '/api/esim/orders/:id',
+      ORDER_DETAILS: '/api/esim/orders/:orderReference/details',
+      ACTIVATE: '/api/esim/orders/:id/activate',
+      USAGE: '/api/esim/orders/:id/usage',
+      CANCEL: '/api/esim/orders/:id/cancel'
     }
   },
   TIMEOUT: 30000, // 30 seconds
