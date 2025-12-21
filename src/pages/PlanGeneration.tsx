@@ -95,7 +95,8 @@ const PlanGeneration: React.FC = () => {
       console.log('No trip data found, loading existing plan...');
       loadGeneratedPlan();
     }
-  }, []); // Empty deps - only run once on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty deps - only run once on mount, generatePlan is stable via useCallback
 
   const loadGeneratedPlan = () => {
     console.log('Loading generated plan...');
