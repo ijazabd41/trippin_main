@@ -320,8 +320,8 @@ const ESIMManagement: React.FC = () => {
             }
             
             // Calculate expiry date for manual assignments if we have purchase date and validity
-            if (!basePlan.expiryDate && basePlan.activationDate && order.plan_details?.validity) {
-              const calculated = calculateExpiryDate(basePlan.activationDate, order.plan_details.validity);
+            if (!basePlan.expiryDate && basePlan.activationDate && basePlan.validity) {
+              const calculated = calculateExpiryDate(basePlan.activationDate, basePlan.validity);
               if (calculated) {
                 basePlan.expiryDate = calculated;
                 console.log('✅ Calculated expiry date for manual assignment:', basePlan.expiryDate);
@@ -329,8 +329,8 @@ const ESIMManagement: React.FC = () => {
             }
             
             // Calculate usage from plan if not available
-            if ((!basePlan.usage || basePlan.usage.total === 0) && order.plan_details) {
-              const calculatedUsage = calculateUsageFromPlan(order.plan_details);
+            if ((!basePlan.usage || basePlan.usage.total === 0) && basePlan.dataAmount) {
+              const calculatedUsage = calculateUsageFromPlan({ dataAmount: basePlan.dataAmount });
               if (calculatedUsage) {
                 basePlan.usage = calculatedUsage;
                 console.log('✅ Calculated usage from plan:', basePlan.usage);
