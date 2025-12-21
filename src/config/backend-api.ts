@@ -16,6 +16,12 @@ const getBackendUrl = (): string => {
     backendUrl = defaultBackendUrl;
   }
   
+  // Validate URL - reject Supabase dashboard URLs (common mistake)
+  if (backendUrl.includes('supabase.com/dashboard')) {
+    console.warn('⚠️ Invalid Supabase dashboard URL detected, using correct Edge Function URL:', backendUrl);
+    backendUrl = configBackendUrl || defaultBackendUrl;
+  }
+  
   // Ensure URL is absolute (not relative)
   if (!backendUrl.startsWith('http://') && !backendUrl.startsWith('https://')) {
     console.warn('⚠️ Backend URL is relative, converting to absolute:', backendUrl);
@@ -30,6 +36,12 @@ const getBackendUrl = (): string => {
   // Remove trailing slash if present
   if (backendUrl.endsWith('/')) {
     backendUrl = backendUrl.slice(0, -1);
+  }
+  
+  // Final validation - ensure it's a valid Supabase Edge Function URL
+  if (!backendUrl.includes('.supabase.co/functions/v1/')) {
+    console.warn('⚠️ Backend URL does not appear to be a valid Supabase Edge Function URL, using default:', backendUrl);
+    backendUrl = defaultBackendUrl;
   }
   
   // Final validation
