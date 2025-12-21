@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { MapPin, Navigation, Search, Star, Clock, Phone, Globe, Locate } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { apiCall, API_CONFIG, buildApiUrl, APIError } from '../config/api';
+import { backendApiCall, BACKEND_API_CONFIG } from '../config/backend-api';
 import { handleAWSError, globalErrorHandler } from '../utils/errorHandler';
 import MockDataNotice from '../components/MockDataNotice';
 import GoogleMap from '../components/GoogleMap';
@@ -301,10 +302,13 @@ const MapNavigation: React.FC = () => {
     try {
       setIsLoadingDetails(true);
       setPlaceDetails(null);
-      const res = await apiCall('/google-maps/details', {
-        method: 'POST',
-        body: JSON.stringify({ placeId })
-      });
+      const res = await backendApiCall(
+        BACKEND_API_CONFIG.ENDPOINTS.GOOGLE_MAPS.DETAILS,
+        {
+          method: 'POST',
+          body: JSON.stringify({ placeId })
+        }
+      );
       if (res.success && res.data) {
         setPlaceDetails(res.data);
       }
@@ -344,16 +348,19 @@ const MapNavigation: React.FC = () => {
     
     try {
       // Try to fetch broadly from Google Places API (no questionnaire filter)
-      const result = await apiCall('/google-maps', {
-        method: 'POST',
-        body: JSON.stringify({
-          location: currentLocation ? `${currentLocation.lat},${currentLocation.lng}` : `${MAP_CONFIG.DEFAULT_CENTER.lat},${MAP_CONFIG.DEFAULT_CENTER.lng}`,
-          radius: MAP_CONFIG.SEARCH_RADIUS.toString(),
-          // Ask backend to use a broad default type for Nearby Search
-          type: 'point_of_interest',
-          keyword: searchQuery || undefined
-        })
-      });
+      const result = await backendApiCall(
+        BACKEND_API_CONFIG.ENDPOINTS.GOOGLE_MAPS.SEARCH,
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            location: currentLocation ? `${currentLocation.lat},${currentLocation.lng}` : `${MAP_CONFIG.DEFAULT_CENTER.lat},${MAP_CONFIG.DEFAULT_CENTER.lng}`,
+            radius: MAP_CONFIG.SEARCH_RADIUS.toString(),
+            // Ask backend to use a broad default type for Nearby Search
+            type: 'point_of_interest',
+            keyword: searchQuery || undefined
+          })
+        }
+      );
       
       if (result.success && result.data) {
         // Check if this is mock data
@@ -391,13 +398,16 @@ const MapNavigation: React.FC = () => {
     
     try {
       // Try to search using Google Places API
-      const result = await apiCall('/google-maps', {
-        method: 'POST',
-        body: JSON.stringify({
-          query: searchQuery,
-          location: currentLocation ? `${currentLocation.lat},${currentLocation.lng}` : `${MAP_CONFIG.DEFAULT_CENTER.lat},${MAP_CONFIG.DEFAULT_CENTER.lng}`
-        })
-      });
+      const result = await backendApiCall(
+        BACKEND_API_CONFIG.ENDPOINTS.GOOGLE_MAPS.SEARCH,
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            query: searchQuery,
+            location: currentLocation ? `${currentLocation.lat},${currentLocation.lng}` : `${MAP_CONFIG.DEFAULT_CENTER.lat},${MAP_CONFIG.DEFAULT_CENTER.lng}`
+          })
+        }
+      );
       
       if (result.success && result.data) {
         // Check if this is mock data

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { MapPin, Search, Loader } from 'lucide-react';
 import { apiCall, API_CONFIG, buildApiUrl, APIError } from '../config/api';
+import { backendApiCall, BACKEND_API_CONFIG } from '../config/backend-api';
 import { handleVercelError, globalErrorHandler } from '../utils/errorHandler';
 import { useLanguage } from '../contexts/LanguageContext';
 
@@ -91,15 +92,18 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
     console.log(`[GooglePlacesAutocomplete] Starting API call to /google-maps`);
     
     try {
-      const result = await apiCall('/google-maps', {
-        method: 'POST',
-        body: JSON.stringify({
-          input: query,
-          types: types.join('|'),
-          components: `country:${country}`,
-          language: 'ja'
-        })
-      });
+      const result = await backendApiCall(
+        BACKEND_API_CONFIG.ENDPOINTS.GOOGLE_MAPS.SEARCH,
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            input: query,
+            types: types.join('|'),
+            components: `country:${country}`,
+            language: 'ja'
+          })
+        }
+      );
       
       console.log(`[GooglePlacesAutocomplete] API result for Google Maps:`, result);
       
@@ -231,13 +235,16 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
     // If we have a place_id, fetch detailed information
     if (place.place_id && !place.place_id.includes('fallback')) {
       try {
-        const detailResult = await apiCall('/google-maps', {
-          method: 'POST',
-          body: JSON.stringify({
-            place_id: place.place_id,
-            fields: 'name,formatted_address,geometry,rating,photos,types'
-          })
-        });
+        const detailResult = await backendApiCall(
+          BACKEND_API_CONFIG.ENDPOINTS.GOOGLE_MAPS.DETAILS,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              place_id: place.place_id,
+              fields: 'name,formatted_address,geometry,rating,photos,types'
+            })
+          }
+        );
         
         if (detailResult.success && detailResult.result) {
           onPlaceSelect({

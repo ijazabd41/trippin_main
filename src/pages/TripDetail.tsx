@@ -6,6 +6,7 @@ import { useBackendTrip } from '../contexts/BackendTripContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useSupabaseAuth } from '../contexts/SupabaseAuthContext';
 import { apiCall, API_CONFIG, buildApiUrl, APIError } from '../config/api';
+import { backendApiCall, BACKEND_API_CONFIG } from '../config/backend-api';
 import { handleVercelError, autoRecovery, globalErrorHandler } from '../utils/errorHandler';
 import MockDataNotice from '../components/MockDataNotice';
 
@@ -190,14 +191,17 @@ const TripDetail: React.FC = () => {
       // Try to get directions data
       let directionsData = null;
       try {
-        const directionsResult = await apiCall('/google-maps', {
-          method: 'POST',
-          body: JSON.stringify({
-            origin: activity.location,
-            destination: activity.name,
-            type: 'directions'
-          })
-        });
+        const directionsResult = await backendApiCall(
+          BACKEND_API_CONFIG.ENDPOINTS.GOOGLE_MAPS.SEARCH,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              origin: activity.location,
+              destination: activity.name,
+              type: 'directions'
+            })
+          }
+        );
         directionsData = directionsResult.data || directionsResult;
       } catch (error) {
         console.error('Failed to fetch directions:', error);

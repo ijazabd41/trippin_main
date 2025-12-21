@@ -2214,8 +2214,52 @@ router.add("GET", "/api/esim/plans", async (req) => {
       });
     });
 
+    // Transform bundles to match frontend ESIMPlan structure
+    const transformedPlans = japanBundles.map((bundle: any) => {
+      // Extract data amount from bundle name or size
+      const dataAmount = bundle.size 
+        ? `${bundle.size}${bundle.sizeUnit || 'GB'}`
+        : bundle.name?.match(/(\d+)\s*(GB|MB|gb|mb)/i)?.[0] || '3GB';
+      
+      // Extract validity from bundle name or validity field
+      const validityDays = bundle.validity || bundle.name?.match(/(\d+)\s*(days|day|日)/i)?.[1] || '15';
+      const validity = `${validityDays}日`;
+      
+      // Extract price
+      const priceAmount = bundle.price?.amount || bundle.price || 3500;
+      const priceCurrency = bundle.price?.currency || bundle.currency || 'JPY';
+      
+      // Extract coverage countries
+      const coverage = bundle.countries?.map((c: any) => {
+        const countryName = c?.name || c?.iso || c || 'Japan';
+        return countryName;
+      }) || ['Japan'];
+      
+      // Extract features
+      const features = [];
+      if (bundle.hotspot) features.push('Hotspot enabled');
+      if (bundle.roaming) features.push('Roaming enabled');
+      if (bundle.unlimited) features.push('Unlimited data');
+      if (features.length === 0) features.push('High-speed data', '24/7 support');
+
+      return {
+        id: bundle.name || bundle.id || `plan-${Date.now()}-${Math.random()}`,
+        name: bundle.name || bundle.title || `Japan ${dataAmount} - ${validity}`,
+        description: bundle.description || `日本全国で使える${validity}${dataAmount}プラン`,
+        dataAmount: dataAmount,
+        validity: validity,
+        price: {
+          amount: typeof priceAmount === 'number' ? priceAmount : parseFloat(priceAmount) || 3500,
+          currency: priceCurrency
+        },
+        coverage: coverage,
+        features: features,
+        isAvailable: bundle.available !== false && bundle.status !== 'unavailable'
+      };
+    });
+
     return new Response(
-      JSON.stringify({ success: true, data: japanBundles, isMockData: false }),
+      JSON.stringify({ success: true, data: transformedPlans, isMockData: false }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {

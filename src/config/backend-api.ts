@@ -139,6 +139,11 @@ export const BACKEND_API_CONFIG = {
       ACTIVATE: '/api/esim/orders/:id/activate',
       USAGE: '/api/esim/orders/:id/usage',
       CANCEL: '/api/esim/orders/:id/cancel'
+    },
+    // Google Maps
+    GOOGLE_MAPS: {
+      SEARCH: '/api/google-maps',
+      DETAILS: '/api/google-maps/details'
     }
   },
   TIMEOUT: 30000, // 30 seconds (default)
