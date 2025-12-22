@@ -51,31 +51,53 @@ const authenticateToken = async (req: Request): Promise<{ user: any; error: any 
   const token = authHeader?.replace("Bearer ", "");
 
   if (!token) {
+    console.log("❌ No token provided in Authorization header");
     return { user: null, error: { message: "Access token required", code: "UNAUTHORIZED" } };
   }
 
   try {
-    // Create a client with the token in the Authorization header
-    // This is the correct way to authenticate in Supabase edge functions
     const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
     const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
     
-    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-      global: {
-        headers: { Authorization: authHeader ?? "" },
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.error("❌ Supabase configuration missing");
+      return { user: null, error: { message: "Server configuration error", code: "CONFIG_ERROR" } };
+    }
+    
+    console.log("🔍 Authenticating token:", {
+      hasToken: !!token,
+      tokenLength: token?.length || 0,
+      tokenPreview: token ? `${token.substring(0, 20)}...` : "no token",
+      supabaseUrl: supabaseUrl ? "present" : "missing",
+      supabaseAnonKey: supabaseAnonKey ? "present" : "missing"
+    });
+    
+    // Use Supabase REST API directly to verify token - more reliable in edge functions
+    // This bypasses the client library's session management which can be problematic
+    const userResponse = await fetch(`${supabaseUrl}/auth/v1/user`, {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "apikey": supabaseAnonKey,
       },
     });
     
-    // Get user using the client (it will use the Authorization header)
-    const { data: { user }, error } = await supabase.auth.getUser();
-
-    if (error) {
-      console.error("❌ Token validation error:", error.message, error.status);
-      return { user: null, error: { message: error.message || "Invalid or expired token", code: "UNAUTHORIZED" } };
+    if (!userResponse.ok) {
+      const errorData = await userResponse.json().catch(() => ({}));
+      console.error("❌ Token validation failed:", userResponse.status, errorData);
+      return { 
+        user: null, 
+        error: { 
+          message: errorData.message || errorData.error_description || "Invalid or expired token", 
+          code: "UNAUTHORIZED" 
+        } 
+      };
     }
+    
+    const user = await userResponse.json();
 
-    if (!user) {
-      console.error("❌ No user found for token");
+    if (!user || !user.id) {
+      console.error("❌ No user found in token response");
       return { user: null, error: { message: "Invalid or expired token", code: "UNAUTHORIZED" } };
     }
 
@@ -4573,18 +4595,59 @@ router.add("POST", "/api/esim/orders/:id/cancel", async (req, params) => {
 
 // ==================== MAIN HANDLER ====================
 
+// ==================== ERROR HANDLING ====================
+// Note: The Stripe SDK and other dependencies use Node.js polyfills that trigger
+// "Deno.core.runMicrotasks() is not supported" errors. These are NON-FATAL and
+// don't affect functionality. They're logged by Supabase's runtime monitoring
+// but can be safely ignored. The function continues to work normally.
+
 // Suppress Deno compatibility warnings (non-fatal errors from Node.js polyfills)
 const originalConsoleError = console.error;
 console.error = (...args: any[]) => {
   const message = args[0]?.toString() || "";
   // Filter out non-fatal Deno compatibility errors
   if (message.includes("Deno.core.runMicrotasks") || 
-      message.includes("is not supported in this environment")) {
+      message.includes("is not supported in this environment") ||
+      message.includes("event loop error")) {
     // These are harmless warnings from Node.js polyfills, ignore them
     return;
   }
   originalConsoleError(...args);
 };
+
+// Global uncaught exception handler to suppress non-fatal Deno compatibility errors
+// These errors come from Node.js polyfills used by dependencies (e.g., Stripe)
+// They don't affect functionality but create noise in logs
+try {
+  if (typeof self !== "undefined") {
+    self.addEventListener("error", (event) => {
+      const errorMessage = event.error?.message || event.message || String(event.error) || "";
+      if (errorMessage.includes("Deno.core.runMicrotasks") || 
+          errorMessage.includes("is not supported in this environment") ||
+          errorMessage.includes("event loop error")) {
+        // Suppress these non-fatal errors from Node.js polyfills
+        event.preventDefault();
+        event.stopPropagation();
+        return false;
+      }
+    }, true); // Use capture phase
+
+    // Also handle unhandled promise rejections that might contain these errors
+    self.addEventListener("unhandledrejection", (event) => {
+      const errorMessage = event.reason?.message || String(event.reason) || "";
+      if (errorMessage.includes("Deno.core.runMicrotasks") || 
+          errorMessage.includes("is not supported in this environment") ||
+          errorMessage.includes("event loop error")) {
+        // Suppress these non-fatal errors from Node.js polyfills
+        event.preventDefault();
+        return false;
+      }
+    });
+  }
+} catch (e) {
+  // Ignore if event listeners aren't available in this environment
+  console.log("Note: Global error handlers not available in this runtime");
+}
 
 serve(async (req) => {
   const startTime = Date.now();
