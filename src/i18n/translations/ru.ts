@@ -907,7 +907,139 @@ export const ru = {
       "downloadFailed": "Загрузка не удалась. Пожалуйста, попробуйте еще раз."
     },
     "loadErrorTitle": "Не удалось загрузить план.",
-    "loadErrorDescription": "Сгенерированный план не найден. Пожалуйста, ответьте на вопрос еще раз."
+    "loadErrorDescription": "Сгенерированный план не найден. Пожалуйста, ответьте на вопрос еще раз.",
+    "errors": {
+      "noTripData": "Данные о поездке не найдены. Пожалуйста, начните заново.",
+      "planGenerationFailed": "Не удалось создать план",
+      "planGenerationError": "Произошла ошибка при создании плана.",
+      "aiUnavailable": "Обработка ИИ недоступна. Отображается базовый план.",
+      "planNotFound": "План не найден",
+      "planDataNotLoaded": "Данные плана не удалось загрузить правильно."
+    },
+    "activities": {
+      "arrival": "Прибытие в {{destination}}",
+      "arrivalDescription": "Прибытие и регистрация в размещении",
+      "checkInHotel": "Регистрация в отеле",
+      "checkInDescription": "Регистрация в вашем размещении",
+      "localLunch": "Местный обед",
+      "localLunchDescription": "Попробовать местную кухню",
+      "culturalSiteVisit": "Посещение культурного объекта",
+      "culturalSiteDescription": "Исследовать исторические и культурные достопримечательности",
+      "localFoodExperience": "Местный гастрономический опыт",
+      "localFoodDescription": "Попробовать аутентичные местные блюда",
+      "natureExploration": "Исследование природы",
+      "natureDescription": "Посетить парки или природные достопримечательности"
+    },
+    "tips": {
+      "getTransportPass": "Получить местный проездной билет",
+      "bookInAdvance": "Забронировать заранее для лучших цен",
+      "storeLuggage": "Сдать багаж, если ранняя регистрация недоступна",
+      "askLocals": "Спросить местных жителей о рекомендациях",
+      "arriveEarly": "Прибыть рано, чтобы избежать толпы",
+      "tryStreetFood": "Попробовать уличную еду для аутентичного опыта",
+      "comfortableShoes": "Взять удобную обувь для ходьбы"
+    },
+    "themes": {
+      "arrival": "Прибытие и ориентация",
+      "cultural": "Культурное исследование",
+      "local": "Местный опыт",
+      "adventure": "Приключение и открытие",
+      "relaxation": "Отдых и размышление",
+      "sightseeing": "Осмотр достопримечательностей"
+    },
+    "recommendations": {
+      "localMarket": "Местный рынок",
+      "localCuisine": "Местная",
+      "traditionalRestaurant": "Традиционный ресторан",
+      "traditionalCuisine": "Традиционная",
+      "freshIngredients": "Свежие местные ингредиенты и аутентичные вкусы",
+      "authenticCuisine": "Аутентичная местная кухня в традиционной обстановке",
+      "historicTemple": "Исторический храм",
+      "culturalType": "Культурный",
+      "museum": "Музей",
+      "museumDescription": "Местная история и культура",
+      "localPass": "Местный проездной",
+      "unlimitedTransport": "Неограниченный местный транспорт",
+      "buyAtStation": "Купить на станции или онлайн"
+    },
+    "practicalInfo": {
+      "weatherCheck": "Проверить местный прогноз погоды перед поездкой",
+      "packingItems": {
+        "clothes": "Одежда",
+        "passport": "Паспорт",
+        "camera": "Камера",
+        "charger": "Зарядное устройство",
+        "comfortableShoes": "Удобная обувь"
+      },
+      "customs": {
+        "respectTraditions": "Уважать местные традиции",
+        "learnPhrases": "Изучить основные фразы",
+        "followEtiquette": "Следовать местному этикету"
+      },
+      "emergencyContacts": {
+        "police": "Полиция: 110",
+        "ambulance": "Скорая помощь: 119",
+        "helpline": "Туристическая горячая линия"
+      },
+      "phrases": {
+        "hello": "Здравствуйте",
+        "thankYou": "Спасибо",
+        "excuseMe": "Извините",
+        "whereIs": "Где находится...?",
+        "howMuch": "Сколько стоит?"
+      }
+    },
+    "download": {
+      "header": "========================================",
+      "destination": "Направление: {{destination}}",
+      "duration": "Продолжительность: {{duration}} дней",
+      "budget": "Бюджет: {{currency}} {{amount}}",
+      "budgetBreakdown": "Разбивка бюджета:",
+      "itinerary": "Маршрут:",
+      "dayHeader": "День {{day}} - {{theme}}",
+      "date": "Дата: {{date}}",
+      "location": "Местоположение: {{location}}",
+      "description": "Описание: {{description}}",
+      "durationMinutes": "Продолжительность: {{duration}} минут",
+      "cost": "Стоимость: {{currency}} {{amount}}",
+      "tips": "Советы: {{tips}}",
+      "recommendations": "Рекомендации:",
+      "rating": "Рейтинг: {{rating}}",
+      "practicalInfo": "Практическая информация:",
+      "weather": "Погода: {{weather}}",
+      "packingList": "Список вещей:",
+      "localCustoms": "Местные обычаи:",
+      "emergencyContacts": "Экстренные контакты:",
+      "usefulPhrases": "Полезные фразы:",
+      "footer": "Этот план был создан {{date}}.",
+      "footerTagline": "Trippin - Ваш спутник в путешествии"
+    },
+    "display": {
+      "tabs": {
+        "itinerary": "Маршрут",
+        "recommendations": "Рекомендации",
+        "practical": "Практическая информация"
+      },
+      "sections": {
+        "recommendedRestaurants": "Рекомендуемые рестораны",
+        "attractions": "Достопримечательности",
+        "transportation": "Транспорт",
+        "weatherInfo": "Информация о погоде",
+        "packingList": "Список вещей",
+        "localCustoms": "Местные обычаи",
+        "emergencyContacts": "Экстренные контакты",
+        "usefulPhrases": "Полезные фразы"
+      },
+      "dayPrefix": "День {{day}}",
+      "days": "дней",
+      "savePlan": "Сохранить план",
+      "downloadPlan": "Скачать план",
+      "location": "Местоположение",
+      "time": "Время",
+      "cost": "Стоимость",
+      "duration": "Продолжительность",
+      "minutes": "минут"
+    }
   },
   "tripDetail": {
     "editPlan": "Изменить план",
@@ -1938,5 +2070,44 @@ export const ru = {
     "imageProcessingError": "Во время обработки изображения произошла ошибка.",
     "imageProcessingFailed": "Обработка изображения не удалась. Пожалуйста, проверьте ваше сетевое соединение.",
     "dismiss": "закрывать"
+  },
+  "profile": {
+    "title": "Настройки профиля",
+    "subtitle": "Управляйте своей информацией",
+    "premiumBadge": "Премиум участник",
+    "sections": {
+      "basicInfo": "Основная информация",
+      "settings": "Настройки"
+    },
+    "fields": {
+      "name": "Имя",
+      "email": "Адрес электронной почты",
+      "phone": "Номер телефона",
+      "location": "Местоположение",
+      "birthDate": "Дата рождения",
+      "bio": "Биография",
+      "bioPlaceholder": "Расскажите нам о себе..."
+    },
+    "preferences": {
+      "newsletter": "Получать рассылку",
+      "notifications": "Получать push-уведомления",
+      "marketing": "Получать маркетинговые письма"
+    },
+    "actions": {
+      "edit": "Редактировать",
+      "cancel": "Отмена",
+      "save": "Сохранить",
+      "saving": "Сохранение...",
+      "deleteAccount": "Удалить аккаунт"
+    },
+    "messages": {
+      "saveSuccess": "Профиль успешно сохранен"
+    },
+    "errors": {
+      "notLoggedIn": "Пользователь не вошел в систему",
+      "noAuthToken": "Токен аутентификации не найден. Пожалуйста, войдите снова.",
+      "saveFailed": "Не удалось сохранить профиль",
+      "saveFailedRetry": "Не удалось сохранить профиль. Пожалуйста, попробуйте снова."
+    }
   }
 };

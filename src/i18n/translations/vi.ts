@@ -907,7 +907,139 @@ export const vi = {
       "downloadFailed": "Tải xuống không thành công. Vui lòng thử lại."
     },
     "loadErrorTitle": "Không tải được kế hoạch",
-    "loadErrorDescription": "Không tìm thấy kế hoạch đã tạo. Hãy trả lời câu hỏi một lần nữa."
+    "loadErrorDescription": "Không tìm thấy kế hoạch đã tạo. Hãy trả lời câu hỏi một lần nữa.",
+    "errors": {
+      "noTripData": "Không tìm thấy dữ liệu chuyến đi. Vui lòng bắt đầu lại.",
+      "planGenerationFailed": "Tạo kế hoạch thất bại",
+      "planGenerationError": "Đã xảy ra lỗi khi tạo kế hoạch.",
+      "aiUnavailable": "Xử lý AI không khả dụng. Đang hiển thị kế hoạch cơ bản.",
+      "planNotFound": "Không tìm thấy kế hoạch",
+      "planDataNotLoaded": "Không thể tải dữ liệu kế hoạch đúng cách."
+    },
+    "activities": {
+      "arrival": "Đến {{destination}}",
+      "arrivalDescription": "Đến và nhận phòng tại chỗ ở",
+      "checkInHotel": "Nhận phòng khách sạn",
+      "checkInDescription": "Nhận phòng tại chỗ ở của bạn",
+      "localLunch": "Bữa trưa địa phương",
+      "localLunchDescription": "Thử ẩm thực địa phương",
+      "culturalSiteVisit": "Tham quan địa điểm văn hóa",
+      "culturalSiteDescription": "Khám phá các điểm tham quan lịch sử và văn hóa",
+      "localFoodExperience": "Trải nghiệm ẩm thực địa phương",
+      "localFoodDescription": "Thử các món ăn địa phương chính thống",
+      "natureExploration": "Khám phá thiên nhiên",
+      "natureDescription": "Tham quan công viên hoặc điểm tham quan thiên nhiên"
+    },
+    "tips": {
+      "getTransportPass": "Lấy thẻ giao thông địa phương",
+      "bookInAdvance": "Đặt trước để có giá tốt hơn",
+      "storeLuggage": "Gửi hành lý nếu không thể nhận phòng sớm",
+      "askLocals": "Hỏi người dân địa phương để được gợi ý",
+      "arriveEarly": "Đến sớm để tránh đám đông",
+      "tryStreetFood": "Thử đồ ăn đường phố để có trải nghiệm chính thống",
+      "comfortableShoes": "Mang giày đi bộ thoải mái"
+    },
+    "themes": {
+      "arrival": "Đến và định hướng",
+      "cultural": "Khám phá văn hóa",
+      "local": "Trải nghiệm địa phương",
+      "adventure": "Phiêu lưu và khám phá",
+      "relaxation": "Thư giãn và suy ngẫm",
+      "sightseeing": "Tham quan"
+    },
+    "recommendations": {
+      "localMarket": "Chợ địa phương",
+      "localCuisine": "Địa phương",
+      "traditionalRestaurant": "Nhà hàng truyền thống",
+      "traditionalCuisine": "Truyền thống",
+      "freshIngredients": "Nguyên liệu địa phương tươi và hương vị chính thống",
+      "authenticCuisine": "Ẩm thực địa phương chính thống trong môi trường truyền thống",
+      "historicTemple": "Đền lịch sử",
+      "culturalType": "Văn hóa",
+      "museum": "Bảo tàng",
+      "museumDescription": "Lịch sử và văn hóa địa phương",
+      "localPass": "Thẻ địa phương",
+      "unlimitedTransport": "Giao thông địa phương không giới hạn",
+      "buyAtStation": "Mua tại ga hoặc trực tuyến"
+    },
+    "practicalInfo": {
+      "weatherCheck": "Kiểm tra dự báo thời tiết địa phương trước khi đi du lịch",
+      "packingItems": {
+        "clothes": "Quần áo",
+        "passport": "Hộ chiếu",
+        "camera": "Máy ảnh",
+        "charger": "Sạc",
+        "comfortableShoes": "Giày thoải mái"
+      },
+      "customs": {
+        "respectTraditions": "Tôn trọng truyền thống địa phương",
+        "learnPhrases": "Học các cụm từ cơ bản",
+        "followEtiquette": "Tuân theo nghi thức địa phương"
+      },
+      "emergencyContacts": {
+        "police": "Cảnh sát: 110",
+        "ambulance": "Xe cứu thương: 119",
+        "helpline": "Đường dây trợ giúp du lịch"
+      },
+      "phrases": {
+        "hello": "Xin chào",
+        "thankYou": "Cảm ơn",
+        "excuseMe": "Xin lỗi",
+        "whereIs": "... ở đâu?",
+        "howMuch": "Bao nhiêu tiền?"
+      }
+    },
+    "download": {
+      "header": "========================================",
+      "destination": "Điểm đến: {{destination}}",
+      "duration": "Thời gian: {{duration}} ngày",
+      "budget": "Ngân sách: {{currency}} {{amount}}",
+      "budgetBreakdown": "Chi tiết ngân sách:",
+      "itinerary": "Lịch trình:",
+      "dayHeader": "Ngày {{day}} - {{theme}}",
+      "date": "Ngày: {{date}}",
+      "location": "Địa điểm: {{location}}",
+      "description": "Mô tả: {{description}}",
+      "durationMinutes": "Thời gian: {{duration}} phút",
+      "cost": "Chi phí: {{currency}} {{amount}}",
+      "tips": "Mẹo: {{tips}}",
+      "recommendations": "Đề xuất:",
+      "rating": "Đánh giá: {{rating}}",
+      "practicalInfo": "Thông tin thực tế:",
+      "weather": "Thời tiết: {{weather}}",
+      "packingList": "Danh sách đồ đạc:",
+      "localCustoms": "Phong tục địa phương:",
+      "emergencyContacts": "Liên hệ khẩn cấp:",
+      "usefulPhrases": "Cụm từ hữu ích:",
+      "footer": "Kế hoạch này được tạo vào {{date}}.",
+      "footerTagline": "Trippin - Đối tác du lịch của bạn"
+    },
+    "display": {
+      "tabs": {
+        "itinerary": "Lịch trình",
+        "recommendations": "Đề xuất",
+        "practical": "Thông tin thực tế"
+      },
+      "sections": {
+        "recommendedRestaurants": "Nhà hàng được đề xuất",
+        "attractions": "Điểm tham quan",
+        "transportation": "Giao thông",
+        "weatherInfo": "Thông tin thời tiết",
+        "packingList": "Danh sách đồ đạc",
+        "localCustoms": "Phong tục địa phương",
+        "emergencyContacts": "Liên hệ khẩn cấp",
+        "usefulPhrases": "Cụm từ hữu ích"
+      },
+      "dayPrefix": "Ngày {{day}}",
+      "days": "ngày",
+      "savePlan": "Lưu kế hoạch",
+      "downloadPlan": "Tải xuống kế hoạch",
+      "location": "Địa điểm",
+      "time": "Thời gian",
+      "cost": "Chi phí",
+      "duration": "Thời gian",
+      "minutes": "phút"
+    }
   },
   "tripDetail": {
     "editPlan": "Chỉnh sửa kế hoạch",
@@ -1938,5 +2070,44 @@ export const vi = {
     "imageProcessingError": "Đã xảy ra lỗi trong quá trình xử lý hình ảnh.",
     "imageProcessingFailed": "Xử lý hình ảnh không thành công. Vui lòng kiểm tra kết nối mạng của bạn.",
     "dismiss": "đóng"
+  },
+  "profile": {
+    "title": "Cài đặt hồ sơ",
+    "subtitle": "Quản lý thông tin của bạn",
+    "premiumBadge": "Thành viên Premium",
+    "sections": {
+      "basicInfo": "Thông tin cơ bản",
+      "settings": "Cài đặt"
+    },
+    "fields": {
+      "name": "Tên",
+      "email": "Địa chỉ email",
+      "phone": "Số điện thoại",
+      "location": "Vị trí",
+      "birthDate": "Ngày sinh",
+      "bio": "Tiểu sử",
+      "bioPlaceholder": "Hãy cho chúng tôi biết về bạn..."
+    },
+    "preferences": {
+      "newsletter": "Nhận bản tin",
+      "notifications": "Nhận thông báo đẩy",
+      "marketing": "Nhận email tiếp thị"
+    },
+    "actions": {
+      "edit": "Chỉnh sửa",
+      "cancel": "Hủy",
+      "save": "Lưu",
+      "saving": "Đang lưu...",
+      "deleteAccount": "Xóa tài khoản"
+    },
+    "messages": {
+      "saveSuccess": "Đã lưu hồ sơ thành công"
+    },
+    "errors": {
+      "notLoggedIn": "Người dùng chưa đăng nhập",
+      "noAuthToken": "Không tìm thấy token xác thực. Vui lòng đăng nhập lại.",
+      "saveFailed": "Lưu hồ sơ thất bại",
+      "saveFailedRetry": "Lưu hồ sơ thất bại. Vui lòng thử lại."
+    }
   }
 };

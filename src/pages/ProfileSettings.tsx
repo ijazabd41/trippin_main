@@ -54,12 +54,12 @@ const ProfileSettings: React.FC = () => {
 
   const handleSave = async () => {
     if (!user) {
-      setSaveMessage('ユーザーがログインしていません');
+      setSaveMessage(t('profile.errors.notLoggedIn'));
       return;
     }
 
     if (!session?.access_token) {
-      setSaveMessage('認証トークンが見つかりません。再度ログインしてください。');
+      setSaveMessage(t('profile.errors.noAuthToken'));
       return;
     }
 
@@ -90,17 +90,17 @@ const ProfileSettings: React.FC = () => {
       if (result.success) {
         // Update the local context
         await updateProfile(updateData);
-        setSaveMessage('プロフィールが正常に保存されました');
+        setSaveMessage(t('profile.messages.saveSuccess'));
         setIsEditing(false);
         
         // Clear success message after 3 seconds
         setTimeout(() => setSaveMessage(null), 3000);
       } else {
-        throw new Error(result.message || 'プロフィールの保存に失敗しました');
+        throw new Error(result.message || t('profile.errors.saveFailed'));
       }
     } catch (error) {
       console.error('Profile save error:', error);
-      setSaveMessage('プロフィールの保存に失敗しました。もう一度お試しください。');
+      setSaveMessage(t('profile.errors.saveFailedRetry'));
     } finally {
       setIsSaving(false);
     }
@@ -127,14 +127,14 @@ const ProfileSettings: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <h1 className="text-4xl font-bold text-gray-800 mb-4">プロフィール設定</h1>
-          <p className="text-lg text-gray-600">あなたの情報を管理しましょう</p>
+          <h1 className="text-4xl font-bold text-gray-800 mb-4">{t('profile.title')}</h1>
+          <p className="text-lg text-gray-600">{t('profile.subtitle')}</p>
           
           {/* Save Message */}
           {saveMessage && (
             <motion.div
               className={`mt-4 p-4 rounded-xl ${
-                saveMessage.includes('正常に保存') 
+                saveMessage === t('profile.messages.saveSuccess')
                   ? 'bg-green-100 text-green-700 border border-green-200' 
                   : 'bg-red-100 text-red-700 border border-red-200'
               }`}
@@ -188,7 +188,7 @@ const ProfileSettings: React.FC = () => {
                 <div className="mb-4">
                   <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-purple-100 to-pink-100 border border-purple-200 rounded-full px-4 py-2">
                     <Crown className="w-4 h-4 text-purple-600" />
-                    <span className="text-sm font-medium text-purple-800">プレミアム会員</span>
+                    <span className="text-sm font-medium text-purple-800">{t('profile.premiumBadge')}</span>
                     <Star className="w-4 h-4 text-yellow-500" />
                   </div>
                 </div>
@@ -197,7 +197,7 @@ const ProfileSettings: React.FC = () => {
                 onClick={() => setIsEditing(!isEditing)}
                 className="px-6 py-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors"
               >
-                {isEditing ? 'キャンセル' : '編集'}
+                {isEditing ? t('profile.actions.cancel') : t('profile.actions.edit')}
               </button>
             </div>
           </motion.div>
@@ -210,13 +210,13 @@ const ProfileSettings: React.FC = () => {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
             >
-              <h3 className="text-xl font-bold text-gray-800 mb-6">基本情報</h3>
+              <h3 className="text-xl font-bold text-gray-800 mb-6">{t('profile.sections.basicInfo')}</h3>
               
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     <User className="w-4 h-4 inline mr-2" />
-                    お名前
+                    {t('profile.fields.name')}
                   </label>
                   <input
                     type="text"
@@ -230,7 +230,7 @@ const ProfileSettings: React.FC = () => {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     <Mail className="w-4 h-4 inline mr-2" />
-                    メールアドレス
+                    {t('profile.fields.email')}
                   </label>
                   <input
                     type="email"
@@ -244,7 +244,7 @@ const ProfileSettings: React.FC = () => {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     <Phone className="w-4 h-4 inline mr-2" />
-                    電話番号
+                    {t('profile.fields.phone')}
                   </label>
                   <input
                     type="tel"
@@ -258,7 +258,7 @@ const ProfileSettings: React.FC = () => {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     <MapPin className="w-4 h-4 inline mr-2" />
-                    居住地
+                    {t('profile.fields.location')}
                   </label>
                   <input
                     type="text"
@@ -272,7 +272,7 @@ const ProfileSettings: React.FC = () => {
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     <Calendar className="w-4 h-4 inline mr-2" />
-                    生年月日
+                    {t('profile.fields.birthDate')}
                   </label>
                   <input
                     type="date"
@@ -285,7 +285,7 @@ const ProfileSettings: React.FC = () => {
 
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    自己紹介
+                    {t('profile.fields.bio')}
                   </label>
                   <textarea
                     value={profileData.bio}
@@ -293,7 +293,7 @@ const ProfileSettings: React.FC = () => {
                     disabled={!isEditing}
                     rows={4}
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:bg-gray-50 resize-none"
-                    placeholder="あなたについて教えてください..."
+                    placeholder={t('profile.fields.bioPlaceholder')}
                   />
                 </div>
               </div>
@@ -306,7 +306,7 @@ const ProfileSettings: React.FC = () => {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5, delay: 0.3 }}
             >
-              <h3 className="text-xl font-bold text-gray-800 mb-6">設定</h3>
+              <h3 className="text-xl font-bold text-gray-800 mb-6">{t('profile.sections.settings')}</h3>
               
               <div className="space-y-4">
                 <label className="flex items-center space-x-3">
@@ -320,7 +320,7 @@ const ProfileSettings: React.FC = () => {
                     disabled={!isEditing}
                     className="w-5 h-5 text-purple-600 rounded focus:ring-purple-500"
                   />
-                  <span className="text-gray-700">ニュースレターを受信する</span>
+                  <span className="text-gray-700">{t('profile.preferences.newsletter')}</span>
                 </label>
 
                 <label className="flex items-center space-x-3">
@@ -334,7 +334,7 @@ const ProfileSettings: React.FC = () => {
                     disabled={!isEditing}
                     className="w-5 h-5 text-purple-600 rounded focus:ring-purple-500"
                   />
-                  <span className="text-gray-700">プッシュ通知を受信する</span>
+                  <span className="text-gray-700">{t('profile.preferences.notifications')}</span>
                 </label>
 
                 <label className="flex items-center space-x-3">
@@ -348,7 +348,7 @@ const ProfileSettings: React.FC = () => {
                     disabled={!isEditing}
                     className="w-5 h-5 text-purple-600 rounded focus:ring-purple-500"
                   />
-                  <span className="text-gray-700">マーケティングメールを受信する</span>
+                  <span className="text-gray-700">{t('profile.preferences.marketing')}</span>
                 </label>
               </div>
             </motion.div>
@@ -369,18 +369,18 @@ const ProfileSettings: React.FC = () => {
                   {isSaving ? (
                     <>
                       <Loader className="w-5 h-5 animate-spin" />
-                      <span>保存中...</span>
+                      <span>{t('profile.actions.saving')}</span>
                     </>
                   ) : (
                     <>
                       <Save className="w-5 h-5" />
-                      <span>保存</span>
+                      <span>{t('profile.actions.save')}</span>
                     </>
                   )}
                 </button>
                 <button className="flex items-center justify-center space-x-2 bg-red-100 text-red-700 px-6 py-3 rounded-xl hover:bg-red-200 transition-colors">
                   <Trash2 className="w-5 h-5" />
-                  <span>アカウント削除</span>
+                  <span>{t('profile.actions.deleteAccount')}</span>
                 </button>
               </motion.div>
             )}

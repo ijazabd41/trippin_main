@@ -907,7 +907,139 @@ export const th = {
       "downloadFailed": "การดาวน์โหลดล้มเหลว โปรดลองอีกครั้ง"
     },
     "loadErrorTitle": "โหลดแผนไม่สำเร็จ",
-    "loadErrorDescription": "ไม่พบแผนที่สร้างขึ้น กรุณาตอบคำถามอีกครั้ง."
+    "loadErrorDescription": "ไม่พบแผนที่สร้างขึ้น กรุณาตอบคำถามอีกครั้ง.",
+    "errors": {
+      "noTripData": "ไม่พบข้อมูลการเดินทาง กรุณาเริ่มใหม่",
+      "planGenerationFailed": "การสร้างแผนล้มเหลว",
+      "planGenerationError": "เกิดข้อผิดพลาดขณะสร้างแผน",
+      "aiUnavailable": "การประมวลผล AI ไม่พร้อมใช้งาน กำลังแสดงแผนพื้นฐาน",
+      "planNotFound": "ไม่พบแผน",
+      "planDataNotLoaded": "ไม่สามารถโหลดข้อมูลแผนได้อย่างถูกต้อง"
+    },
+    "activities": {
+      "arrival": "มาถึง {{destination}}",
+      "arrivalDescription": "มาถึงและเช็คอินที่พัก",
+      "checkInHotel": "เช็คอินโรงแรม",
+      "checkInDescription": "เช็คอินที่พักของคุณ",
+      "localLunch": "อาหารกลางวันท้องถิ่น",
+      "localLunchDescription": "ลองอาหารท้องถิ่น",
+      "culturalSiteVisit": "เยี่ยมชมสถานที่ทางวัฒนธรรม",
+      "culturalSiteDescription": "สำรวจสถานที่ท่องเที่ยวทางประวัติศาสตร์และวัฒนธรรม",
+      "localFoodExperience": "ประสบการณ์อาหารท้องถิ่น",
+      "localFoodDescription": "ลองอาหารท้องถิ่นแท้",
+      "natureExploration": "สำรวจธรรมชาติ",
+      "natureDescription": "เยี่ยมชมสวนสาธารณะหรือสถานที่ท่องเที่ยวทางธรรมชาติ"
+    },
+    "tips": {
+      "getTransportPass": "รับบัตรขนส่งท้องถิ่น",
+      "bookInAdvance": "จองล่วงหน้าสำหรับราคาที่ดีกว่า",
+      "storeLuggage": "เก็บกระเป๋าถ้าเช็คอินเร็วไม่พร้อม",
+      "askLocals": "ถามคนท้องถิ่นเพื่อคำแนะนำ",
+      "arriveEarly": "มาถึงเร็วเพื่อหลีกเลี่ยงฝูงชน",
+      "tryStreetFood": "ลองอาหารริมทางเพื่อประสบการณ์แท้",
+      "comfortableShoes": "นำรองเท้าเดินที่สบาย"
+    },
+    "themes": {
+      "arrival": "มาถึงและการปฐมนิเทศ",
+      "cultural": "สำรวจวัฒนธรรม",
+      "local": "ประสบการณ์ท้องถิ่น",
+      "adventure": "การผจญภัยและการค้นพบ",
+      "relaxation": "การผ่อนคลายและการไตร่ตรอง",
+      "sightseeing": "ท่องเที่ยว"
+    },
+    "recommendations": {
+      "localMarket": "ตลาดท้องถิ่น",
+      "localCuisine": "ท้องถิ่น",
+      "traditionalRestaurant": "ร้านอาหารแบบดั้งเดิม",
+      "traditionalCuisine": "แบบดั้งเดิม",
+      "freshIngredients": "วัตถุดิบท้องถิ่นสดใหม่และรสชาติแท้",
+      "authenticCuisine": "อาหารท้องถิ่นแท้ในบรรยากาศแบบดั้งเดิม",
+      "historicTemple": "วัดประวัติศาสตร์",
+      "culturalType": "วัฒนธรรม",
+      "museum": "พิพิธภัณฑ์",
+      "museumDescription": "ประวัติศาสตร์และวัฒนธรรมท้องถิ่น",
+      "localPass": "บัตรท้องถิ่น",
+      "unlimitedTransport": "ขนส่งท้องถิ่นไม่จำกัด",
+      "buyAtStation": "ซื้อที่สถานีหรือออนไลน์"
+    },
+    "practicalInfo": {
+      "weatherCheck": "ตรวจสอบพยากรณ์อากาศท้องถิ่นก่อนเดินทาง",
+      "packingItems": {
+        "clothes": "เสื้อผ้า",
+        "passport": "หนังสือเดินทาง",
+        "camera": "กล้อง",
+        "charger": "ที่ชาร์จ",
+        "comfortableShoes": "รองเท้าที่สบาย"
+      },
+      "customs": {
+        "respectTraditions": "เคารพประเพณีท้องถิ่น",
+        "learnPhrases": "เรียนรู้วลีพื้นฐาน",
+        "followEtiquette": "ปฏิบัติตามมารยาทท้องถิ่น"
+      },
+      "emergencyContacts": {
+        "police": "ตำรวจ: 110",
+        "ambulance": "รถพยาบาล: 119",
+        "helpline": "สายด่วนท่องเที่ยว"
+      },
+      "phrases": {
+        "hello": "สวัสดี",
+        "thankYou": "ขอบคุณ",
+        "excuseMe": "ขอโทษ",
+        "whereIs": "...อยู่ที่ไหน?",
+        "howMuch": "เท่าไหร่?"
+      }
+    },
+    "download": {
+      "header": "========================================",
+      "destination": "จุดหมายปลายทาง: {{destination}}",
+      "duration": "ระยะเวลา: {{duration}} วัน",
+      "budget": "งบประมาณ: {{currency}} {{amount}}",
+      "budgetBreakdown": "รายละเอียดงบประมาณ:",
+      "itinerary": "กำหนดการ:",
+      "dayHeader": "วัน {{day}} - {{theme}}",
+      "date": "วันที่: {{date}}",
+      "location": "สถานที่: {{location}}",
+      "description": "คำอธิบาย: {{description}}",
+      "durationMinutes": "ระยะเวลา: {{duration}} นาที",
+      "cost": "ค่าใช้จ่าย: {{currency}} {{amount}}",
+      "tips": "เคล็ดลับ: {{tips}}",
+      "recommendations": "คำแนะนำ:",
+      "rating": "คะแนน: {{rating}}",
+      "practicalInfo": "ข้อมูลที่เป็นประโยชน์:",
+      "weather": "สภาพอากาศ: {{weather}}",
+      "packingList": "รายการของที่ต้องนำ:",
+      "localCustoms": "ขนบธรรมเนียมท้องถิ่น:",
+      "emergencyContacts": "ติดต่อฉุกเฉิน:",
+      "usefulPhrases": "วลีที่เป็นประโยชน์:",
+      "footer": "แผนนี้ถูกสร้างเมื่อ {{date}}",
+      "footerTagline": "Trippin - พาร์ทเนอร์การเดินทางของคุณ"
+    },
+    "display": {
+      "tabs": {
+        "itinerary": "กำหนดการ",
+        "recommendations": "คำแนะนำ",
+        "practical": "ข้อมูลที่เป็นประโยชน์"
+      },
+      "sections": {
+        "recommendedRestaurants": "ร้านอาหารแนะนำ",
+        "attractions": "สถานที่ท่องเที่ยว",
+        "transportation": "การขนส่ง",
+        "weatherInfo": "ข้อมูลสภาพอากาศ",
+        "packingList": "รายการของที่ต้องนำ",
+        "localCustoms": "ขนบธรรมเนียมท้องถิ่น",
+        "emergencyContacts": "ติดต่อฉุกเฉิน",
+        "usefulPhrases": "วลีที่เป็นประโยชน์"
+      },
+      "dayPrefix": "วัน {{day}}",
+      "days": "วัน",
+      "savePlan": "บันทึกแผน",
+      "downloadPlan": "ดาวน์โหลดแผน",
+      "location": "สถานที่",
+      "time": "เวลา",
+      "cost": "ค่าใช้จ่าย",
+      "duration": "ระยะเวลา",
+      "minutes": "นาที"
+    }
   },
   "tripDetail": {
     "editPlan": "แก้ไขแผน",
@@ -1938,5 +2070,44 @@ export const th = {
     "imageProcessingError": "เกิดข้อผิดพลาดระหว่างการประมวลผลภาพ",
     "imageProcessingFailed": "การประมวลผลภาพล้มเหลว โปรดตรวจสอบการเชื่อมต่อเครือข่ายของคุณ",
     "dismiss": "ปิด"
+  },
+  "profile": {
+    "title": "การตั้งค่าโปรไฟล์",
+    "subtitle": "จัดการข้อมูลของคุณ",
+    "premiumBadge": "สมาชิกพรีเมียม",
+    "sections": {
+      "basicInfo": "ข้อมูลพื้นฐาน",
+      "settings": "การตั้งค่า"
+    },
+    "fields": {
+      "name": "ชื่อ",
+      "email": "ที่อยู่อีเมล",
+      "phone": "หมายเลขโทรศัพท์",
+      "location": "ที่อยู่",
+      "birthDate": "วันเกิด",
+      "bio": "แนะนำตัว",
+      "bioPlaceholder": "บอกเราเกี่ยวกับตัวคุณ..."
+    },
+    "preferences": {
+      "newsletter": "รับจดหมายข่าว",
+      "notifications": "รับการแจ้งเตือนแบบพุช",
+      "marketing": "รับอีเมลการตลาด"
+    },
+    "actions": {
+      "edit": "แก้ไข",
+      "cancel": "ยกเลิก",
+      "save": "บันทึก",
+      "saving": "กำลังบันทึก...",
+      "deleteAccount": "ลบบัญชี"
+    },
+    "messages": {
+      "saveSuccess": "บันทึกโปรไฟล์สำเร็จ"
+    },
+    "errors": {
+      "notLoggedIn": "ผู้ใช้ไม่ได้เข้าสู่ระบบ",
+      "noAuthToken": "ไม่พบโทเค็นการรับรองความถูกต้อง กรุณาเข้าสู่ระบบอีกครั้ง",
+      "saveFailed": "บันทึกโปรไฟล์ล้มเหลว",
+      "saveFailedRetry": "บันทึกโปรไฟล์ล้มเหลว กรุณาลองอีกครั้ง"
+    }
   }
 };

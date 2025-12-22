@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import { GeneratedPlan } from '../services/PlanGenerationService';
 import { formatCurrency } from '../utils/currencyFormatter';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface GeneratedPlanDisplayProps {
   plan: GeneratedPlan;
@@ -36,6 +37,8 @@ const GeneratedPlanDisplay: React.FC<GeneratedPlanDisplayProps> = ({
   onSave, 
   onDownload 
 }) => {
+  const { t } = useLanguage();
+  
   // Add null checks and default values
   if (!plan) {
     return (
@@ -44,8 +47,8 @@ const GeneratedPlanDisplay: React.FC<GeneratedPlanDisplayProps> = ({
           <div className="text-red-500 mb-4">
             <AlertCircle className="w-16 h-16 mx-auto" />
           </div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">プランが見つかりません</h2>
-          <p className="text-gray-600">プランデータが正しく読み込まれませんでした。</p>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">{t('planGeneration.errors.planNotFound')}</h2>
+          <p className="text-gray-600">{t('planGeneration.errors.planDataNotLoaded')}</p>
         </div>
       </div>
     );
@@ -93,7 +96,7 @@ const GeneratedPlanDisplay: React.FC<GeneratedPlanDisplayProps> = ({
               </div>
               <div className="flex items-center space-x-2">
                 <Calendar className="w-5 h-5" />
-                <span>{plan.duration}日間</span>
+                <span>{plan.duration}{t('planGeneration.display.days')}</span>
               </div>
               <div className="flex items-center space-x-2">
                 <DollarSign className="w-5 h-5" />
@@ -108,7 +111,7 @@ const GeneratedPlanDisplay: React.FC<GeneratedPlanDisplayProps> = ({
               className="px-6 py-3 bg-white/20 backdrop-blur-sm rounded-xl hover:bg-white/30 transition-all"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              title="Save Plan"
+              title={t('planGeneration.display.savePlan')}
             >
               <Heart className="w-5 h-5" />
             </motion.button>
@@ -117,7 +120,7 @@ const GeneratedPlanDisplay: React.FC<GeneratedPlanDisplayProps> = ({
               className="px-6 py-3 bg-white/20 backdrop-blur-sm rounded-xl hover:bg-white/30 transition-all"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              title="Download Plan"
+              title={t('planGeneration.display.downloadPlan')}
             >
               <Download className="w-5 h-5" />
             </motion.button>
@@ -140,9 +143,9 @@ const GeneratedPlanDisplay: React.FC<GeneratedPlanDisplayProps> = ({
       {/* Navigation Tabs */}
       <div className="flex space-x-2 bg-gray-100 rounded-2xl p-2">
         {[
-          { id: 'itinerary', label: '日程', icon: Calendar },
-          { id: 'recommendations', label: 'おすすめ', icon: Star },
-          { id: 'practical', label: '実用情報', icon: Info }
+          { id: 'itinerary', label: t('planGeneration.display.tabs.itinerary'), icon: Calendar },
+          { id: 'recommendations', label: t('planGeneration.display.tabs.recommendations'), icon: Star },
+          { id: 'practical', label: t('planGeneration.display.tabs.practical'), icon: Info }
         ].map(({ id, label, icon: Icon }) => (
           <button
             key={id}
@@ -185,7 +188,7 @@ const GeneratedPlanDisplay: React.FC<GeneratedPlanDisplayProps> = ({
                   <div className="flex items-center justify-between">
                     <div>
                       <h3 className="text-2xl font-bold text-gray-800">
-                        第{day.day}日 - {day.theme}
+                        {t('planGeneration.display.dayPrefix', { day: day.day })} - {day.theme}
                       </h3>
                       <p className="text-gray-600 mt-1">{day.date}</p>
                     </div>
@@ -239,8 +242,8 @@ const GeneratedPlanDisplay: React.FC<GeneratedPlanDisplayProps> = ({
                                   <span>{activity.location}</span>
                                 </span>
                                 <span className="flex items-center space-x-1">
-                                  <Clock className="w-4 h-4" />
-                                  <span>{activity.duration}分</span>
+                                    <Clock className="w-4 h-4" />
+                                    <span>{activity.duration}{t('planGeneration.display.minutes')}</span>
                                 </span>
                               </div>
                               {activity.tips && (
@@ -278,7 +281,7 @@ const GeneratedPlanDisplay: React.FC<GeneratedPlanDisplayProps> = ({
             <div className="bg-white rounded-2xl shadow-lg p-6">
               <h3 className="text-2xl font-bold text-gray-800 mb-6 flex items-center space-x-2">
                 <Utensils className="w-6 h-6 text-red-500" />
-                <span>おすすめレストラン</span>
+                <span>{t('planGeneration.display.sections.recommendedRestaurants')}</span>
               </h3>
               <div className="grid md:grid-cols-2 gap-4">
                 {plan.recommendations?.restaurants?.map((restaurant, index) => (
@@ -302,7 +305,7 @@ const GeneratedPlanDisplay: React.FC<GeneratedPlanDisplayProps> = ({
             <div className="bg-white rounded-2xl shadow-lg p-6">
               <h3 className="text-2xl font-bold text-gray-800 mb-6 flex items-center space-x-2">
                 <Camera className="w-6 h-6 text-green-500" />
-                <span>観光スポット</span>
+                <span>{t('planGeneration.display.sections.attractions')}</span>
               </h3>
               <div className="grid md:grid-cols-2 gap-4">
                 {plan.recommendations?.attractions?.map((attraction, index) => (
@@ -329,7 +332,7 @@ const GeneratedPlanDisplay: React.FC<GeneratedPlanDisplayProps> = ({
             <div className="bg-white rounded-2xl shadow-lg p-6">
               <h3 className="text-2xl font-bold text-gray-800 mb-6 flex items-center space-x-2">
                 <Navigation className="w-6 h-6 text-blue-500" />
-                <span>交通手段</span>
+                <span>{t('planGeneration.display.sections.transportation')}</span>
               </h3>
               <div className="space-y-4">
                 {plan.recommendations?.transportation?.map((transport, index) => (
@@ -364,20 +367,44 @@ const GeneratedPlanDisplay: React.FC<GeneratedPlanDisplayProps> = ({
             transition={{ duration: 0.3 }}
             className="space-y-6"
           >
+            {/* Transportation Info */}
+            {plan.practicalInfo?.transportation && (
+              <div className="bg-white rounded-2xl shadow-lg p-6">
+                <h3 className="text-2xl font-bold text-gray-800 mb-4 flex items-center space-x-2">
+                  <Navigation className="w-6 h-6 text-blue-500" />
+                  <span>{t('planGeneration.display.sections.transportation')}</span>
+                </h3>
+                <p className="text-gray-600">{plan.practicalInfo.transportation}</p>
+              </div>
+            )}
+
+            {/* Tips */}
+            {plan.practicalInfo?.tips && (
+              <div className="bg-white rounded-2xl shadow-lg p-6">
+                <h3 className="text-2xl font-bold text-gray-800 mb-4 flex items-center space-x-2">
+                  <Info className="w-6 h-6 text-yellow-500" />
+                  <span>{t('planGeneration.display.sections.tips')}</span>
+                </h3>
+                <p className="text-gray-600">{plan.practicalInfo.tips}</p>
+              </div>
+            )}
+
             {/* Weather */}
-            <div className="bg-white rounded-2xl shadow-lg p-6">
-              <h3 className="text-2xl font-bold text-gray-800 mb-4 flex items-center space-x-2">
-                <Info className="w-6 h-6 text-blue-500" />
-                <span>天候情報</span>
-              </h3>
-              <p className="text-gray-600">{plan.practicalInfo.weather}</p>
-            </div>
+            {plan.practicalInfo?.weather && (
+              <div className="bg-white rounded-2xl shadow-lg p-6">
+                <h3 className="text-2xl font-bold text-gray-800 mb-4 flex items-center space-x-2">
+                  <Info className="w-6 h-6 text-blue-500" />
+                  <span>{t('planGeneration.display.sections.weatherInfo')}</span>
+                </h3>
+                <p className="text-gray-600">{plan.practicalInfo.weather}</p>
+              </div>
+            )}
 
             {/* Packing List */}
             <div className="bg-white rounded-2xl shadow-lg p-6">
               <h3 className="text-2xl font-bold text-gray-800 mb-4 flex items-center space-x-2">
                 <ShoppingBag className="w-6 h-6 text-purple-500" />
-                <span>持参品リスト</span>
+                <span>{t('planGeneration.display.sections.packingList')}</span>
               </h3>
               <div className="grid md:grid-cols-2 gap-2">
                 {plan.practicalInfo.packingList.map((item, index) => (
@@ -399,7 +426,7 @@ const GeneratedPlanDisplay: React.FC<GeneratedPlanDisplayProps> = ({
             <div className="bg-white rounded-2xl shadow-lg p-6">
               <h3 className="text-2xl font-bold text-gray-800 mb-4 flex items-center space-x-2">
                 <Heart className="w-6 h-6 text-red-500" />
-                <span>現地のマナー</span>
+                <span>{t('planGeneration.display.sections.localCustoms')}</span>
               </h3>
               <div className="space-y-2">
                 {plan.practicalInfo?.localCustoms?.map((custom, index) => (
@@ -421,7 +448,7 @@ const GeneratedPlanDisplay: React.FC<GeneratedPlanDisplayProps> = ({
             <div className="bg-white rounded-2xl shadow-lg p-6">
               <h3 className="text-2xl font-bold text-gray-800 mb-4 flex items-center space-x-2">
                 <Phone className="w-6 h-6 text-red-500" />
-                <span>緊急連絡先</span>
+                <span>{t('planGeneration.display.sections.emergencyContacts')}</span>
               </h3>
               <div className="space-y-2">
                 {plan.practicalInfo?.emergencyContacts?.map((contact, index) => (
@@ -442,7 +469,7 @@ const GeneratedPlanDisplay: React.FC<GeneratedPlanDisplayProps> = ({
             <div className="bg-white rounded-2xl shadow-lg p-6">
               <h3 className="text-2xl font-bold text-gray-800 mb-4 flex items-center space-x-2">
                 <Wifi className="w-6 h-6 text-green-500" />
-                <span>便利なフレーズ</span>
+                <span>{t('planGeneration.display.sections.usefulPhrases')}</span>
               </h3>
               <div className="grid md:grid-cols-2 gap-4">
                 {plan.practicalInfo?.usefulPhrases?.map((phrase, index) => (

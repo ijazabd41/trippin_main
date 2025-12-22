@@ -907,7 +907,139 @@ export const es = {
       "downloadFailed": "La descarga falló. Por favor inténtalo de nuevo."
     },
     "loadErrorTitle": "No se pudo cargar el plan",
-    "loadErrorDescription": "Plan generado no encontrado. Por favor responda la pregunta nuevamente."
+    "loadErrorDescription": "Plan generado no encontrado. Por favor responda la pregunta nuevamente.",
+    "errors": {
+      "noTripData": "No se encontraron datos del viaje. Por favor, comience de nuevo.",
+      "planGenerationFailed": "Error al generar el plan",
+      "planGenerationError": "Ocurrió un error al generar el plan.",
+      "aiUnavailable": "El procesamiento de IA no está disponible. Mostrando plan básico.",
+      "planNotFound": "Plan no encontrado",
+      "planDataNotLoaded": "Los datos del plan no se pudieron cargar correctamente."
+    },
+    "activities": {
+      "arrival": "Llegada a {{destination}}",
+      "arrivalDescription": "Llegar y registrarse en el alojamiento",
+      "checkInHotel": "Registrarse en el hotel",
+      "checkInDescription": "Registrarse en su alojamiento",
+      "localLunch": "Almuerzo local",
+      "localLunchDescription": "Probar la cocina local",
+      "culturalSiteVisit": "Visita a sitio cultural",
+      "culturalSiteDescription": "Explorar atracciones históricas y culturales",
+      "localFoodExperience": "Experiencia gastronómica local",
+      "localFoodDescription": "Probar platos locales auténticos",
+      "natureExploration": "Exploración de la naturaleza",
+      "natureDescription": "Visitar parques o atracciones naturales"
+    },
+    "tips": {
+      "getTransportPass": "Obtener pase de transporte local",
+      "bookInAdvance": "Reservar con anticipación para mejores precios",
+      "storeLuggage": "Almacenar equipaje si el check-in temprano no está disponible",
+      "askLocals": "Preguntar a los locales por recomendaciones",
+      "arriveEarly": "Llegar temprano para evitar multitudes",
+      "tryStreetFood": "Probar comida callejera para una experiencia auténtica",
+      "comfortableShoes": "Traer zapatos cómodos para caminar"
+    },
+    "themes": {
+      "arrival": "Llegada y orientación",
+      "cultural": "Exploración cultural",
+      "local": "Experiencias locales",
+      "adventure": "Aventura y descubrimiento",
+      "relaxation": "Relajación y reflexión",
+      "sightseeing": "Turismo"
+    },
+    "recommendations": {
+      "localMarket": "Mercado local",
+      "localCuisine": "Local",
+      "traditionalRestaurant": "Restaurante tradicional",
+      "traditionalCuisine": "Tradicional",
+      "freshIngredients": "Ingredientes locales frescos y sabores auténticos",
+      "authenticCuisine": "Cocina local auténtica en un ambiente tradicional",
+      "historicTemple": "Templo histórico",
+      "culturalType": "Cultural",
+      "museum": "Museo",
+      "museumDescription": "Historia y cultura local",
+      "localPass": "Pase local",
+      "unlimitedTransport": "Transporte local ilimitado",
+      "buyAtStation": "Comprar en la estación o en línea"
+    },
+    "practicalInfo": {
+      "weatherCheck": "Verificar el pronóstico del tiempo local antes de viajar",
+      "packingItems": {
+        "clothes": "Ropa",
+        "passport": "Pasaporte",
+        "camera": "Cámara",
+        "charger": "Cargador",
+        "comfortableShoes": "Zapatos cómodos"
+      },
+      "customs": {
+        "respectTraditions": "Respetar las tradiciones locales",
+        "learnPhrases": "Aprender frases básicas",
+        "followEtiquette": "Seguir la etiqueta local"
+      },
+      "emergencyContacts": {
+        "police": "Policía: 110",
+        "ambulance": "Ambulancia: 119",
+        "helpline": "Línea de ayuda turística"
+      },
+      "phrases": {
+        "hello": "Hola",
+        "thankYou": "Gracias",
+        "excuseMe": "Disculpe",
+        "whereIs": "¿Dónde está...?",
+        "howMuch": "¿Cuánto cuesta?"
+      }
+    },
+    "download": {
+      "header": "========================================",
+      "destination": "Destino: {{destination}}",
+      "duration": "Duración: {{duration}} días",
+      "budget": "Presupuesto: {{currency}} {{amount}}",
+      "budgetBreakdown": "Desglose del presupuesto:",
+      "itinerary": "Itinerario:",
+      "dayHeader": "Día {{day}} - {{theme}}",
+      "date": "Fecha: {{date}}",
+      "location": "Ubicación: {{location}}",
+      "description": "Descripción: {{description}}",
+      "durationMinutes": "Duración: {{duration}} minutos",
+      "cost": "Costo: {{currency}} {{amount}}",
+      "tips": "Consejos: {{tips}}",
+      "recommendations": "Recomendaciones:",
+      "rating": "Calificación: {{rating}}",
+      "practicalInfo": "Información práctica:",
+      "weather": "Clima: {{weather}}",
+      "packingList": "Lista de equipaje:",
+      "localCustoms": "Costumbres locales:",
+      "emergencyContacts": "Contactos de emergencia:",
+      "usefulPhrases": "Frases útiles:",
+      "footer": "Este plan fue generado el {{date}}.",
+      "footerTagline": "Trippin - Tu compañero de viaje"
+    },
+    "display": {
+      "tabs": {
+        "itinerary": "Itinerario",
+        "recommendations": "Recomendaciones",
+        "practical": "Información práctica"
+      },
+      "sections": {
+        "recommendedRestaurants": "Restaurantes recomendados",
+        "attractions": "Atracciones",
+        "transportation": "Transporte",
+        "weatherInfo": "Información del clima",
+        "packingList": "Lista de equipaje",
+        "localCustoms": "Costumbres locales",
+        "emergencyContacts": "Contactos de emergencia",
+        "usefulPhrases": "Frases útiles"
+      },
+      "dayPrefix": "Día {{day}}",
+      "days": "días",
+      "savePlan": "Guardar plan",
+      "downloadPlan": "Descargar plan",
+      "location": "Ubicación",
+      "time": "Tiempo",
+      "cost": "Costo",
+      "duration": "Duración",
+      "minutes": "minutos"
+    }
   },
   "tripDetail": {
     "editPlan": "Editar plan",
@@ -1938,5 +2070,44 @@ export const es = {
     "imageProcessingError": "Se produjo un error durante el procesamiento de la imagen.",
     "imageProcessingFailed": "Error en el procesamiento de imágenes. Por favor verifique su conexión de red.",
     "dismiss": "cerca"
+  },
+  "profile": {
+    "title": "Configuración de perfil",
+    "subtitle": "Administra tu información",
+    "premiumBadge": "Miembro Premium",
+    "sections": {
+      "basicInfo": "Información básica",
+      "settings": "Configuración"
+    },
+    "fields": {
+      "name": "Nombre",
+      "email": "Dirección de correo electrónico",
+      "phone": "Número de teléfono",
+      "location": "Ubicación",
+      "birthDate": "Fecha de nacimiento",
+      "bio": "Biografía",
+      "bioPlaceholder": "Cuéntanos sobre ti..."
+    },
+    "preferences": {
+      "newsletter": "Recibir boletín",
+      "notifications": "Recibir notificaciones push",
+      "marketing": "Recibir correos de marketing"
+    },
+    "actions": {
+      "edit": "Editar",
+      "cancel": "Cancelar",
+      "save": "Guardar",
+      "saving": "Guardando...",
+      "deleteAccount": "Eliminar cuenta"
+    },
+    "messages": {
+      "saveSuccess": "Perfil guardado exitosamente"
+    },
+    "errors": {
+      "notLoggedIn": "El usuario no ha iniciado sesión",
+      "noAuthToken": "Token de autenticación no encontrado. Por favor, inicie sesión nuevamente.",
+      "saveFailed": "Error al guardar el perfil",
+      "saveFailedRetry": "Error al guardar el perfil. Por favor, inténtelo de nuevo."
+    }
   }
 };

@@ -55,12 +55,22 @@ const authenticateToken = async (req: Request): Promise<{ user: any; error: any 
   }
 
   try {
-    // Use admin client to verify JWT token (more reliable)
-    const supabaseAdmin = getSupabaseAdmin();
-    const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
+    // Create a client with the token in the Authorization header
+    // This is the correct way to authenticate in Supabase edge functions
+    const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
+    
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      global: {
+        headers: { Authorization: authHeader ?? "" },
+      },
+    });
+    
+    // Get user using the client (it will use the Authorization header)
+    const { data: { user }, error } = await supabase.auth.getUser();
 
     if (error) {
-      console.error("❌ Token validation error:", error.message);
+      console.error("❌ Token validation error:", error.message, error.status);
       return { user: null, error: { message: error.message || "Invalid or expired token", code: "UNAUTHORIZED" } };
     }
 
@@ -1210,6 +1220,10 @@ router.add("POST", "/api/openai/generate", async (req) => {
     const interests = Array.isArray(tripData.interests) ? tripData.interests.join(", ") : tripData.interests || "general travel";
     const dietaryRestrictions = Array.isArray(tripData.dietaryRestrictions) ? tripData.dietaryRestrictions.join(", ") : tripData.dietaryRestrictions || "none";
 
+    // Calculate start date for itinerary
+    const startDate = tripData.startDate || new Date().toISOString().split('T')[0];
+    const startDateObj = new Date(startDate);
+    
     const prompt = `Create a COMPLETE travel itinerary for ${tripData.destination || "a destination"} for ${duration} days with a budget of ${tripData.budget || 100000} ${tripData.currency || "JPY"}.
 
 Travelers: ${tripData.travelers || 1}
@@ -1217,6 +1231,8 @@ Interests: ${interests}
 Dietary restrictions: ${dietaryRestrictions}
 Accommodation type: ${tripData.accommodationType || "mid-range"}
 Transportation type: ${tripData.transportationType || "public"}
+
+CRITICAL REQUIREMENT: The itinerary array MUST contain exactly ${duration} days. You MUST include ALL days from day 1 to day ${duration}. Each day should have a unique theme and multiple activities throughout the day.
 
 You MUST return a valid JSON object with this EXACT structure (include ALL fields - recommendations and practicalInformation are REQUIRED):
 
@@ -1238,8 +1254,8 @@ You MUST return a valid JSON object with this EXACT structure (include ALL field
   "itinerary": [
     {
       "day": 1,
-      "date": "${tripData.startDate || new Date().toISOString().split('T')[0]}",
-      "theme": "Day theme",
+      "date": "${startDate}",
+      "theme": "Day 1 theme",
       "activities": [
         {
           "time": "HH:MM",
@@ -1251,7 +1267,40 @@ You MUST return a valid JSON object with this EXACT structure (include ALL field
           "cost": 0
         }
       ]
-    }
+    },
+    {
+      "day": 2,
+      "date": "${new Date(startDateObj.getTime() + 24 * 60 * 60 * 1000).toISOString().split('T')[0]}",
+      "theme": "Day 2 theme",
+      "activities": [
+        {
+          "time": "HH:MM",
+          "title": "Activity title",
+          "description": "Activity description",
+          "location": "Location name",
+          "type": "activity type",
+          "duration": 120,
+          "cost": 0
+        }
+      ]
+    }${duration > 2 ? `,
+    {
+      "day": 3,
+      "date": "${new Date(startDateObj.getTime() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}",
+      "theme": "Day 3 theme",
+      "activities": [
+        {
+          "time": "HH:MM",
+          "title": "Activity title",
+          "description": "Activity description",
+          "location": "Location name",
+          "type": "activity type",
+          "duration": 120,
+          "cost": 0
+        }
+      ]
+    }` : ''}
+    ${duration > 3 ? `... (continue for ALL ${duration} days, incrementing the day number and date for each day) ...` : ''}
   ],
   "recommendations": {
     "restaurants": [
@@ -1306,12 +1355,12 @@ You MUST return a valid JSON object with this EXACT structure (include ALL field
       messages: [
         {
           role: "system",
-            content: "You are a travel planning assistant. Always respond with valid JSON only, no additional text or markdown formatting.",
+            content: `You are a travel planning assistant. Always respond with valid JSON only, no additional text or markdown formatting. CRITICAL: If the itinerary duration is ${duration} days, you MUST include exactly ${duration} days in the itinerary array, with days numbered from 1 to ${duration}.`,
         },
         { role: "user", content: prompt },
       ],
       temperature: 0.7,
-        max_tokens: 4000, // Increased from 3000 to allow for more complete responses
+        max_tokens: 6000, // Increased to allow for complete multi-day itineraries
       }),
     });
 
@@ -1376,6 +1425,54 @@ You MUST return a valid JSON object with this EXACT structure (include ALL field
           hasRecommendations: !!plan.recommendations,
           hasPracticalInfo: !!plan.practicalInfo
         });
+        
+        // Validate that all days are present
+        if (plan.itinerary && Array.isArray(plan.itinerary)) {
+          const expectedDays = duration;
+          const actualDays = plan.itinerary.length;
+          const daysPresent = plan.itinerary.map((d: any) => d.day).sort((a: number, b: number) => a - b);
+          
+          console.log("📅 Itinerary validation:", {
+            expectedDays,
+            actualDays,
+            daysPresent,
+            missingDays: Array.from({ length: expectedDays }, (_, i) => i + 1).filter(d => !daysPresent.includes(d))
+          });
+          
+          if (actualDays < expectedDays) {
+            console.warn(`⚠️ WARNING: Itinerary only has ${actualDays} days but ${expectedDays} days were requested!`);
+            console.warn("Missing days:", Array.from({ length: expectedDays }, (_, i) => i + 1).filter(d => !daysPresent.includes(d)));
+            
+            // Generate missing days
+            const missingDays = Array.from({ length: expectedDays }, (_, i) => i + 1)
+              .filter(d => !daysPresent.includes(d));
+            
+            missingDays.forEach((dayNum) => {
+              const dayDate = new Date(startDateObj.getTime() + (dayNum - 1) * 24 * 60 * 60 * 1000);
+              plan.itinerary.push({
+                day: dayNum,
+                date: dayDate.toISOString().split('T')[0],
+                theme: `Day ${dayNum} Activities`,
+                activities: [
+                  {
+                    time: "09:00",
+                    title: `Explore ${tripData.destination || "the destination"}`,
+                    description: `Continue your journey with more activities and experiences.`,
+                    location: tripData.destination || "Destination",
+                    type: "sightseeing",
+                    duration: 180,
+                    cost: 0
+                  }
+                ]
+              });
+            });
+            
+            // Sort itinerary by day number
+            plan.itinerary.sort((a: any, b: any) => a.day - b.day);
+            
+            console.log(`✅ Generated ${missingDays.length} missing day(s). Total days now: ${plan.itinerary.length}`);
+          }
+        }
       } catch (firstError) {
         // If first parse fails, try handling escaped sequences
         cleanedContent = cleanedContent.replace(/\\n/g, "\n").replace(/\\t/g, "\t").replace(/\\"/g, '"');

@@ -907,7 +907,139 @@ export const fr = {
       "downloadFailed": "Le téléchargement a échoué. Veuillez réessayer."
     },
     "loadErrorTitle": "Échec du chargement du plan",
-    "loadErrorDescription": "Plan généré introuvable. Veuillez répondre à nouveau à la question."
+    "loadErrorDescription": "Plan généré introuvable. Veuillez répondre à nouveau à la question.",
+    "errors": {
+      "noTripData": "Données de voyage introuvables. Veuillez recommencer.",
+      "planGenerationFailed": "Échec de la génération du plan",
+      "planGenerationError": "Une erreur s'est produite lors de la génération du plan.",
+      "aiUnavailable": "Le traitement IA n'est pas disponible. Affichage du plan de base.",
+      "planNotFound": "Plan introuvable",
+      "planDataNotLoaded": "Les données du plan n'ont pas pu être chargées correctement."
+    },
+    "activities": {
+      "arrival": "Arrivée à {{destination}}",
+      "arrivalDescription": "Arriver et s'enregistrer à l'hébergement",
+      "checkInHotel": "Enregistrement à l'hôtel",
+      "checkInDescription": "Enregistrement à votre hébergement",
+      "localLunch": "Déjeuner local",
+      "localLunchDescription": "Goûter la cuisine locale",
+      "culturalSiteVisit": "Visite de site culturel",
+      "culturalSiteDescription": "Explorer les attractions historiques et culturelles",
+      "localFoodExperience": "Expérience gastronomique locale",
+      "localFoodDescription": "Goûter des plats locaux authentiques",
+      "natureExploration": "Exploration de la nature",
+      "natureDescription": "Visiter des parcs ou des attractions naturelles"
+    },
+    "tips": {
+      "getTransportPass": "Obtenir un passe de transport local",
+      "bookInAdvance": "Réserver à l'avance pour de meilleurs prix",
+      "storeLuggage": "Stocker les bagages si l'enregistrement anticipé n'est pas disponible",
+      "askLocals": "Demander aux locaux des recommandations",
+      "arriveEarly": "Arriver tôt pour éviter les foules",
+      "tryStreetFood": "Essayer la nourriture de rue pour une expérience authentique",
+      "comfortableShoes": "Apporter des chaussures confortables pour la marche"
+    },
+    "themes": {
+      "arrival": "Arrivée et orientation",
+      "cultural": "Exploration culturelle",
+      "local": "Expériences locales",
+      "adventure": "Aventure et découverte",
+      "relaxation": "Détente et réflexion",
+      "sightseeing": "Tourisme"
+    },
+    "recommendations": {
+      "localMarket": "Marché local",
+      "localCuisine": "Local",
+      "traditionalRestaurant": "Restaurant traditionnel",
+      "traditionalCuisine": "Traditionnel",
+      "freshIngredients": "Ingrédients locaux frais et saveurs authentiques",
+      "authenticCuisine": "Cuisine locale authentique dans un cadre traditionnel",
+      "historicTemple": "Temple historique",
+      "culturalType": "Culturel",
+      "museum": "Musée",
+      "museumDescription": "Histoire et culture locales",
+      "localPass": "Passe local",
+      "unlimitedTransport": "Transport local illimité",
+      "buyAtStation": "Acheter à la gare ou en ligne"
+    },
+    "practicalInfo": {
+      "weatherCheck": "Vérifier les prévisions météorologiques locales avant de voyager",
+      "packingItems": {
+        "clothes": "Vêtements",
+        "passport": "Passeport",
+        "camera": "Appareil photo",
+        "charger": "Chargeur",
+        "comfortableShoes": "Chaussures confortables"
+      },
+      "customs": {
+        "respectTraditions": "Respecter les traditions locales",
+        "learnPhrases": "Apprendre des phrases de base",
+        "followEtiquette": "Suivre l'étiquette locale"
+      },
+      "emergencyContacts": {
+        "police": "Police: 110",
+        "ambulance": "Ambulance: 119",
+        "helpline": "Ligne d'assistance touristique"
+      },
+      "phrases": {
+        "hello": "Bonjour",
+        "thankYou": "Merci",
+        "excuseMe": "Excusez-moi",
+        "whereIs": "Où se trouve...?",
+        "howMuch": "Combien ça coûte?"
+      }
+    },
+    "download": {
+      "header": "========================================",
+      "destination": "Destination: {{destination}}",
+      "duration": "Durée: {{duration}} jours",
+      "budget": "Budget: {{currency}} {{amount}}",
+      "budgetBreakdown": "Répartition du budget:",
+      "itinerary": "Itinéraire:",
+      "dayHeader": "Jour {{day}} - {{theme}}",
+      "date": "Date: {{date}}",
+      "location": "Emplacement: {{location}}",
+      "description": "Description: {{description}}",
+      "durationMinutes": "Durée: {{duration}} minutes",
+      "cost": "Coût: {{currency}} {{amount}}",
+      "tips": "Conseils: {{tips}}",
+      "recommendations": "Recommandations:",
+      "rating": "Note: {{rating}}",
+      "practicalInfo": "Informations pratiques:",
+      "weather": "Météo: {{weather}}",
+      "packingList": "Liste de bagages:",
+      "localCustoms": "Coutumes locales:",
+      "emergencyContacts": "Contacts d'urgence:",
+      "usefulPhrases": "Phrases utiles:",
+      "footer": "Ce plan a été généré le {{date}}.",
+      "footerTagline": "Trippin - Votre compagnon de voyage"
+    },
+    "display": {
+      "tabs": {
+        "itinerary": "Itinéraire",
+        "recommendations": "Recommandations",
+        "practical": "Informations pratiques"
+      },
+      "sections": {
+        "recommendedRestaurants": "Restaurantes recommandés",
+        "attractions": "Attractions",
+        "transportation": "Transport",
+        "weatherInfo": "Informations météorologiques",
+        "packingList": "Liste de bagages",
+        "localCustoms": "Coutumes locales",
+        "emergencyContacts": "Contacts d'urgence",
+        "usefulPhrases": "Phrases utiles"
+      },
+      "dayPrefix": "Jour {{day}}",
+      "days": "jours",
+      "savePlan": "Enregistrer le plan",
+      "downloadPlan": "Télécharger le plan",
+      "location": "Emplacement",
+      "time": "Heure",
+      "cost": "Coût",
+      "duration": "Durée",
+      "minutes": "minutes"
+    }
   },
   "tripDetail": {
     "editPlan": "Modifier le forfait",
@@ -1938,5 +2070,44 @@ export const fr = {
     "imageProcessingError": "Une erreur s'est produite lors du traitement de l'image.",
     "imageProcessingFailed": "Le traitement de l'image a échoué. Veuillez vérifier votre connexion réseau.",
     "dismiss": "fermer"
+  },
+  "profile": {
+    "title": "Paramètres du profil",
+    "subtitle": "Gérez vos informations",
+    "premiumBadge": "Membre Premium",
+    "sections": {
+      "basicInfo": "Informations de base",
+      "settings": "Paramètres"
+    },
+    "fields": {
+      "name": "Nom",
+      "email": "Adresse e-mail",
+      "phone": "Numéro de téléphone",
+      "location": "Localisation",
+      "birthDate": "Date de naissance",
+      "bio": "Biographie",
+      "bioPlaceholder": "Parlez-nous de vous..."
+    },
+    "preferences": {
+      "newsletter": "Recevoir la newsletter",
+      "notifications": "Recevoir les notifications push",
+      "marketing": "Recevoir les e-mails marketing"
+    },
+    "actions": {
+      "edit": "Modifier",
+      "cancel": "Annuler",
+      "save": "Enregistrer",
+      "saving": "Enregistrement...",
+      "deleteAccount": "Supprimer le compte"
+    },
+    "messages": {
+      "saveSuccess": "Profil enregistré avec succès"
+    },
+    "errors": {
+      "notLoggedIn": "L'utilisateur n'est pas connecté",
+      "noAuthToken": "Token d'authentification introuvable. Veuillez vous reconnecter.",
+      "saveFailed": "Échec de l'enregistrement du profil",
+      "saveFailedRetry": "Échec de l'enregistrement du profil. Veuillez réessayer."
+    }
   }
 };

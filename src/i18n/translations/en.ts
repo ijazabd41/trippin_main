@@ -907,7 +907,140 @@ export const en = {
       "downloadFailed": "Download failed. "
     },
     "loadErrorTitle": "Failed to load plan",
-    "loadErrorDescription": "Generated plan not found. "
+    "loadErrorDescription": "Generated plan not found. ",
+    "errors": {
+      "noTripData": "Trip data not found. Please start over.",
+      "planGenerationFailed": "Plan generation failed",
+      "planGenerationError": "An error occurred while generating the plan.",
+      "aiUnavailable": "AI processing is unavailable. Displaying basic plan.",
+      "planNotFound": "Plan not found",
+      "planDataNotLoaded": "Plan data could not be loaded correctly."
+    },
+    "activities": {
+      "arrival": "Arrival at {{destination}}",
+      "arrivalDescription": "Arrive and check into accommodation",
+      "checkInHotel": "Check into Hotel",
+      "checkInDescription": "Check into your accommodation",
+      "localLunch": "Local Lunch",
+      "localLunchDescription": "Try local cuisine",
+      "culturalSiteVisit": "Cultural Site Visit",
+      "culturalSiteDescription": "Explore historical and cultural attractions",
+      "localFoodExperience": "Local Food Experience",
+      "localFoodDescription": "Try authentic local dishes",
+      "natureExploration": "Nature Exploration",
+      "natureDescription": "Visit parks or natural attractions"
+    },
+    "tips": {
+      "getTransportPass": "Get local transportation pass",
+      "bookInAdvance": "Book in advance for better prices",
+      "storeLuggage": "Store luggage if early check-in not available",
+      "askLocals": "Ask locals for recommendations",
+      "arriveEarly": "Arrive early to avoid crowds",
+      "tryStreetFood": "Try street food for authentic experience",
+      "comfortableShoes": "Bring comfortable walking shoes"
+    },
+    "themes": {
+      "arrival": "Arrival and Orientation",
+      "cultural": "Cultural Exploration",
+      "local": "Local Experiences",
+      "adventure": "Adventure and Discovery",
+      "relaxation": "Relaxation and Reflection",
+      "sightseeing": "Sightseeing"
+    },
+    "recommendations": {
+      "localMarket": "Local Market",
+      "localCuisine": "Local",
+      "traditionalRestaurant": "Traditional Restaurant",
+      "traditionalCuisine": "Traditional",
+      "freshIngredients": "Fresh local ingredients and authentic flavors",
+      "authenticCuisine": "Authentic local cuisine in traditional setting",
+      "historicTemple": "Historic Temple",
+      "culturalType": "Cultural",
+      "museum": "Museum",
+      "museumDescription": "Local history and culture",
+      "localPass": "Local Pass",
+      "unlimitedTransport": "Unlimited local transportation",
+      "buyAtStation": "Buy at station or online"
+    },
+    "practicalInfo": {
+      "weatherCheck": "Check local weather forecast before traveling",
+      "packingItems": {
+        "clothes": "Clothes",
+        "passport": "Passport",
+        "camera": "Camera",
+        "charger": "Charger",
+        "comfortableShoes": "Comfortable shoes"
+      },
+      "customs": {
+        "respectTraditions": "Respect local traditions",
+        "learnPhrases": "Learn basic phrases",
+        "followEtiquette": "Follow local etiquette"
+      },
+      "emergencyContacts": {
+        "police": "Police: 110",
+        "ambulance": "Ambulance: 119",
+        "helpline": "Tourist helpline"
+      },
+      "phrases": {
+        "hello": "Hello",
+        "thankYou": "Thank you",
+        "excuseMe": "Excuse me",
+        "whereIs": "Where is...?",
+        "howMuch": "How much?"
+      }
+    },
+    "download": {
+      "header": "========================================",
+      "destination": "Destination: {{destination}}",
+      "duration": "Duration: {{duration}} days",
+      "budget": "Budget: {{currency}} {{amount}}",
+      "budgetBreakdown": "Budget Breakdown:",
+      "itinerary": "Itinerary:",
+      "dayHeader": "Day {{day}} - {{theme}}",
+      "date": "Date: {{date}}",
+      "location": "Location: {{location}}",
+      "description": "Description: {{description}}",
+      "durationMinutes": "Duration: {{duration}} minutes",
+      "cost": "Cost: {{currency}} {{amount}}",
+      "tips": "Tips: {{tips}}",
+      "recommendations": "Recommendations:",
+      "rating": "Rating: {{rating}}",
+      "practicalInfo": "Practical Information:",
+      "weather": "Weather: {{weather}}",
+      "packingList": "Packing List:",
+      "localCustoms": "Local Customs:",
+      "emergencyContacts": "Emergency Contacts:",
+      "usefulPhrases": "Useful Phrases:",
+      "footer": "This plan was generated on {{date}}.",
+      "footerTagline": "Trippin - Your Travel Partner"
+    },
+    "display": {
+      "tabs": {
+        "itinerary": "Itinerary",
+        "recommendations": "Recommendations",
+        "practical": "Practical Info"
+      },
+      "sections": {
+        "recommendedRestaurants": "Recommended Restaurants",
+        "attractions": "Attractions",
+        "transportation": "Transportation",
+        "weatherInfo": "Weather Information",
+        "packingList": "Packing List",
+        "localCustoms": "Local Customs",
+        "emergencyContacts": "Emergency Contacts",
+        "usefulPhrases": "Useful Phrases",
+        "tips": "Travel Tips"
+      },
+      "dayPrefix": "Day {{day}}",
+      "days": "days",
+      "savePlan": "Save Plan",
+      "downloadPlan": "Download Plan",
+      "location": "Location",
+      "time": "Time",
+      "cost": "Cost",
+      "duration": "Duration",
+      "minutes": "minutes"
+    }
   },
   "tripDetail": {
     "editPlan": "Edit plan",
@@ -1938,5 +2071,44 @@ export const en = {
     "imageProcessingError": "An error occurred during image processing.",
     "imageProcessingFailed": "Image processing failed. ",
     "dismiss": "close"
+  },
+  "profile": {
+    "title": "Profile Settings",
+    "subtitle": "Manage your information",
+    "premiumBadge": "Premium Member",
+    "sections": {
+      "basicInfo": "Basic Information",
+      "settings": "Settings"
+    },
+    "fields": {
+      "name": "Name",
+      "email": "Email Address",
+      "phone": "Phone Number",
+      "location": "Location",
+      "birthDate": "Date of Birth",
+      "bio": "Bio",
+      "bioPlaceholder": "Tell us about yourself..."
+    },
+    "preferences": {
+      "newsletter": "Receive newsletter",
+      "notifications": "Receive push notifications",
+      "marketing": "Receive marketing emails"
+    },
+    "actions": {
+      "edit": "Edit",
+      "cancel": "Cancel",
+      "save": "Save",
+      "saving": "Saving...",
+      "deleteAccount": "Delete Account"
+    },
+    "messages": {
+      "saveSuccess": "Profile saved successfully"
+    },
+    "errors": {
+      "notLoggedIn": "User is not logged in",
+      "noAuthToken": "Authentication token not found. Please log in again.",
+      "saveFailed": "Failed to save profile",
+      "saveFailedRetry": "Failed to save profile. Please try again."
+    }
   }
 };

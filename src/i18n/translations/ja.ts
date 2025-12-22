@@ -809,7 +809,140 @@ export const ja = {
       "downloadFailed": "ダウンロードに失敗しました。もう一度お試しください。"
     },
     "loadErrorTitle": "プランの読み込みに失敗しました",
-    "loadErrorDescription": "生成されたプランが見つかりません。もう一度質問に答えてください。"
+    "loadErrorDescription": "生成されたプランが見つかりません。もう一度質問に答えてください。",
+    "errors": {
+      "noTripData": "旅行データが見つかりません。最初からやり直してください。",
+      "planGenerationFailed": "プラン生成に失敗しました",
+      "planGenerationError": "プランの生成中にエラーが発生しました。",
+      "aiUnavailable": "AI処理が利用できないため、基本プランを表示しています。",
+      "planNotFound": "プランが見つかりません",
+      "planDataNotLoaded": "プランデータが正しく読み込まれませんでした。"
+    },
+    "activities": {
+      "arrival": "{{destination}}への到着",
+      "arrivalDescription": "到着して宿泊施設にチェックイン",
+      "checkInHotel": "ホテルにチェックイン",
+      "checkInDescription": "宿泊施設にチェックイン",
+      "localLunch": "地元のランチ",
+      "localLunchDescription": "地元の料理を試す",
+      "culturalSiteVisit": "文化施設訪問",
+      "culturalSiteDescription": "歴史的・文化的な観光スポットを探索",
+      "localFoodExperience": "地元のグルメ体験",
+      "localFoodDescription": "本格的な地元料理を試す",
+      "natureExploration": "自然探索",
+      "natureDescription": "公園や自然の観光スポットを訪れる"
+    },
+    "tips": {
+      "getTransportPass": "地元の交通パスを取得",
+      "bookInAdvance": "事前予約でより良い価格を",
+      "storeLuggage": "早めのチェックインができない場合は荷物を預ける",
+      "askLocals": "地元の人に聞いてみる",
+      "arriveEarly": "混雑を避けるために早めに到着",
+      "tryStreetFood": "本格的な体験のために屋台を試す",
+      "comfortableShoes": "快適な歩きやすい靴を持参"
+    },
+    "themes": {
+      "arrival": "到着とオリエンテーション",
+      "cultural": "文化探索",
+      "local": "地元体験",
+      "adventure": "冒険と発見",
+      "relaxation": "リラックスと振り返り",
+      "sightseeing": "観光"
+    },
+    "recommendations": {
+      "localMarket": "地元の市場",
+      "localCuisine": "地元料理",
+      "traditionalRestaurant": "伝統的なレストラン",
+      "traditionalCuisine": "伝統料理",
+      "freshIngredients": "新鮮な地元の食材と本格的な味",
+      "authenticCuisine": "伝統的な雰囲気での本格的な地元料理",
+      "historicTemple": "歴史的な寺院",
+      "culturalType": "文化",
+      "museum": "博物館",
+      "museumDescription": "地元の歴史と文化",
+      "localPass": "地元パス",
+      "unlimitedTransport": "無制限の地元交通",
+      "buyAtStation": "駅またはオンラインで購入"
+    },
+    "practicalInfo": {
+      "weatherCheck": "旅行前に地元の天気予報を確認",
+      "packingItems": {
+        "clothes": "服",
+        "passport": "パスポート",
+        "camera": "カメラ",
+        "charger": "充電器",
+        "comfortableShoes": "快適な靴"
+      },
+      "customs": {
+        "respectTraditions": "地元の伝統を尊重する",
+        "learnPhrases": "基本的なフレーズを学ぶ",
+        "followEtiquette": "地元のマナーに従う"
+      },
+      "emergencyContacts": {
+        "police": "警察: 110",
+        "ambulance": "救急車: 119",
+        "helpline": "観光案内"
+      },
+      "phrases": {
+        "hello": "こんにちは",
+        "thankYou": "ありがとう",
+        "excuseMe": "すみません",
+        "whereIs": "...はどこですか？",
+        "howMuch": "いくらですか？"
+      }
+    },
+    "download": {
+      "header": "========================================",
+      "destination": "目的地: {{destination}}",
+      "duration": "期間: {{duration}}日間",
+      "budget": "予算: {{currency}} {{amount}}",
+      "budgetBreakdown": "予算内訳:",
+      "itinerary": "日程:",
+      "dayHeader": "{{day}}日目 - {{theme}}",
+      "date": "日付: {{date}}",
+      "location": "場所: {{location}}",
+      "description": "説明: {{description}}",
+      "durationMinutes": "所要時間: {{duration}}分",
+      "cost": "費用: {{currency}} {{amount}}",
+      "tips": "ヒント: {{tips}}",
+      "recommendations": "おすすめスポット:",
+      "rating": "評価: {{rating}}",
+      "practicalInfo": "実用情報:",
+      "weather": "天気: {{weather}}",
+      "packingList": "持参品:",
+      "localCustoms": "現地のマナー:",
+      "emergencyContacts": "緊急連絡先:",
+      "usefulPhrases": "便利なフレーズ:",
+      "footer": "このプランは {{date}} に生成されました。",
+      "footerTagline": "Trippin - あなたの旅のパートナー"
+    },
+    "display": {
+      "tabs": {
+        "itinerary": "日程",
+        "recommendations": "おすすめ",
+        "practical": "実用情報"
+      },
+      "sections": {
+        "recommendedRestaurants": "おすすめレストラン",
+        "attractions": "観光スポット",
+        "transportation": "交通手段",
+        "weatherInfo": "天候情報",
+        "packingList": "持参品リスト",
+        "localCustoms": "現地のマナー",
+        "emergencyContacts": "緊急連絡先",
+        "usefulPhrases": "便利なフレーズ",
+        "tips": "旅行のヒント"
+      },
+      "dayPrefix": "第{{day}}日",
+      "days": "日間",
+      "savePlan": "プランを保存",
+      "downloadPlan": "プランをダウンロード",
+      "location": "場所",
+      "time": "時間",
+      "cost": "費用",
+      "duration": "所要時間",
+      "minutes": "分"
+    }
   },
 
   "tripDetail": {
@@ -1625,5 +1758,44 @@ export const ja = {
     "imageProcessingError": "画像処理でエラーが発生しました。",
     "imageProcessingFailed": "画像の処理に失敗しました。ネットワーク接続を確認してください。",
     "dismiss": "閉じる"
+  },
+  "profile": {
+    "title": "プロフィール設定",
+    "subtitle": "あなたの情報を管理しましょう",
+    "premiumBadge": "プレミアム会員",
+    "sections": {
+      "basicInfo": "基本情報",
+      "settings": "設定"
+    },
+    "fields": {
+      "name": "お名前",
+      "email": "メールアドレス",
+      "phone": "電話番号",
+      "location": "居住地",
+      "birthDate": "生年月日",
+      "bio": "自己紹介",
+      "bioPlaceholder": "あなたについて教えてください..."
+    },
+    "preferences": {
+      "newsletter": "ニュースレターを受信する",
+      "notifications": "プッシュ通知を受信する",
+      "marketing": "マーケティングメールを受信する"
+    },
+    "actions": {
+      "edit": "編集",
+      "cancel": "キャンセル",
+      "save": "保存",
+      "saving": "保存中...",
+      "deleteAccount": "アカウント削除"
+    },
+    "messages": {
+      "saveSuccess": "プロフィールが正常に保存されました"
+    },
+    "errors": {
+      "notLoggedIn": "ユーザーがログインしていません",
+      "noAuthToken": "認証トークンが見つかりません。再度ログインしてください。",
+      "saveFailed": "プロフィールの保存に失敗しました",
+      "saveFailedRetry": "プロフィールの保存に失敗しました。もう一度お試しください。"
+    }
   }
 };

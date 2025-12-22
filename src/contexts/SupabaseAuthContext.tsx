@@ -73,7 +73,16 @@ console.log('🔍 Supabase URL:', supabaseUrl);
 console.log('🔍 Supabase Key (first 20 chars):', supabaseAnonKey?.substring(0, 20) + '...');
 console.log('🔍 Is Supabase configured:', isSupabaseConfigured);
 
-const supabase: SupabaseClient = createClient(supabaseUrl, supabaseAnonKey);
+// Create Supabase client with automatic session persistence
+const supabase: SupabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    persistSession: true, // Enable automatic session persistence
+    autoRefreshToken: true, // Enable automatic token refresh
+    detectSessionInUrl: true, // Detect session in URL (for OAuth callbacks)
+    storage: typeof window !== 'undefined' ? window.localStorage : undefined, // Use localStorage for persistence
+    storageKey: 'supabase.auth.token', // Key for storing auth token
+  },
+});
 
 const isUuid = (value: string): boolean => {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
@@ -172,6 +181,8 @@ export const SupabaseAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
       try {
         console.log('🔄 Starting session restoration...');
         
+        let sessionRestored = false; // Track if we successfully restored a session
+        
         // Try to restore session from localStorage first
         const storedSession = localStorage.getItem('supabase-session');
         const storedUser = localStorage.getItem('supabase-user');
@@ -186,49 +197,133 @@ export const SupabaseAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
             
             if (!isExpired) {
               console.log('🔄 Restoring session from localStorage');
+              
+              // CRITICAL: Set session in Supabase client first so it can manage token refresh
+              if (isSupabaseConfigured && sessionData.access_token && sessionData.refresh_token) {
+                try {
+                  const { data: setSessionData, error: setSessionError } = await supabase.auth.setSession({
+                    access_token: sessionData.access_token,
+                    refresh_token: sessionData.refresh_token,
+                  });
+                  
+                  if (setSessionError) {
+                    console.warn('⚠️ Failed to set session in Supabase client:', setSessionError);
+                    // If setting session fails, try to refresh the token
+                    if (setSessionError.message?.includes('expired') || setSessionError.message?.includes('invalid')) {
+                      try {
+                        const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession({
+                          refresh_token: sessionData.refresh_token,
+                        });
+                        
+                        if (!refreshError && refreshData.session) {
+                          console.log('✅ Session refreshed successfully');
+                          setSession(refreshData.session);
+                          setUser(refreshData.user);
+                          localStorage.setItem('supabase-session', JSON.stringify(refreshData.session));
+                          localStorage.setItem('supabase-user', JSON.stringify(refreshData.user));
+                          
+                          // Fetch user profile
+                          if (refreshData.user.id) {
+                            const profile = await fetchUserProfile(refreshData.user.id);
+                            setUserProfile(profile);
+                          }
+                          sessionRestored = true;
+                          return; // Exit early after successful refresh
+                        } else {
+                          throw refreshError || new Error('Token refresh failed');
+                        }
+                      } catch (refreshErr) {
+                        console.error('❌ Token refresh failed:', refreshErr);
+                        // Clear invalid session
+                        localStorage.removeItem('supabase-session');
+                        localStorage.removeItem('supabase-user');
+                        setSession(null);
+                        setUser(null);
+                        setUserProfile(null);
+                        return;
+                      }
+                    } else {
+                      // For other errors, still try to use the stored session
+                      console.warn('⚠️ Continuing with stored session despite setSession error');
+                    }
+                  } else if (setSessionData.session) {
+                    // Use the session from setSession if available (might be refreshed)
+                    console.log('✅ Session set in Supabase client');
+                    setSession(setSessionData.session);
+                    setUser(setSessionData.user);
+                    localStorage.setItem('supabase-session', JSON.stringify(setSessionData.session));
+                    localStorage.setItem('supabase-user', JSON.stringify(setSessionData.user));
+                    
+                    // Fetch user profile
+                    if (setSessionData.user.id) {
+                      const profile = await fetchUserProfile(setSessionData.user.id);
+                      setUserProfile(profile);
+                    }
+                    return; // Exit early after successful setSession
+                  }
+                } catch (setSessionErr) {
+                  console.warn('⚠️ Error setting session in Supabase client:', setSessionErr);
+                  // Continue with stored session as fallback
+                }
+              }
+              
+              // Fallback: Use stored session data directly
               setSession(sessionData);
               setUser(userData);
+              sessionRestored = true;
               
               // Try to refresh user profile
               if (userData.id) {
                 const profile = await fetchUserProfile(userData.id);
                 setUserProfile(profile);
               }
+            } else {
+              console.log('🔄 Stored session expired, attempting token refresh...');
               
-              // If Supabase is configured, verify the session is still valid
-              if (isSupabaseConfigured) {
+              // Try to refresh expired session if we have refresh token
+              if (sessionData.refresh_token && isSupabaseConfigured) {
                 try {
-                  // Add timeout to prevent hanging
-                  const getUserPromise = supabase.auth.getUser(sessionData.access_token);
-                  const timeoutPromise = new Promise((_, reject) => 
-                    setTimeout(() => reject(new Error('getUser timeout')), 8000)
-                  );
+                  const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession({
+                    refresh_token: sessionData.refresh_token,
+                  });
                   
-                  const result = await Promise.race([getUserPromise, timeoutPromise]) as { data: { user: any }, error: any };
-                  const { data: { user: verifiedUser }, error } = result;
-                  
-                  if (error || !verifiedUser) {
-                    console.log('🔄 Stored session invalid, clearing localStorage');
+                  if (!refreshError && refreshData.session) {
+                    console.log('✅ Expired session refreshed successfully');
+                    setSession(refreshData.session);
+                    setUser(refreshData.user);
+                    localStorage.setItem('supabase-session', JSON.stringify(refreshData.session));
+                    localStorage.setItem('supabase-user', JSON.stringify(refreshData.user));
+                    
+                    // Fetch user profile
+                    if (refreshData.user.id) {
+                      const profile = await fetchUserProfile(refreshData.user.id);
+                      setUserProfile(profile);
+                    }
+                    sessionRestored = true;
+                  } else {
+                    console.log('❌ Token refresh failed, clearing localStorage');
                     localStorage.removeItem('supabase-session');
                     localStorage.removeItem('supabase-user');
                     setSession(null);
                     setUser(null);
                     setUserProfile(null);
-                  } else {
-                    console.log('✅ Stored session verified');
                   }
-                } catch (verifyError) {
-                  if (verifyError.message === 'getUser timeout') {
-                    console.warn('Session verification timed out, but continuing with stored session');
-                  } else {
-                    console.warn('Session verification failed:', verifyError);
-                  }
+                } catch (refreshErr) {
+                  console.error('❌ Token refresh error:', refreshErr);
+                  localStorage.removeItem('supabase-session');
+                  localStorage.removeItem('supabase-user');
+                  setSession(null);
+                  setUser(null);
+                  setUserProfile(null);
                 }
+              } else {
+                console.log('🔄 No refresh token available, clearing localStorage');
+                localStorage.removeItem('supabase-session');
+                localStorage.removeItem('supabase-user');
+                setSession(null);
+                setUser(null);
+                setUserProfile(null);
               }
-            } else {
-              console.log('🔄 Stored session expired, clearing localStorage');
-              localStorage.removeItem('supabase-session');
-              localStorage.removeItem('supabase-user');
             }
           } catch (parseError) {
             console.error('Error parsing stored session:', parseError);
@@ -237,8 +332,8 @@ export const SupabaseAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
           }
         }
         
-        // If Supabase is configured and we don't have a valid session, try to restore from Supabase
-        if (isSupabaseConfigured && !session) {
+        // If Supabase is configured and we haven't restored a session yet, try to restore from Supabase
+        if (isSupabaseConfigured && !sessionRestored) {
           try {
             // Add timeout to prevent hanging
             const getSessionPromise = supabase.auth.getSession();
@@ -262,6 +357,46 @@ export const SupabaseAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
               if (supabaseSession.user.id) {
                 const profile = await fetchUserProfile(supabaseSession.user.id);
                 setUserProfile(profile);
+              }
+              sessionRestored = true;
+            } else if (error) {
+              console.warn('⚠️ Supabase getSession returned error:', error);
+              // If getSession fails, check localStorage as fallback
+              const storedSession = localStorage.getItem('supabase-session');
+              const storedUser = localStorage.getItem('supabase-user');
+              
+              if (storedSession && storedUser) {
+                try {
+                  const sessionData = JSON.parse(storedSession);
+                  const userData = JSON.parse(storedUser);
+                  
+                  // Try to refresh the token
+                  if (sessionData.refresh_token) {
+                    try {
+                      const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession({
+                        refresh_token: sessionData.refresh_token,
+                      });
+                      
+                      if (!refreshError && refreshData.session) {
+                        console.log('✅ Session refreshed from stored refresh token');
+                        setSession(refreshData.session);
+                        setUser(refreshData.user);
+                        localStorage.setItem('supabase-session', JSON.stringify(refreshData.session));
+                        localStorage.setItem('supabase-user', JSON.stringify(refreshData.user));
+                        
+                        if (refreshData.user.id) {
+                          const profile = await fetchUserProfile(refreshData.user.id);
+                          setUserProfile(profile);
+                        }
+                        sessionRestored = true;
+                      }
+                    } catch (refreshErr) {
+                      console.warn('⚠️ Token refresh failed:', refreshErr);
+                    }
+                  }
+                } catch (parseErr) {
+                  console.warn('⚠️ Error parsing stored session:', parseErr);
+                }
               }
             }
           } catch (supabaseError) {
@@ -351,12 +486,23 @@ export const SupabaseAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
         // Clear localStorage
         localStorage.removeItem('supabase-session');
         localStorage.removeItem('supabase-user');
+        localStorage.removeItem('supabase.auth.token'); // Clear Supabase's own storage
         console.log('🗑️ Session cleared from localStorage');
       } else if (event === 'TOKEN_REFRESHED' && session) {
         console.log('🔄 Token refreshed via Supabase, updating session');
         setSession(session);
+        setUser(session.user);
         
         // Update localStorage with refreshed session
+        localStorage.setItem('supabase-session', JSON.stringify(session));
+        localStorage.setItem('supabase-user', JSON.stringify(session.user));
+        console.log('💾 Refreshed session stored in localStorage');
+      } else if (event === 'USER_UPDATED' && session) {
+        console.log('🔄 User updated via Supabase');
+        setSession(session);
+        setUser(session.user);
+        
+        // Update localStorage
         localStorage.setItem('supabase-session', JSON.stringify(session));
         localStorage.setItem('supabase-user', JSON.stringify(session.user));
       }

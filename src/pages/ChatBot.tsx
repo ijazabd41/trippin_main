@@ -5,6 +5,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { useSupabaseAuth } from '../contexts/SupabaseAuthContext';
 import { isUserPremium } from '../utils/premiumUtils';
 import { apiCall, API_CONFIG, APIError } from '../config/api';
+import { backendApiCall, BACKEND_API_CONFIG } from '../config/backend-api';
 import { handleVercelError, globalErrorHandler } from '../utils/errorHandler';
 import MockDataNotice from '../components/MockDataNotice';
 
@@ -583,7 +584,8 @@ useEffect(() => {
       const updatedHistory = [...conversationHistory, { role: 'user', content: userMessage }];
       setConversationHistory(updatedHistory);
 
-      const result = await apiCall('/openai/chat', {
+      // Use backend API (Supabase Edge Function) for chat
+      const result = await backendApiCall(BACKEND_API_CONFIG.ENDPOINTS.OPENAI.CHAT, {
         method: 'POST',
         body: JSON.stringify({
           message: userMessage,

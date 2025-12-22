@@ -268,8 +268,8 @@ const Dashboard: React.FC = () => {
         >
           <div className="flex items-center justify-center space-x-2">
             <Star className="w-5 h-5" />
-            <span className="font-semibold">🎉 プレミアム会員になりました！</span>
-            <span className="text-purple-100">すべての機能が利用可能です</span>
+            <span className="font-semibold">{t('premium.success.title')}</span>
+            <span className="text-purple-100">{t('premium.success.subtitle')}</span>
           </div>
         </motion.div>
       )}

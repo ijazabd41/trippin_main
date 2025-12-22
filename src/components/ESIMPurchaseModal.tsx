@@ -76,13 +76,15 @@ const ESIMPurchaseModal: React.FC<ESIMPurchaseModalProps> = ({
       
       console.log('🛒 Processing eSIM purchase:', {
         planId: plan.id,
+        planName: plan.name,
         hasToken: !!token,
         customerInfo: customerInfo
       });
       
       // Use BackendService to handle API call properly
+      // Edge function expects planId (which is the plan name/bundle name from eSIM API)
       const purchaseData = {
-        planId: plan.id,
+        planId: plan.name || plan.id, // Use plan.name (bundle name) as planId for eSIM API
         customerInfo: customerInfo,
         paymentMethodId: paymentMethodId
       };

@@ -907,7 +907,139 @@ export const zh = {
       "downloadFailed": "下载失败。请再试一次。"
     },
     "loadErrorTitle": "加载计划失败",
-    "loadErrorDescription": "未找到生成的计划。请再次回答问题。"
+    "loadErrorDescription": "未找到生成的计划。请再次回答问题。",
+    "errors": {
+      "noTripData": "未找到旅行数据。请重新开始。",
+      "planGenerationFailed": "计划生成失败",
+      "planGenerationError": "生成计划时发生错误。",
+      "aiUnavailable": "AI处理不可用。显示基本计划。",
+      "planNotFound": "未找到计划",
+      "planDataNotLoaded": "无法正确加载计划数据。"
+    },
+    "activities": {
+      "arrival": "抵达{{destination}}",
+      "arrivalDescription": "抵达并办理住宿登记",
+      "checkInHotel": "酒店入住",
+      "checkInDescription": "办理住宿登记",
+      "localLunch": "当地午餐",
+      "localLunchDescription": "品尝当地美食",
+      "culturalSiteVisit": "文化景点参观",
+      "culturalSiteDescription": "探索历史和文化景点",
+      "localFoodExperience": "当地美食体验",
+      "localFoodDescription": "品尝正宗当地菜肴",
+      "natureExploration": "自然探索",
+      "natureDescription": "参观公园或自然景点"
+    },
+    "tips": {
+      "getTransportPass": "购买当地交通卡",
+      "bookInAdvance": "提前预订以获得更优惠价格",
+      "storeLuggage": "如果无法提前入住，请寄存行李",
+      "askLocals": "向当地人询问推荐",
+      "arriveEarly": "提前到达以避免人群",
+      "tryStreetFood": "尝试街头美食以获得真实体验",
+      "comfortableShoes": "带上舒适的步行鞋"
+    },
+    "themes": {
+      "arrival": "抵达和熟悉环境",
+      "cultural": "文化探索",
+      "local": "当地体验",
+      "adventure": "冒险与发现",
+      "relaxation": "放松与反思",
+      "sightseeing": "观光"
+    },
+    "recommendations": {
+      "localMarket": "当地市场",
+      "localCuisine": "当地",
+      "traditionalRestaurant": "传统餐厅",
+      "traditionalCuisine": "传统",
+      "freshIngredients": "新鲜当地食材和正宗风味",
+      "authenticCuisine": "传统环境中的正宗当地美食",
+      "historicTemple": "历史寺庙",
+      "culturalType": "文化",
+      "museum": "博物馆",
+      "museumDescription": "当地历史和文化",
+      "localPass": "当地通行证",
+      "unlimitedTransport": "无限当地交通",
+      "buyAtStation": "在车站或在线购买"
+    },
+    "practicalInfo": {
+      "weatherCheck": "旅行前查看当地天气预报",
+      "packingItems": {
+        "clothes": "衣服",
+        "passport": "护照",
+        "camera": "相机",
+        "charger": "充电器",
+        "comfortableShoes": "舒适的鞋子"
+      },
+      "customs": {
+        "respectTraditions": "尊重当地传统",
+        "learnPhrases": "学习基本短语",
+        "followEtiquette": "遵循当地礼仪"
+      },
+      "emergencyContacts": {
+        "police": "警察: 110",
+        "ambulance": "救护车: 119",
+        "helpline": "旅游热线"
+      },
+      "phrases": {
+        "hello": "你好",
+        "thankYou": "谢谢",
+        "excuseMe": "打扰一下",
+        "whereIs": "...在哪里？",
+        "howMuch": "多少钱？"
+      }
+    },
+    "download": {
+      "header": "========================================",
+      "destination": "目的地: {{destination}}",
+      "duration": "持续时间: {{duration}}天",
+      "budget": "预算: {{currency}} {{amount}}",
+      "budgetBreakdown": "预算明细:",
+      "itinerary": "行程:",
+      "dayHeader": "第{{day}}天 - {{theme}}",
+      "date": "日期: {{date}}",
+      "location": "地点: {{location}}",
+      "description": "描述: {{description}}",
+      "durationMinutes": "持续时间: {{duration}}分钟",
+      "cost": "费用: {{currency}} {{amount}}",
+      "tips": "提示: {{tips}}",
+      "recommendations": "推荐:",
+      "rating": "评分: {{rating}}",
+      "practicalInfo": "实用信息:",
+      "weather": "天气: {{weather}}",
+      "packingList": "打包清单:",
+      "localCustoms": "当地习俗:",
+      "emergencyContacts": "紧急联系人:",
+      "usefulPhrases": "有用短语:",
+      "footer": "此计划生成于{{date}}。",
+      "footerTagline": "Trippin - 您的旅行伙伴"
+    },
+    "display": {
+      "tabs": {
+        "itinerary": "行程",
+        "recommendations": "推荐",
+        "practical": "实用信息"
+      },
+      "sections": {
+        "recommendedRestaurants": "推荐餐厅",
+        "attractions": "景点",
+        "transportation": "交通",
+        "weatherInfo": "天气信息",
+        "packingList": "打包清单",
+        "localCustoms": "当地习俗",
+        "emergencyContacts": "紧急联系人",
+        "usefulPhrases": "有用短语"
+      },
+      "dayPrefix": "第{{day}}天",
+      "days": "天",
+      "savePlan": "保存计划",
+      "downloadPlan": "下载计划",
+      "location": "地点",
+      "time": "时间",
+      "cost": "费用",
+      "duration": "持续时间",
+      "minutes": "分钟"
+    }
   },
   "tripDetail": {
     "editPlan": "编辑计划",
@@ -1938,5 +2070,44 @@ export const zh = {
     "imageProcessingError": "图像处理期间发生错误。",
     "imageProcessingFailed": "图像处理失败。请检查您的网络连接。",
     "dismiss": "关闭"
+  },
+  "profile": {
+    "title": "个人资料设置",
+    "subtitle": "管理您的信息",
+    "premiumBadge": "高级会员",
+    "sections": {
+      "basicInfo": "基本信息",
+      "settings": "设置"
+    },
+    "fields": {
+      "name": "姓名",
+      "email": "电子邮件地址",
+      "phone": "电话号码",
+      "location": "位置",
+      "birthDate": "出生日期",
+      "bio": "个人简介",
+      "bioPlaceholder": "告诉我们关于您自己..."
+    },
+    "preferences": {
+      "newsletter": "接收新闻通讯",
+      "notifications": "接收推送通知",
+      "marketing": "接收营销电子邮件"
+    },
+    "actions": {
+      "edit": "编辑",
+      "cancel": "取消",
+      "save": "保存",
+      "saving": "保存中...",
+      "deleteAccount": "删除账户"
+    },
+    "messages": {
+      "saveSuccess": "个人资料已成功保存"
+    },
+    "errors": {
+      "notLoggedIn": "用户未登录",
+      "noAuthToken": "未找到身份验证令牌。请重新登录。",
+      "saveFailed": "保存个人资料失败",
+      "saveFailedRetry": "保存个人资料失败。请重试。"
+    }
   }
 };

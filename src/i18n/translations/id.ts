@@ -907,7 +907,139 @@ export const id = {
       "downloadFailed": "Pengunduhan gagal. Silakan coba lagi."
     },
     "loadErrorTitle": "Gagal memuat rencana",
-    "loadErrorDescription": "Rencana yang dibuat tidak ditemukan. Tolong jawab pertanyaannya lagi."
+    "loadErrorDescription": "Rencana yang dibuat tidak ditemukan. Tolong jawab pertanyaannya lagi.",
+    "errors": {
+      "noTripData": "Data perjalanan tidak ditemukan. Silakan mulai dari awal.",
+      "planGenerationFailed": "Pembuatan rencana gagal",
+      "planGenerationError": "Terjadi kesalahan saat membuat rencana.",
+      "aiUnavailable": "Pemrosesan AI tidak tersedia. Menampilkan rencana dasar.",
+      "planNotFound": "Rencana tidak ditemukan",
+      "planDataNotLoaded": "Data rencana tidak dapat dimuat dengan benar."
+    },
+    "activities": {
+      "arrival": "Tiba di {{destination}}",
+      "arrivalDescription": "Tiba dan check-in ke akomodasi",
+      "checkInHotel": "Check-in ke Hotel",
+      "checkInDescription": "Check-in ke akomodasi Anda",
+      "localLunch": "Makan Siang Lokal",
+      "localLunchDescription": "Coba masakan lokal",
+      "culturalSiteVisit": "Kunjungan Situs Budaya",
+      "culturalSiteDescription": "Jelajahi atraksi sejarah dan budaya",
+      "localFoodExperience": "Pengalaman Makanan Lokal",
+      "localFoodDescription": "Coba hidangan lokal autentik",
+      "natureExploration": "Eksplorasi Alam",
+      "natureDescription": "Kunjungi taman atau atraksi alam"
+    },
+    "tips": {
+      "getTransportPass": "Dapatkan tiket transportasi lokal",
+      "bookInAdvance": "Pesan terlebih dahulu untuk harga yang lebih baik",
+      "storeLuggage": "Simpan bagasi jika check-in awal tidak tersedia",
+      "askLocals": "Tanyakan penduduk lokal untuk rekomendasi",
+      "arriveEarly": "Tiba lebih awal untuk menghindari kerumunan",
+      "tryStreetFood": "Coba makanan jalanan untuk pengalaman autentik",
+      "comfortableShoes": "Bawa sepatu berjalan yang nyaman"
+    },
+    "themes": {
+      "arrival": "Kedatangan dan Orientasi",
+      "cultural": "Eksplorasi Budaya",
+      "local": "Pengalaman Lokal",
+      "adventure": "Petualangan dan Penemuan",
+      "relaxation": "Relaksasi dan Refleksi",
+      "sightseeing": "Wisata"
+    },
+    "recommendations": {
+      "localMarket": "Pasar Lokal",
+      "localCuisine": "Lokal",
+      "traditionalRestaurant": "Restoran Tradisional",
+      "traditionalCuisine": "Tradisional",
+      "freshIngredients": "Bahan lokal segar dan rasa autentik",
+      "authenticCuisine": "Masakan lokal autentik dalam suasana tradisional",
+      "historicTemple": "Kuil Bersejarah",
+      "culturalType": "Budaya",
+      "museum": "Museum",
+      "museumDescription": "Sejarah dan budaya lokal",
+      "localPass": "Tiket Lokal",
+      "unlimitedTransport": "Transportasi lokal tak terbatas",
+      "buyAtStation": "Beli di stasiun atau online"
+    },
+    "practicalInfo": {
+      "weatherCheck": "Periksa prakiraan cuaca lokal sebelum bepergian",
+      "packingItems": {
+        "clothes": "Pakaian",
+        "passport": "Paspor",
+        "camera": "Kamera",
+        "charger": "Pengisi daya",
+        "comfortableShoes": "Sepatu nyaman"
+      },
+      "customs": {
+        "respectTraditions": "Hormati tradisi lokal",
+        "learnPhrases": "Pelajari frasa dasar",
+        "followEtiquette": "Ikuti etiket lokal"
+      },
+      "emergencyContacts": {
+        "police": "Polisi: 110",
+        "ambulance": "Ambulans: 119",
+        "helpline": "Hotline wisata"
+      },
+      "phrases": {
+        "hello": "Halo",
+        "thankYou": "Terima kasih",
+        "excuseMe": "Maaf",
+        "whereIs": "Di mana...?",
+        "howMuch": "Berapa harganya?"
+      }
+    },
+    "download": {
+      "header": "========================================",
+      "destination": "Tujuan: {{destination}}",
+      "duration": "Durasi: {{duration}} hari",
+      "budget": "Anggaran: {{currency}} {{amount}}",
+      "budgetBreakdown": "Rincian Anggaran:",
+      "itinerary": "Rencana Perjalanan:",
+      "dayHeader": "Hari {{day}} - {{theme}}",
+      "date": "Tanggal: {{date}}",
+      "location": "Lokasi: {{location}}",
+      "description": "Deskripsi: {{description}}",
+      "durationMinutes": "Durasi: {{duration}} menit",
+      "cost": "Biaya: {{currency}} {{amount}}",
+      "tips": "Tips: {{tips}}",
+      "recommendations": "Rekomendasi:",
+      "rating": "Rating: {{rating}}",
+      "practicalInfo": "Informasi Praktis:",
+      "weather": "Cuaca: {{weather}}",
+      "packingList": "Daftar Barang:",
+      "localCustoms": "Adat Istiadat Lokal:",
+      "emergencyContacts": "Kontak Darurat:",
+      "usefulPhrases": "Frasa Berguna:",
+      "footer": "Rencana ini dibuat pada {{date}}.",
+      "footerTagline": "Trippin - Mitra Perjalanan Anda"
+    },
+    "display": {
+      "tabs": {
+        "itinerary": "Rencana Perjalanan",
+        "recommendations": "Rekomendasi",
+        "practical": "Informasi Praktis"
+      },
+      "sections": {
+        "recommendedRestaurants": "Restoran Direkomendasikan",
+        "attractions": "Atraksi",
+        "transportation": "Transportasi",
+        "weatherInfo": "Informasi Cuaca",
+        "packingList": "Daftar Barang",
+        "localCustoms": "Adat Istiadat Lokal",
+        "emergencyContacts": "Kontak Darurat",
+        "usefulPhrases": "Frasa Berguna"
+      },
+      "dayPrefix": "Hari {{day}}",
+      "days": "hari",
+      "savePlan": "Simpan Rencana",
+      "downloadPlan": "Unduh Rencana",
+      "location": "Lokasi",
+      "time": "Waktu",
+      "cost": "Biaya",
+      "duration": "Durasi",
+      "minutes": "menit"
+    }
   },
   "tripDetail": {
     "editPlan": "Sunting rencana",
@@ -1938,5 +2070,44 @@ export const id = {
     "imageProcessingError": "Terjadi kesalahan selama pemrosesan gambar.",
     "imageProcessingFailed": "Pemrosesan gambar gagal. Silakan periksa koneksi jaringan Anda.",
     "dismiss": "menutup"
+  },
+  "profile": {
+    "title": "Pengaturan Profil",
+    "subtitle": "Kelola informasi Anda",
+    "premiumBadge": "Anggota Premium",
+    "sections": {
+      "basicInfo": "Informasi Dasar",
+      "settings": "Pengaturan"
+    },
+    "fields": {
+      "name": "Nama",
+      "email": "Alamat Email",
+      "phone": "Nomor Telepon",
+      "location": "Lokasi",
+      "birthDate": "Tanggal Lahir",
+      "bio": "Biografi",
+      "bioPlaceholder": "Ceritakan tentang diri Anda..."
+    },
+    "preferences": {
+      "newsletter": "Terima newsletter",
+      "notifications": "Terima notifikasi push",
+      "marketing": "Terima email marketing"
+    },
+    "actions": {
+      "edit": "Edit",
+      "cancel": "Batal",
+      "save": "Simpan",
+      "saving": "Menyimpan...",
+      "deleteAccount": "Hapus Akun"
+    },
+    "messages": {
+      "saveSuccess": "Profil berhasil disimpan"
+    },
+    "errors": {
+      "notLoggedIn": "Pengguna tidak masuk",
+      "noAuthToken": "Token autentikasi tidak ditemukan. Silakan masuk lagi.",
+      "saveFailed": "Gagal menyimpan profil",
+      "saveFailedRetry": "Gagal menyimpan profil. Silakan coba lagi."
+    }
   }
 };

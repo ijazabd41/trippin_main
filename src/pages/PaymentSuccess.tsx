@@ -4,6 +4,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { CheckCircle, ArrowRight, Crown, Star, Zap } from 'lucide-react';
 import { useSupabaseAuth } from '../contexts/SupabaseAuthContext';
 import { useNotification } from '../contexts/NotificationContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { backendApiCall, BACKEND_API_CONFIG } from '../config/backend-api';
 
 const PaymentSuccess: React.FC = () => {
@@ -11,6 +12,7 @@ const PaymentSuccess: React.FC = () => {
   const [searchParams] = useSearchParams();
   const { updateProfile, userProfile, session, refreshUserProfileFromBackend, restoreSessionFromStorage } = useSupabaseAuth();
   const { addNotification } = useNotification();
+  const { t } = useLanguage();
   const [isVerifying, setIsVerifying] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isPremium, setIsPremium] = useState(false);
@@ -136,11 +138,11 @@ const PaymentSuccess: React.FC = () => {
           // Add premium upgrade notification
           addNotification({
             type: 'success',
-            title: '🎉 プレミアム会員になりました！',
-            message: 'お支払いが完了し、プレミアムプランへのアップグレードが完了しました。すべての機能が利用可能になりました。',
+            title: t('premium.success.title'),
+            message: t('premium.success.message'),
             actions: [
               {
-                label: 'ダッシュボードを見る',
+                label: t('premium.success.viewDashboard'),
                 action: () => navigate('/dashboard')
               }
             ]
@@ -194,9 +196,9 @@ const PaymentSuccess: React.FC = () => {
             <div className="w-20 h-20 bg-gradient-to-r from-purple-100 to-pink-100 rounded-full flex items-center justify-center mx-auto mb-6">
               <Crown className="w-12 h-12 text-purple-600" />
             </div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">🎉 プレミアム会員になりました！</h2>
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">{t('premium.success.title')}</h2>
             <p className="text-gray-600 mb-6">
-              お支払いが完了し、プレミアムプランへのアップグレードが完了しました。
+              {t('premium.success.message')}
             </p>
             
             {/* Premium Status Badge */}

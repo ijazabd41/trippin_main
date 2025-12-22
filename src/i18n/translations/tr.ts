@@ -909,7 +909,139 @@ export const tr = {
       "downloadFailed": "İndirme başarısız oldu. Lütfen tekrar deneyin."
     },
     "loadErrorTitle": "Plan yüklenemedi",
-    "loadErrorDescription": "Oluşturulan plan bulunamadı. Lütfen soruyu tekrar cevaplayın."
+    "loadErrorDescription": "Oluşturulan plan bulunamadı. Lütfen soruyu tekrar cevaplayın.",
+    "errors": {
+      "noTripData": "Seyahat verisi bulunamadı. Lütfen baştan başlayın.",
+      "planGenerationFailed": "Plan oluşturma başarısız",
+      "planGenerationError": "Plan oluşturulurken bir hata oluştu.",
+      "aiUnavailable": "AI işleme kullanılamıyor. Temel plan gösteriliyor.",
+      "planNotFound": "Plan bulunamadı",
+      "planDataNotLoaded": "Plan verisi doğru şekilde yüklenemedi."
+    },
+    "activities": {
+      "arrival": "{{destination}}'a varış",
+      "arrivalDescription": "Varış ve konaklama yerine giriş",
+      "checkInHotel": "Otele giriş",
+      "checkInDescription": "Konaklama yerinize giriş yapın",
+      "localLunch": "Yerel öğle yemeği",
+      "localLunchDescription": "Yerel mutfağı deneyin",
+      "culturalSiteVisit": "Kültürel site ziyareti",
+      "culturalSiteDescription": "Tarihi ve kültürel cazibe merkezlerini keşfedin",
+      "localFoodExperience": "Yerel yemek deneyimi",
+      "localFoodDescription": "Otantik yerel yemekleri deneyin",
+      "natureExploration": "Doğa keşfi",
+      "natureDescription": "Parkları veya doğal cazibe merkezlerini ziyaret edin"
+    },
+    "tips": {
+      "getTransportPass": "Yerel ulaşım kartı alın",
+      "bookInAdvance": "Daha iyi fiyatlar için önceden rezervasyon yapın",
+      "storeLuggage": "Erken giriş mevcut değilse bagajı saklayın",
+      "askLocals": "Yerlilerden öneriler isteyin",
+      "arriveEarly": "Kalabalıktan kaçınmak için erken varın",
+      "tryStreetFood": "Otantik deneyim için sokak yemeği deneyin",
+      "comfortableShoes": "Rahat yürüyüş ayakkabıları getirin"
+    },
+    "themes": {
+      "arrival": "Varış ve yönlendirme",
+      "cultural": "Kültürel keşif",
+      "local": "Yerel deneyimler",
+      "adventure": "Macera ve keşif",
+      "relaxation": "Dinlenme ve düşünme",
+      "sightseeing": "Seyahat"
+    },
+    "recommendations": {
+      "localMarket": "Yerel pazar",
+      "localCuisine": "Yerel",
+      "traditionalRestaurant": "Geleneksel restoran",
+      "traditionalCuisine": "Geleneksel",
+      "freshIngredients": "Taze yerel malzemeler ve otantik lezzetler",
+      "authenticCuisine": "Geleneksel ortamda otantik yerel mutfak",
+      "historicTemple": "Tarihi tapınak",
+      "culturalType": "Kültürel",
+      "museum": "Müze",
+      "museumDescription": "Yerel tarih ve kültür",
+      "localPass": "Yerel kart",
+      "unlimitedTransport": "Sınırsız yerel ulaşım",
+      "buyAtStation": "İstasyon veya çevrimiçi satın alın"
+    },
+    "practicalInfo": {
+      "weatherCheck": "Seyahat etmeden önce yerel hava durumu tahminini kontrol edin",
+      "packingItems": {
+        "clothes": "Kıyafetler",
+        "passport": "Pasaport",
+        "camera": "Kamera",
+        "charger": "Şarj cihazı",
+        "comfortableShoes": "Rahat ayakkabılar"
+      },
+      "customs": {
+        "respectTraditions": "Yerel geleneklere saygı gösterin",
+        "learnPhrases": "Temel ifadeler öğrenin",
+        "followEtiquette": "Yerel görgü kurallarına uyun"
+      },
+      "emergencyContacts": {
+        "police": "Polis: 110",
+        "ambulance": "Ambulans: 119",
+        "helpline": "Turist yardım hattı"
+      },
+      "phrases": {
+        "hello": "Merhaba",
+        "thankYou": "Teşekkür ederim",
+        "excuseMe": "Affedersiniz",
+        "whereIs": "... nerede?",
+        "howMuch": "Ne kadar?"
+      }
+    },
+    "download": {
+      "header": "========================================",
+      "destination": "Hedef: {{destination}}",
+      "duration": "Süre: {{duration}} gün",
+      "budget": "Bütçe: {{currency}} {{amount}}",
+      "budgetBreakdown": "Bütçe dökümü:",
+      "itinerary": "Güzergah:",
+      "dayHeader": "{{day}}. Gün - {{theme}}",
+      "date": "Tarih: {{date}}",
+      "location": "Konum: {{location}}",
+      "description": "Açıklama: {{description}}",
+      "durationMinutes": "Süre: {{duration}} dakika",
+      "cost": "Maliyet: {{currency}} {{amount}}",
+      "tips": "İpuçları: {{tips}}",
+      "recommendations": "Öneriler:",
+      "rating": "Değerlendirme: {{rating}}",
+      "practicalInfo": "Pratik bilgiler:",
+      "weather": "Hava durumu: {{weather}}",
+      "packingList": "Eşya listesi:",
+      "localCustoms": "Yerel gelenekler:",
+      "emergencyContacts": "Acil durum kontakları:",
+      "usefulPhrases": "Yararlı ifadeler:",
+      "footer": "Bu plan {{date}} tarihinde oluşturuldu.",
+      "footerTagline": "Trippin - Seyahat ortağınız"
+    },
+    "display": {
+      "tabs": {
+        "itinerary": "Güzergah",
+        "recommendations": "Öneriler",
+        "practical": "Pratik bilgiler"
+      },
+      "sections": {
+        "recommendedRestaurants": "Önerilen restoranlar",
+        "attractions": "Cazibe merkezleri",
+        "transportation": "Ulaşım",
+        "weatherInfo": "Hava durumu bilgileri",
+        "packingList": "Eşya listesi",
+        "localCustoms": "Yerel gelenekler",
+        "emergencyContacts": "Acil durum kontakları",
+        "usefulPhrases": "Yararlı ifadeler"
+      },
+      "dayPrefix": "{{day}}. Gün",
+      "days": "gün",
+      "savePlan": "Planı kaydet",
+      "downloadPlan": "Planı indir",
+      "location": "Konum",
+      "time": "Zaman",
+      "cost": "Maliyet",
+      "duration": "Süre",
+      "minutes": "dakika"
+    }
   },
   "tripDetail": {
     "editPlan": "Planı düzenle",
@@ -1940,5 +2072,44 @@ export const tr = {
     "imageProcessingError": "Görüntü işleme sırasında bir hata oluştu.",
     "imageProcessingFailed": "Görüntü işleme başarısız oldu. Lütfen ağ bağlantınızı kontrol edin.",
     "dismiss": "kapalı"
+  },
+  "profile": {
+    "title": "Profil Ayarları",
+    "subtitle": "Bilgilerinizi yönetin",
+    "premiumBadge": "Premium Üye",
+    "sections": {
+      "basicInfo": "Temel Bilgiler",
+      "settings": "Ayarlar"
+    },
+    "fields": {
+      "name": "İsim",
+      "email": "E-posta Adresi",
+      "phone": "Telefon Numarası",
+      "location": "Konum",
+      "birthDate": "Doğum Tarihi",
+      "bio": "Biyografi",
+      "bioPlaceholder": "Bize kendinizden bahsedin..."
+    },
+    "preferences": {
+      "newsletter": "Bülten al",
+      "notifications": "Push bildirimleri al",
+      "marketing": "Pazarlama e-postaları al"
+    },
+    "actions": {
+      "edit": "Düzenle",
+      "cancel": "İptal",
+      "save": "Kaydet",
+      "saving": "Kaydediliyor...",
+      "deleteAccount": "Hesabı Sil"
+    },
+    "messages": {
+      "saveSuccess": "Profil başarıyla kaydedildi"
+    },
+    "errors": {
+      "notLoggedIn": "Kullanıcı giriş yapmamış",
+      "noAuthToken": "Kimlik doğrulama token'ı bulunamadı. Lütfen tekrar giriş yapın.",
+      "saveFailed": "Profil kaydedilemedi",
+      "saveFailedRetry": "Profil kaydedilemedi. Lütfen tekrar deneyin."
+    }
   }
 };

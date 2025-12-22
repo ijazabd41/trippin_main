@@ -909,7 +909,139 @@ export const de = {
       "downloadFailed": "Der Download ist fehlgeschlagen. Bitte versuchen Sie es erneut."
     },
     "loadErrorTitle": "Plan konnte nicht geladen werden",
-    "loadErrorDescription": "Generierter Plan nicht gefunden. Bitte beantworten Sie die Frage noch einmal."
+    "loadErrorDescription": "Generierter Plan nicht gefunden. Bitte beantworten Sie die Frage noch einmal.",
+    "errors": {
+      "noTripData": "Reisedaten nicht gefunden. Bitte von vorne beginnen.",
+      "planGenerationFailed": "Planerstellung fehlgeschlagen",
+      "planGenerationError": "Beim Generieren des Plans ist ein Fehler aufgetreten.",
+      "aiUnavailable": "KI-Verarbeitung nicht verfügbar. Grundplan wird angezeigt.",
+      "planNotFound": "Plan nicht gefunden",
+      "planDataNotLoaded": "Plandaten konnten nicht korrekt geladen werden."
+    },
+    "activities": {
+      "arrival": "Ankunft in {{destination}}",
+      "arrivalDescription": "Ankunft und Check-in in der Unterkunft",
+      "checkInHotel": "Hotel-Check-in",
+      "checkInDescription": "Check-in in Ihrer Unterkunft",
+      "localLunch": "Lokales Mittagessen",
+      "localLunchDescription": "Lokale Küche probieren",
+      "culturalSiteVisit": "Kulturstättenbesuch",
+      "culturalSiteDescription": "Historische und kulturelle Sehenswürdigkeiten erkunden",
+      "localFoodExperience": "Lokale Kucherlebnis",
+      "localFoodDescription": "Authentische lokale Gerichte probieren",
+      "natureExploration": "Naturexploration",
+      "natureDescription": "Parks oder Naturattraktionen besuchen"
+    },
+    "tips": {
+      "getTransportPass": "Lokalen Verkehrspass erhalten",
+      "bookInAdvance": "Im Voraus buchen für bessere Preise",
+      "storeLuggage": "Gepäck aufbewahren, wenn früher Check-in nicht verfügbar ist",
+      "askLocals": "Einheimische um Empfehlungen bitten",
+      "arriveEarly": "Früh ankommen, um Menschenmassen zu vermeiden",
+      "tryStreetFood": "Straßenessen für authentische Erfahrung probieren",
+      "comfortableShoes": "Bequeme Wanderschuhe mitbringen"
+    },
+    "themes": {
+      "arrival": "Ankunft und Orientierung",
+      "cultural": "Kulturexploration",
+      "local": "Lokale Erlebnisse",
+      "adventure": "Abenteuer und Entdeckung",
+      "relaxation": "Entspannung und Reflexion",
+      "sightseeing": "Sightseeing"
+    },
+    "recommendations": {
+      "localMarket": "Lokaler Markt",
+      "localCuisine": "Lokal",
+      "traditionalRestaurant": "Traditionelles Restaurant",
+      "traditionalCuisine": "Traditionell",
+      "freshIngredients": "Frische lokale Zutaten und authentische Aromen",
+      "authenticCuisine": "Authentische lokale Küche in traditioneller Umgebung",
+      "historicTemple": "Historischer Tempel",
+      "culturalType": "Kulturell",
+      "museum": "Museum",
+      "museumDescription": "Lokale Geschichte und Kultur",
+      "localPass": "Lokaler Pass",
+      "unlimitedTransport": "Unbegrenzter lokaler Verkehr",
+      "buyAtStation": "An der Station oder online kaufen"
+    },
+    "practicalInfo": {
+      "weatherCheck": "Lokale Wettervorhersage vor der Reise überprüfen",
+      "packingItems": {
+        "clothes": "Kleidung",
+        "passport": "Reisepass",
+        "camera": "Kamera",
+        "charger": "Ladegerät",
+        "comfortableShoes": "Bequeme Schuhe"
+      },
+      "customs": {
+        "respectTraditions": "Lokale Traditionen respektieren",
+        "learnPhrases": "Grundlegende Phrasen lernen",
+        "followEtiquette": "Lokale Etikette befolgen"
+      },
+      "emergencyContacts": {
+        "police": "Polizei: 110",
+        "ambulance": "Rettungswagen: 119",
+        "helpline": "Touristen-Hotline"
+      },
+      "phrases": {
+        "hello": "Hallo",
+        "thankYou": "Danke",
+        "excuseMe": "Entschuldigung",
+        "whereIs": "Wo ist...?",
+        "howMuch": "Wie viel?"
+      }
+    },
+    "download": {
+      "header": "========================================",
+      "destination": "Reiseziel: {{destination}}",
+      "duration": "Dauer: {{duration}} Tage",
+      "budget": "Budget: {{currency}} {{amount}}",
+      "budgetBreakdown": "Budgetaufschlüsselung:",
+      "itinerary": "Reiseroute:",
+      "dayHeader": "Tag {{day}} - {{theme}}",
+      "date": "Datum: {{date}}",
+      "location": "Ort: {{location}}",
+      "description": "Beschreibung: {{description}}",
+      "durationMinutes": "Dauer: {{duration}} Minuten",
+      "cost": "Kosten: {{currency}} {{amount}}",
+      "tips": "Tipps: {{tips}}",
+      "recommendations": "Empfehlungen:",
+      "rating": "Bewertung: {{rating}}",
+      "practicalInfo": "Praktische Informationen:",
+      "weather": "Wetter: {{weather}}",
+      "packingList": "Packliste:",
+      "localCustoms": "Lokale Bräuche:",
+      "emergencyContacts": "Notfallkontakte:",
+      "usefulPhrases": "Nützliche Phrasen:",
+      "footer": "Dieser Plan wurde am {{date}} generiert.",
+      "footerTagline": "Trippin - Ihr Reisebegleiter"
+    },
+    "display": {
+      "tabs": {
+        "itinerary": "Reiseroute",
+        "recommendations": "Empfehlungen",
+        "practical": "Praktische Informationen"
+      },
+      "sections": {
+        "recommendedRestaurants": "Empfohlene Restaurants",
+        "attractions": "Sehenswürdigkeiten",
+        "transportation": "Verkehrsmittel",
+        "weatherInfo": "Wetterinformationen",
+        "packingList": "Packliste",
+        "localCustoms": "Lokale Bräuche",
+        "emergencyContacts": "Notfallkontakte",
+        "usefulPhrases": "Nützliche Phrasen"
+      },
+      "dayPrefix": "Tag {{day}}",
+      "days": "Tage",
+      "savePlan": "Plan speichern",
+      "downloadPlan": "Plan herunterladen",
+      "location": "Ort",
+      "time": "Zeit",
+      "cost": "Kosten",
+      "duration": "Dauer",
+      "minutes": "Minuten"
+    }
   },
   "tripDetail": {
     "editPlan": "Plan bearbeiten",
@@ -1940,5 +2072,44 @@ export const de = {
     "imageProcessingError": "Bei der Bildverarbeitung ist ein Fehler aufgetreten.",
     "imageProcessingFailed": "Die Bildverarbeitung ist fehlgeschlagen. Bitte überprüfen Sie Ihre Netzwerkverbindung.",
     "dismiss": "schließen"
+  },
+  "profile": {
+    "title": "Profileinstellungen",
+    "subtitle": "Verwalten Sie Ihre Informationen",
+    "premiumBadge": "Premium-Mitglied",
+    "sections": {
+      "basicInfo": "Grundinformationen",
+      "settings": "Einstellungen"
+    },
+    "fields": {
+      "name": "Name",
+      "email": "E-Mail-Adresse",
+      "phone": "Telefonnummer",
+      "location": "Standort",
+      "birthDate": "Geburtsdatum",
+      "bio": "Biografie",
+      "bioPlaceholder": "Erzählen Sie uns von sich..."
+    },
+    "preferences": {
+      "newsletter": "Newsletter erhalten",
+      "notifications": "Push-Benachrichtigungen erhalten",
+      "marketing": "Marketing-E-Mails erhalten"
+    },
+    "actions": {
+      "edit": "Bearbeiten",
+      "cancel": "Abbrechen",
+      "save": "Speichern",
+      "saving": "Wird gespeichert...",
+      "deleteAccount": "Konto löschen"
+    },
+    "messages": {
+      "saveSuccess": "Profil erfolgreich gespeichert"
+    },
+    "errors": {
+      "notLoggedIn": "Benutzer ist nicht angemeldet",
+      "noAuthToken": "Authentifizierungstoken nicht gefunden. Bitte melden Sie sich erneut an.",
+      "saveFailed": "Profil konnte nicht gespeichert werden",
+      "saveFailedRetry": "Profil konnte nicht gespeichert werden. Bitte versuchen Sie es erneut."
+    }
   }
 };

@@ -909,7 +909,139 @@ export const nl = {
       "downloadFailed": "Downloaden mislukt. Probeer het opnieuw."
     },
     "loadErrorTitle": "Kan het plan niet laden",
-    "loadErrorDescription": "Gegenereerd plan niet gevonden. Beantwoord de vraag nogmaals."
+    "loadErrorDescription": "Gegenereerd plan niet gevonden. Beantwoord de vraag nogmaals.",
+    "errors": {
+      "noTripData": "Reisgegevens niet gevonden. Begin opnieuw.",
+      "planGenerationFailed": "Plan genereren mislukt",
+      "planGenerationError": "Er is een fout opgetreden bij het genereren van het plan.",
+      "aiUnavailable": "AI-verwerking is niet beschikbaar. Basisplan wordt weergegeven.",
+      "planNotFound": "Plan niet gevonden",
+      "planDataNotLoaded": "Plandata konden niet correct worden geladen."
+    },
+    "activities": {
+      "arrival": "Aankomst in {{destination}}",
+      "arrivalDescription": "Aankomst en inchecken bij accommodatie",
+      "checkInHotel": "Inchecken bij hotel",
+      "checkInDescription": "Inchecken bij uw accommodatie",
+      "localLunch": "Lokale lunch",
+      "localLunchDescription": "Probeer lokale keuken",
+      "culturalSiteVisit": "Bezoek aan culturele site",
+      "culturalSiteDescription": "Verken historische en culturele attracties",
+      "localFoodExperience": "Lokale voedselervaring",
+      "localFoodDescription": "Probeer authentieke lokale gerechten",
+      "natureExploration": "Natuurverkenning",
+      "natureDescription": "Bezoek parken of natuurlijke attracties"
+    },
+    "tips": {
+      "getTransportPass": "Krijg lokale vervoerspas",
+      "bookInAdvance": "Boek van tevoren voor betere prijzen",
+      "storeLuggage": "Bewaar bagage als vroege incheck niet beschikbaar is",
+      "askLocals": "Vraag lokale bewoners om aanbevelingen",
+      "arriveEarly": "Kom vroeg aan om drukte te vermijden",
+      "tryStreetFood": "Probeer straatvoedsel voor authentieke ervaring",
+      "comfortableShoes": "Breng comfortabele wandelschoenen mee"
+    },
+    "themes": {
+      "arrival": "Aankomst en oriëntatie",
+      "cultural": "Culturele verkenning",
+      "local": "Lokale ervaringen",
+      "adventure": "Avontuur en ontdekking",
+      "relaxation": "Ontspanning en reflectie",
+      "sightseeing": "Sightseeing"
+    },
+    "recommendations": {
+      "localMarket": "Lokale markt",
+      "localCuisine": "Lokaal",
+      "traditionalRestaurant": "Traditioneel restaurant",
+      "traditionalCuisine": "Traditioneel",
+      "freshIngredients": "Verse lokale ingrediënten en authentieke smaken",
+      "authenticCuisine": "Authentieke lokale keuken in traditionele setting",
+      "historicTemple": "Historische tempel",
+      "culturalType": "Cultureel",
+      "museum": "Museum",
+      "museumDescription": "Lokale geschiedenis en cultuur",
+      "localPass": "Lokale pas",
+      "unlimitedTransport": "Onbeperkt lokaal vervoer",
+      "buyAtStation": "Koop bij station of online"
+    },
+    "practicalInfo": {
+      "weatherCheck": "Controleer lokale weersvoorspelling voor reizen",
+      "packingItems": {
+        "clothes": "Kleding",
+        "passport": "Paspoort",
+        "camera": "Camera",
+        "charger": "Oplader",
+        "comfortableShoes": "Comfortabele schoenen"
+      },
+      "customs": {
+        "respectTraditions": "Respecteer lokale tradities",
+        "learnPhrases": "Leer basiszinnen",
+        "followEtiquette": "Volg lokale etiquette"
+      },
+      "emergencyContacts": {
+        "police": "Politie: 110",
+        "ambulance": "Ambulance: 119",
+        "helpline": "Toeristenhulplijn"
+      },
+      "phrases": {
+        "hello": "Hallo",
+        "thankYou": "Dank je",
+        "excuseMe": "Pardon",
+        "whereIs": "Waar is...?",
+        "howMuch": "Hoeveel?"
+      }
+    },
+    "download": {
+      "header": "========================================",
+      "destination": "Bestemming: {{destination}}",
+      "duration": "Duur: {{duration}} dagen",
+      "budget": "Budget: {{currency}} {{amount}}",
+      "budgetBreakdown": "Budgetverdeling:",
+      "itinerary": "Reisroute:",
+      "dayHeader": "Dag {{day}} - {{theme}}",
+      "date": "Datum: {{date}}",
+      "location": "Locatie: {{location}}",
+      "description": "Beschrijving: {{description}}",
+      "durationMinutes": "Duur: {{duration}} minuten",
+      "cost": "Kosten: {{currency}} {{amount}}",
+      "tips": "Tips: {{tips}}",
+      "recommendations": "Aanbevelingen:",
+      "rating": "Beoordeling: {{rating}}",
+      "practicalInfo": "Praktische informatie:",
+      "weather": "Weer: {{weather}}",
+      "packingList": "Inpaklijst:",
+      "localCustoms": "Lokale gewoonten:",
+      "emergencyContacts": "Noodcontacten:",
+      "usefulPhrases": "Handige zinnen:",
+      "footer": "Dit plan is gegenereerd op {{date}}.",
+      "footerTagline": "Trippin - Uw reispartner"
+    },
+    "display": {
+      "tabs": {
+        "itinerary": "Reisroute",
+        "recommendations": "Aanbevelingen",
+        "practical": "Praktische informatie"
+      },
+      "sections": {
+        "recommendedRestaurants": "Aanbevolen restaurants",
+        "attractions": "Attracties",
+        "transportation": "Vervoer",
+        "weatherInfo": "Weersinformatie",
+        "packingList": "Inpaklijst",
+        "localCustoms": "Lokale gewoonten",
+        "emergencyContacts": "Noodcontacten",
+        "usefulPhrases": "Handige zinnen"
+      },
+      "dayPrefix": "Dag {{day}}",
+      "days": "dagen",
+      "savePlan": "Plan opslaan",
+      "downloadPlan": "Plan downloaden",
+      "location": "Locatie",
+      "time": "Tijd",
+      "cost": "Kosten",
+      "duration": "Duur",
+      "minutes": "minuten"
+    }
   },
   "tripDetail": {
     "editPlan": "Plan bewerken",
@@ -1940,5 +2072,44 @@ export const nl = {
     "imageProcessingError": "Er is een fout opgetreden tijdens de beeldverwerking.",
     "imageProcessingFailed": "Beeldverwerking mislukt. Controleer uw netwerkverbinding.",
     "dismiss": "dichtbij"
+  },
+  "profile": {
+    "title": "Profielinstellingen",
+    "subtitle": "Beheer uw informatie",
+    "premiumBadge": "Premium Lid",
+    "sections": {
+      "basicInfo": "Basisinformatie",
+      "settings": "Instellingen"
+    },
+    "fields": {
+      "name": "Naam",
+      "email": "E-mailadres",
+      "phone": "Telefoonnummer",
+      "location": "Locatie",
+      "birthDate": "Geboortedatum",
+      "bio": "Biografie",
+      "bioPlaceholder": "Vertel ons over jezelf..."
+    },
+    "preferences": {
+      "newsletter": "Nieuwsbrief ontvangen",
+      "notifications": "Pushmeldingen ontvangen",
+      "marketing": "Marketing-e-mails ontvangen"
+    },
+    "actions": {
+      "edit": "Bewerken",
+      "cancel": "Annuleren",
+      "save": "Opslaan",
+      "saving": "Opslaan...",
+      "deleteAccount": "Account verwijderen"
+    },
+    "messages": {
+      "saveSuccess": "Profiel succesvol opgeslagen"
+    },
+    "errors": {
+      "notLoggedIn": "Gebruiker is niet ingelogd",
+      "noAuthToken": "Authenticatietoken niet gevonden. Log opnieuw in.",
+      "saveFailed": "Profiel opslaan mislukt",
+      "saveFailedRetry": "Profiel opslaan mislukt. Probeer het opnieuw."
+    }
   }
 };

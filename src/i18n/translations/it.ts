@@ -907,7 +907,139 @@ export const it = {
       "downloadFailed": "Download non riuscito. Per favore riprova."
     },
     "loadErrorTitle": "Impossibile caricare il piano",
-    "loadErrorDescription": "Piano generato non trovato. Per favore rispondi di nuovo alla domanda."
+    "loadErrorDescription": "Piano generato non trovato. Per favore rispondi di nuovo alla domanda.",
+    "errors": {
+      "noTripData": "Dati del viaggio non trovati. Si prega di ricominciare.",
+      "planGenerationFailed": "Generazione del piano fallita",
+      "planGenerationError": "Si è verificato un errore durante la generazione del piano.",
+      "aiUnavailable": "Elaborazione AI non disponibile. Visualizzazione del piano di base.",
+      "planNotFound": "Piano non trovato",
+      "planDataNotLoaded": "I dati del piano non sono stati caricati correttamente."
+    },
+    "activities": {
+      "arrival": "Arrivo a {{destination}}",
+      "arrivalDescription": "Arrivo e check-in nell'alloggio",
+      "checkInHotel": "Check-in in hotel",
+      "checkInDescription": "Check-in nel tuo alloggio",
+      "localLunch": "Pranzo locale",
+      "localLunchDescription": "Assaggia la cucina locale",
+      "culturalSiteVisit": "Visita a sito culturale",
+      "culturalSiteDescription": "Esplora attrazioni storiche e culturali",
+      "localFoodExperience": "Esperienza gastronomica locale",
+      "localFoodDescription": "Assaggia piatti locali autentici",
+      "natureExploration": "Esplorazione della natura",
+      "natureDescription": "Visita parchi o attrazioni naturali"
+    },
+    "tips": {
+      "getTransportPass": "Ottieni il pass di trasporto locale",
+      "bookInAdvance": "Prenota in anticipo per prezzi migliori",
+      "storeLuggage": "Deposita i bagagli se il check-in anticipato non è disponibile",
+      "askLocals": "Chiedi consigli ai locali",
+      "arriveEarly": "Arriva presto per evitare la folla",
+      "tryStreetFood": "Prova il cibo di strada per un'esperienza autentica",
+      "comfortableShoes": "Porta scarpe comode per camminare"
+    },
+    "themes": {
+      "arrival": "Arrivo e orientamento",
+      "cultural": "Esplorazione culturale",
+      "local": "Esperienze locali",
+      "adventure": "Avventura e scoperta",
+      "relaxation": "Rilassamento e riflessione",
+      "sightseeing": "Sightseeing"
+    },
+    "recommendations": {
+      "localMarket": "Mercato locale",
+      "localCuisine": "Locale",
+      "traditionalRestaurant": "Ristorante tradizionale",
+      "traditionalCuisine": "Tradizionale",
+      "freshIngredients": "Ingredienti locali freschi e sapori autentici",
+      "authenticCuisine": "Cucina locale autentica in ambiente tradizionale",
+      "historicTemple": "Tempio storico",
+      "culturalType": "Culturale",
+      "museum": "Museo",
+      "museumDescription": "Storia e cultura locale",
+      "localPass": "Pass locale",
+      "unlimitedTransport": "Trasporto locale illimitato",
+      "buyAtStation": "Acquista alla stazione o online"
+    },
+    "practicalInfo": {
+      "weatherCheck": "Controlla le previsioni del tempo locali prima di viaggiare",
+      "packingItems": {
+        "clothes": "Vestiti",
+        "passport": "Passaporto",
+        "camera": "Fotocamera",
+        "charger": "Caricabatterie",
+        "comfortableShoes": "Scarpe comode"
+      },
+      "customs": {
+        "respectTraditions": "Rispetta le tradizioni locali",
+        "learnPhrases": "Impara frasi di base",
+        "followEtiquette": "Segui l'etichetta locale"
+      },
+      "emergencyContacts": {
+        "police": "Polizia: 110",
+        "ambulance": "Ambulanza: 119",
+        "helpline": "Linea di assistenza turistica"
+      },
+      "phrases": {
+        "hello": "Ciao",
+        "thankYou": "Grazie",
+        "excuseMe": "Scusa",
+        "whereIs": "Dov'è...?",
+        "howMuch": "Quanto costa?"
+      }
+    },
+    "download": {
+      "header": "========================================",
+      "destination": "Destinazione: {{destination}}",
+      "duration": "Durata: {{duration}} giorni",
+      "budget": "Budget: {{currency}} {{amount}}",
+      "budgetBreakdown": "Ripartizione del budget:",
+      "itinerary": "Itinerario:",
+      "dayHeader": "Giorno {{day}} - {{theme}}",
+      "date": "Data: {{date}}",
+      "location": "Posizione: {{location}}",
+      "description": "Descrizione: {{description}}",
+      "durationMinutes": "Durata: {{duration}} minuti",
+      "cost": "Costo: {{currency}} {{amount}}",
+      "tips": "Consigli: {{tips}}",
+      "recommendations": "Raccomandazioni:",
+      "rating": "Valutazione: {{rating}}",
+      "practicalInfo": "Informazioni pratiche:",
+      "weather": "Meteo: {{weather}}",
+      "packingList": "Lista di imballaggio:",
+      "localCustoms": "Usanze locali:",
+      "emergencyContacts": "Contatti di emergenza:",
+      "usefulPhrases": "Frasi utili:",
+      "footer": "Questo piano è stato generato il {{date}}.",
+      "footerTagline": "Trippin - Il tuo compagno di viaggio"
+    },
+    "display": {
+      "tabs": {
+        "itinerary": "Itinerario",
+        "recommendations": "Raccomandazioni",
+        "practical": "Informazioni pratiche"
+      },
+      "sections": {
+        "recommendedRestaurants": "Ristoranti consigliati",
+        "attractions": "Attrazioni",
+        "transportation": "Trasporti",
+        "weatherInfo": "Informazioni meteo",
+        "packingList": "Lista di imballaggio",
+        "localCustoms": "Usanze locali",
+        "emergencyContacts": "Contatti di emergenza",
+        "usefulPhrases": "Frasi utili"
+      },
+      "dayPrefix": "Giorno {{day}}",
+      "days": "giorni",
+      "savePlan": "Salva piano",
+      "downloadPlan": "Scarica piano",
+      "location": "Posizione",
+      "time": "Tempo",
+      "cost": "Costo",
+      "duration": "Durata",
+      "minutes": "minuti"
+    }
   },
   "tripDetail": {
     "editPlan": "Modifica piano",
@@ -1938,5 +2070,44 @@ export const it = {
     "imageProcessingError": "Si è verificato un errore durante l'elaborazione dell'immagine.",
     "imageProcessingFailed": "Elaborazione dell'immagine non riuscita. Controlla la connessione di rete.",
     "dismiss": "vicino"
+  },
+  "profile": {
+    "title": "Impostazioni profilo",
+    "subtitle": "Gestisci le tue informazioni",
+    "premiumBadge": "Membro Premium",
+    "sections": {
+      "basicInfo": "Informazioni di base",
+      "settings": "Impostazioni"
+    },
+    "fields": {
+      "name": "Nome",
+      "email": "Indirizzo email",
+      "phone": "Numero di telefono",
+      "location": "Posizione",
+      "birthDate": "Data di nascita",
+      "bio": "Biografia",
+      "bioPlaceholder": "Raccontaci di te..."
+    },
+    "preferences": {
+      "newsletter": "Ricevi newsletter",
+      "notifications": "Ricevi notifiche push",
+      "marketing": "Ricevi email di marketing"
+    },
+    "actions": {
+      "edit": "Modifica",
+      "cancel": "Annulla",
+      "save": "Salva",
+      "saving": "Salvataggio...",
+      "deleteAccount": "Elimina account"
+    },
+    "messages": {
+      "saveSuccess": "Profilo salvato con successo"
+    },
+    "errors": {
+      "notLoggedIn": "L'utente non è connesso",
+      "noAuthToken": "Token di autenticazione non trovato. Effettua nuovamente l'accesso.",
+      "saveFailed": "Salvataggio del profilo non riuscito",
+      "saveFailedRetry": "Salvataggio del profilo non riuscito. Riprova."
+    }
   }
 };

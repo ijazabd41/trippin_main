@@ -907,7 +907,139 @@ export const ar = {
       "downloadFailed": "فشل التنزيل. يرجى المحاولة مرة أخرى."
     },
     "loadErrorTitle": "فشل تحميل الخطة",
-    "loadErrorDescription": "لم يتم العثور على الخطة التي تم إنشاؤها. الرجاء الإجابة على السؤال مرة أخرى."
+    "loadErrorDescription": "لم يتم العثور على الخطة التي تم إنشاؤها. الرجاء الإجابة على السؤال مرة أخرى.",
+    "errors": {
+      "noTripData": "لم يتم العثور على بيانات الرحلة. يرجى البدء من جديد.",
+      "planGenerationFailed": "فشل إنشاء الخطة",
+      "planGenerationError": "حدث خطأ أثناء إنشاء الخطة.",
+      "aiUnavailable": "معالجة الذكاء الاصطناعي غير متاحة. عرض الخطة الأساسية.",
+      "planNotFound": "لم يتم العثور على الخطة",
+      "planDataNotLoaded": "تعذر تحميل بيانات الخطة بشكل صحيح."
+    },
+    "activities": {
+      "arrival": "الوصول إلى {{destination}}",
+      "arrivalDescription": "الوصول وتسجيل الوصول في مكان الإقامة",
+      "checkInHotel": "تسجيل الوصول في الفندق",
+      "checkInDescription": "تسجيل الوصول في مكان إقامتك",
+      "localLunch": "غداء محلي",
+      "localLunchDescription": "جرب المأكولات المحلية",
+      "culturalSiteVisit": "زيارة موقع ثقافي",
+      "culturalSiteDescription": "استكشف المعالم التاريخية والثقافية",
+      "localFoodExperience": "تجربة الطعام المحلي",
+      "localFoodDescription": "جرب الأطباق المحلية الأصيلة",
+      "natureExploration": "استكشاف الطبيعة",
+      "natureDescription": "زيارة الحدائق أو المعالم الطبيعية"
+    },
+    "tips": {
+      "getTransportPass": "احصل على بطاقة النقل المحلية",
+      "bookInAdvance": "احجز مسبقًا للحصول على أسعار أفضل",
+      "storeLuggage": "احفظ الأمتعة إذا لم يكن التسجيل المبكر متاحًا",
+      "askLocals": "اسأل السكان المحليين للحصول على توصيات",
+      "arriveEarly": "وصل مبكرًا لتجنب الازدحام",
+      "tryStreetFood": "جرب طعام الشارع للحصول على تجربة أصيلة",
+      "comfortableShoes": "أحضر أحذية مريحة للمشي"
+    },
+    "themes": {
+      "arrival": "الوصول والتوجيه",
+      "cultural": "الاستكشاف الثقافي",
+      "local": "التجارب المحلية",
+      "adventure": "المغامرة والاكتشاف",
+      "relaxation": "الاسترخاء والتأمل",
+      "sightseeing": "مشاهدة المعالم"
+    },
+    "recommendations": {
+      "localMarket": "السوق المحلي",
+      "localCuisine": "محلي",
+      "traditionalRestaurant": "مطعم تقليدي",
+      "traditionalCuisine": "تقليدي",
+      "freshIngredients": "مكونات محلية طازجة ونكهات أصيلة",
+      "authenticCuisine": "مأكولات محلية أصيلة في بيئة تقليدية",
+      "historicTemple": "معبد تاريخي",
+      "culturalType": "ثقافي",
+      "museum": "متحف",
+      "museumDescription": "التاريخ والثقافة المحلية",
+      "localPass": "بطاقة محلية",
+      "unlimitedTransport": "نقل محلي غير محدود",
+      "buyAtStation": "اشتري من المحطة أو عبر الإنترنت"
+    },
+    "practicalInfo": {
+      "weatherCheck": "تحقق من توقعات الطقس المحلية قبل السفر",
+      "packingItems": {
+        "clothes": "ملابس",
+        "passport": "جواز السفر",
+        "camera": "كاميرا",
+        "charger": "شاحن",
+        "comfortableShoes": "أحذية مريحة"
+      },
+      "customs": {
+        "respectTraditions": "احترم التقاليد المحلية",
+        "learnPhrases": "تعلم العبارات الأساسية",
+        "followEtiquette": "اتبع آداب السلوك المحلية"
+      },
+      "emergencyContacts": {
+        "police": "الشرطة: 110",
+        "ambulance": "الإسعاف: 119",
+        "helpline": "خط المساعدة السياحي"
+      },
+      "phrases": {
+        "hello": "مرحباً",
+        "thankYou": "شكراً",
+        "excuseMe": "اعذرني",
+        "whereIs": "أين يوجد...؟",
+        "howMuch": "كم الثمن؟"
+      }
+    },
+    "download": {
+      "header": "========================================",
+      "destination": "الوجهة: {{destination}}",
+      "duration": "المدة: {{duration}} أيام",
+      "budget": "الميزانية: {{currency}} {{amount}}",
+      "budgetBreakdown": "تفصيل الميزانية:",
+      "itinerary": "الجدول الزمني:",
+      "dayHeader": "اليوم {{day}} - {{theme}}",
+      "date": "التاريخ: {{date}}",
+      "location": "الموقع: {{location}}",
+      "description": "الوصف: {{description}}",
+      "durationMinutes": "المدة: {{duration}} دقيقة",
+      "cost": "التكلفة: {{currency}} {{amount}}",
+      "tips": "نصائح: {{tips}}",
+      "recommendations": "التوصيات:",
+      "rating": "التقييم: {{rating}}",
+      "practicalInfo": "معلومات عملية:",
+      "weather": "الطقس: {{weather}}",
+      "packingList": "قائمة الحزم:",
+      "localCustoms": "العادات المحلية:",
+      "emergencyContacts": "جهات الاتصال الطارئة:",
+      "usefulPhrases": "عبارات مفيدة:",
+      "footer": "تم إنشاء هذه الخطة في {{date}}.",
+      "footerTagline": "Trippin - شريكك في السفر"
+    },
+    "display": {
+      "tabs": {
+        "itinerary": "الجدول الزمني",
+        "recommendations": "التوصيات",
+        "practical": "معلومات عملية"
+      },
+      "sections": {
+        "recommendedRestaurants": "مطاعم موصى بها",
+        "attractions": "المعالم السياحية",
+        "transportation": "النقل",
+        "weatherInfo": "معلومات الطقس",
+        "packingList": "قائمة الحزم",
+        "localCustoms": "العادات المحلية",
+        "emergencyContacts": "جهات الاتصال الطارئة",
+        "usefulPhrases": "عبارات مفيدة"
+      },
+      "dayPrefix": "اليوم {{day}}",
+      "days": "أيام",
+      "savePlan": "حفظ الخطة",
+      "downloadPlan": "تحميل الخطة",
+      "location": "الموقع",
+      "time": "الوقت",
+      "cost": "التكلفة",
+      "duration": "المدة",
+      "minutes": "دقائق"
+    }
   },
   "tripDetail": {
     "editPlan": "تحرير الخطة",
@@ -1938,5 +2070,44 @@ export const ar = {
     "imageProcessingError": "حدث خطأ أثناء معالجة الصورة.",
     "imageProcessingFailed": "فشلت معالجة الصورة. الرجاء التحقق من اتصال الشبكة الخاصة بك.",
     "dismiss": "يغلق"
+  },
+  "profile": {
+    "title": "إعدادات الملف الشخصي",
+    "subtitle": "إدارة معلوماتك",
+    "premiumBadge": "عضو مميز",
+    "sections": {
+      "basicInfo": "المعلومات الأساسية",
+      "settings": "الإعدادات"
+    },
+    "fields": {
+      "name": "الاسم",
+      "email": "عنوان البريد الإلكتروني",
+      "phone": "رقم الهاتف",
+      "location": "الموقع",
+      "birthDate": "تاريخ الميلاد",
+      "bio": "نبذة شخصية",
+      "bioPlaceholder": "أخبرنا عن نفسك..."
+    },
+    "preferences": {
+      "newsletter": "تلقي النشرة الإخبارية",
+      "notifications": "تلقي الإشعارات الفورية",
+      "marketing": "تلقي رسائل البريد الإلكتروني التسويقية"
+    },
+    "actions": {
+      "edit": "تعديل",
+      "cancel": "إلغاء",
+      "save": "حفظ",
+      "saving": "جاري الحفظ...",
+      "deleteAccount": "حذف الحساب"
+    },
+    "messages": {
+      "saveSuccess": "تم حفظ الملف الشخصي بنجاح"
+    },
+    "errors": {
+      "notLoggedIn": "المستخدم غير مسجل الدخول",
+      "noAuthToken": "لم يتم العثور على رمز المصادقة. يرجى تسجيل الدخول مرة أخرى.",
+      "saveFailed": "فشل حفظ الملف الشخصي",
+      "saveFailedRetry": "فشل حفظ الملف الشخصي. يرجى المحاولة مرة أخرى."
+    }
   }
 };

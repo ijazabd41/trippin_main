@@ -120,7 +120,11 @@ export const apiCall = async (endpoint: string, options: RequestInit = {}): Prom
   const alternateUrlForEndpoint = (ep: string): string | null => {
     // Map specific endpoints to serverless equivalents
     if (ep === API_CONFIG.ENDPOINTS.OPENAI_GENERATE) return `${vercelBase}/openai-generate`;
-    if (ep === API_CONFIG.ENDPOINTS.OPENAI_CHAT) return `${vercelBase}/openai-chat`;
+    if (ep === API_CONFIG.ENDPOINTS.OPENAI_CHAT) {
+      // Try Supabase Edge Function first, then Vercel
+      const supabaseBackendUrl = import.meta.env.VITE_BACKEND_URL || 'https://fuskrbebtyccnmaprmbe.supabase.co/functions/v1/trippin-api';
+      return `${supabaseBackendUrl}/api/openai/chat`;
+    }
     return null;
   };
   
@@ -219,6 +223,34 @@ export const apiCall = async (endpoint: string, options: RequestInit = {}): Prom
               endpoint
             );
           case 500:
+            // For chat endpoints, try alternate URL before throwing error
+            const altUrl = alternateUrlForEndpoint(endpoint);
+            if (altUrl && (endpoint.includes('chat') || endpoint.includes('openai'))) {
+              try {
+                console.warn(`[API] Primary backend returned 500. Trying serverless fallback: ${altUrl}`);
+                const altController = new AbortController();
+                const altTimeoutId = setTimeout(() => altController.abort(), API_CONFIG.TIMEOUT);
+                const altResponse = await fetch(altUrl, {
+                  ...requestOptions,
+                  signal: altController.signal
+                });
+                clearTimeout(altTimeoutId);
+
+                if (altResponse.ok) {
+                  const altContentType = altResponse.headers.get('content-type');
+                  if (altContentType && altContentType.includes('application/json')) {
+                    const altData = await altResponse.json();
+                    console.log(`✅ API Success via serverless fallback:`, { endpoint, altData });
+                    return altData;
+                  }
+                  const altText = await altResponse.text();
+                  console.log(`✅ API Success (text) via serverless fallback:`, { endpoint, altText });
+                  return { data: altText };
+                }
+              } catch (altErr: any) {
+                console.warn(`[API] Serverless fallback also failed:`, altErr);
+              }
+            }
             throw createAPIError(
               'サーバーエラーが発生しました。しばらく待ってからお試しください。',
               500,

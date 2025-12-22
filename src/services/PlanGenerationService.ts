@@ -73,11 +73,13 @@ export interface GeneratedPlan {
     }[];
   };
   practicalInfo: {
-    weather: string;
+    weather?: string;
     packingList: string[];
     localCustoms: string[];
     emergencyContacts: string[];
     usefulPhrases: string[];
+    transportation?: string;
+    tips?: string;
   };
   createdAt: string;
 }

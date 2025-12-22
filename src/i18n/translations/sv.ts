@@ -909,7 +909,139 @@ export const sv = {
       "downloadFailed": "Nedladdningen misslyckades. Försök igen."
     },
     "loadErrorTitle": "Det gick inte att ladda planen",
-    "loadErrorDescription": "Den genererade planen hittades inte. Vänligen svara på frågan igen."
+    "loadErrorDescription": "Den genererade planen hittades inte. Vänligen svara på frågan igen.",
+    "errors": {
+      "noTripData": "Resedata hittades inte. Vänligen börja om.",
+      "planGenerationFailed": "Planering misslyckades",
+      "planGenerationError": "Ett fel uppstod vid generering av planen.",
+      "aiUnavailable": "AI-bearbetning är inte tillgänglig. Visar grundplan.",
+      "planNotFound": "Plan hittades inte",
+      "planDataNotLoaded": "Plandata kunde inte laddas korrekt."
+    },
+    "activities": {
+      "arrival": "Ankomst till {{destination}}",
+      "arrivalDescription": "Ankomst och incheckning på boendet",
+      "checkInHotel": "Incheckning på hotell",
+      "checkInDescription": "Incheckning på ditt boende",
+      "localLunch": "Lokal lunch",
+      "localLunchDescription": "Prova lokal mat",
+      "culturalSiteVisit": "Besök på kulturplats",
+      "culturalSiteDescription": "Utforska historiska och kulturella sevärdheter",
+      "localFoodExperience": "Lokal matupplevelse",
+      "localFoodDescription": "Prova autentiska lokala rätter",
+      "natureExploration": "Naturexplorering",
+      "natureDescription": "Besök parker eller naturliga sevärdheter"
+    },
+    "tips": {
+      "getTransportPass": "Skaffa lokal transportbiljett",
+      "bookInAdvance": "Boka i förväg för bättre priser",
+      "storeLuggage": "Förvara bagage om tidig incheckning inte är tillgänglig",
+      "askLocals": "Fråga lokalbefolkningen om rekommendationer",
+      "arriveEarly": "Anländ tidigt för att undvika folkmassor",
+      "tryStreetFood": "Prova gatmat för autentisk upplevelse",
+      "comfortableShoes": "Ta med bekväma promenadskor"
+    },
+    "themes": {
+      "arrival": "Ankomst och orientering",
+      "cultural": "Kulturexplorering",
+      "local": "Lokala upplevelser",
+      "adventure": "Äventyr och upptäckt",
+      "relaxation": "Avkoppling och reflektion",
+      "sightseeing": "Sightseeing"
+    },
+    "recommendations": {
+      "localMarket": "Lokal marknad",
+      "localCuisine": "Lokal",
+      "traditionalRestaurant": "Traditionell restaurang",
+      "traditionalCuisine": "Traditionell",
+      "freshIngredients": "Färska lokala ingredienser och autentiska smaker",
+      "authenticCuisine": "Autentisk lokal mat i traditionell miljö",
+      "historicTemple": "Historisk tempel",
+      "culturalType": "Kulturell",
+      "museum": "Museum",
+      "museumDescription": "Lokal historia och kultur",
+      "localPass": "Lokal biljett",
+      "unlimitedTransport": "Obegränsad lokal transport",
+      "buyAtStation": "Köp på stationen eller online"
+    },
+    "practicalInfo": {
+      "weatherCheck": "Kontrollera lokal väderprognos innan resa",
+      "packingItems": {
+        "clothes": "Kläder",
+        "passport": "Pass",
+        "camera": "Kamera",
+        "charger": "Laddare",
+        "comfortableShoes": "Bekväma skor"
+      },
+      "customs": {
+        "respectTraditions": "Respektera lokala traditioner",
+        "learnPhrases": "Lär dig grundläggande fraser",
+        "followEtiquette": "Följ lokal etikett"
+      },
+      "emergencyContacts": {
+        "police": "Polis: 110",
+        "ambulance": "Ambulans: 119",
+        "helpline": "Turisthjälplinje"
+      },
+      "phrases": {
+        "hello": "Hej",
+        "thankYou": "Tack",
+        "excuseMe": "Ursäkta",
+        "whereIs": "Var finns...?",
+        "howMuch": "Hur mycket?"
+      }
+    },
+    "download": {
+      "header": "========================================",
+      "destination": "Destination: {{destination}}",
+      "duration": "Varaktighet: {{duration}} dagar",
+      "budget": "Budget: {{currency}} {{amount}}",
+      "budgetBreakdown": "Budgetfördelning:",
+      "itinerary": "Resplan:",
+      "dayHeader": "Dag {{day}} - {{theme}}",
+      "date": "Datum: {{date}}",
+      "location": "Plats: {{location}}",
+      "description": "Beskrivning: {{description}}",
+      "durationMinutes": "Varaktighet: {{duration}} minuter",
+      "cost": "Kostnad: {{currency}} {{amount}}",
+      "tips": "Tips: {{tips}}",
+      "recommendations": "Rekommendationer:",
+      "rating": "Betyg: {{rating}}",
+      "practicalInfo": "Praktisk information:",
+      "weather": "Väder: {{weather}}",
+      "packingList": "Packlista:",
+      "localCustoms": "Lokala seder:",
+      "emergencyContacts": "Nödkontakter:",
+      "usefulPhrases": "Användbara fraser:",
+      "footer": "Denna plan genererades {{date}}.",
+      "footerTagline": "Trippin - Din resepartner"
+    },
+    "display": {
+      "tabs": {
+        "itinerary": "Resplan",
+        "recommendations": "Rekommendationer",
+        "practical": "Praktisk information"
+      },
+      "sections": {
+        "recommendedRestaurants": "Rekommenderade restauranger",
+        "attractions": "Sevärdheter",
+        "transportation": "Transport",
+        "weatherInfo": "Väderinformation",
+        "packingList": "Packlista",
+        "localCustoms": "Lokala seder",
+        "emergencyContacts": "Nödkontakter",
+        "usefulPhrases": "Användbara fraser"
+      },
+      "dayPrefix": "Dag {{day}}",
+      "days": "dagar",
+      "savePlan": "Spara plan",
+      "downloadPlan": "Ladda ner plan",
+      "location": "Plats",
+      "time": "Tid",
+      "cost": "Kostnad",
+      "duration": "Varaktighet",
+      "minutes": "minuter"
+    }
   },
   "tripDetail": {
     "editPlan": "Redigera plan",
@@ -1940,5 +2072,44 @@ export const sv = {
     "imageProcessingError": "Ett fel uppstod under bildbehandlingen.",
     "imageProcessingFailed": "Bildbehandling misslyckades. Kontrollera din nätverksanslutning.",
     "dismiss": "nära"
+  },
+  "profile": {
+    "title": "Profilinställningar",
+    "subtitle": "Hantera din information",
+    "premiumBadge": "Premiummedlem",
+    "sections": {
+      "basicInfo": "Grundinformation",
+      "settings": "Inställningar"
+    },
+    "fields": {
+      "name": "Namn",
+      "email": "E-postadress",
+      "phone": "Telefonnummer",
+      "location": "Plats",
+      "birthDate": "Födelsedatum",
+      "bio": "Biografi",
+      "bioPlaceholder": "Berätta för oss om dig..."
+    },
+    "preferences": {
+      "newsletter": "Ta emot nyhetsbrev",
+      "notifications": "Ta emot push-meddelanden",
+      "marketing": "Ta emot marknadsföringsmejl"
+    },
+    "actions": {
+      "edit": "Redigera",
+      "cancel": "Avbryt",
+      "save": "Spara",
+      "saving": "Sparar...",
+      "deleteAccount": "Radera konto"
+    },
+    "messages": {
+      "saveSuccess": "Profil sparades framgångsrikt"
+    },
+    "errors": {
+      "notLoggedIn": "Användaren är inte inloggad",
+      "noAuthToken": "Autentiseringstoken hittades inte. Logga in igen.",
+      "saveFailed": "Kunde inte spara profil",
+      "saveFailedRetry": "Kunde inte spara profil. Försök igen."
+    }
   }
 };

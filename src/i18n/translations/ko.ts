@@ -907,7 +907,139 @@ export const ko = {
       "downloadFailed": "다운로드에 실패했습니다. 다시 시도해 주세요."
     },
     "loadErrorTitle": "계획을 로드하지 못했습니다.",
-    "loadErrorDescription": "생성된 계획을 찾을 수 없습니다. 질문에 다시 답해주세요."
+    "loadErrorDescription": "생성된 계획을 찾을 수 없습니다. 질문에 다시 답해주세요.",
+    "errors": {
+      "noTripData": "여행 데이터를 찾을 수 없습니다. 처음부터 다시 시작하세요.",
+      "planGenerationFailed": "계획 생성 실패",
+      "planGenerationError": "계획 생성 중 오류가 발생했습니다.",
+      "aiUnavailable": "AI 처리를 사용할 수 없습니다. 기본 계획을 표시합니다.",
+      "planNotFound": "계획을 찾을 수 없습니다",
+      "planDataNotLoaded": "계획 데이터를 올바르게 로드할 수 없습니다."
+    },
+    "activities": {
+      "arrival": "{{destination}} 도착",
+      "arrivalDescription": "도착하여 숙소에 체크인",
+      "checkInHotel": "호텔 체크인",
+      "checkInDescription": "숙소에 체크인",
+      "localLunch": "현지 점심",
+      "localLunchDescription": "현지 요리 맛보기",
+      "culturalSiteVisit": "문화 유적지 방문",
+      "culturalSiteDescription": "역사적 및 문화적 명소 탐험",
+      "localFoodExperience": "현지 음식 체험",
+      "localFoodDescription": "진정한 현지 요리 맛보기",
+      "natureExploration": "자연 탐험",
+      "natureDescription": "공원 또는 자연 명소 방문"
+    },
+    "tips": {
+      "getTransportPass": "현지 교통 패스 구매",
+      "bookInAdvance": "더 나은 가격을 위해 미리 예약",
+      "storeLuggage": "조기 체크인이 불가능한 경우 수하물 보관",
+      "askLocals": "현지인에게 추천 요청",
+      "arriveEarly": "혼잡을 피하기 위해 일찍 도착",
+      "tryStreetFood": "진정한 경험을 위해 길거리 음식 시도",
+      "comfortableShoes": "편안한 걷기 신발 가져오기"
+    },
+    "themes": {
+      "arrival": "도착 및 오리엔테이션",
+      "cultural": "문화 탐험",
+      "local": "현지 체험",
+      "adventure": "모험과 발견",
+      "relaxation": "휴식과 성찰",
+      "sightseeing": "관광"
+    },
+    "recommendations": {
+      "localMarket": "현지 시장",
+      "localCuisine": "현지",
+      "traditionalRestaurant": "전통 레스토랑",
+      "traditionalCuisine": "전통",
+      "freshIngredients": "신선한 현지 재료와 진정한 맛",
+      "authenticCuisine": "전통적인 환경의 진정한 현지 요리",
+      "historicTemple": "역사적인 사원",
+      "culturalType": "문화",
+      "museum": "박물관",
+      "museumDescription": "현지 역사와 문화",
+      "localPass": "현지 패스",
+      "unlimitedTransport": "무제한 현지 교통",
+      "buyAtStation": "역 또는 온라인에서 구매"
+    },
+    "practicalInfo": {
+      "weatherCheck": "여행 전 현지 날씨 예보 확인",
+      "packingItems": {
+        "clothes": "옷",
+        "passport": "여권",
+        "camera": "카메라",
+        "charger": "충전기",
+        "comfortableShoes": "편안한 신발"
+      },
+      "customs": {
+        "respectTraditions": "현지 전통 존중",
+        "learnPhrases": "기본 문구 배우기",
+        "followEtiquette": "현지 예절 따르기"
+      },
+      "emergencyContacts": {
+        "police": "경찰: 110",
+        "ambulance": "구급차: 119",
+        "helpline": "관광 안내"
+      },
+      "phrases": {
+        "hello": "안녕하세요",
+        "thankYou": "감사합니다",
+        "excuseMe": "실례합니다",
+        "whereIs": "...는 어디에 있나요?",
+        "howMuch": "얼마인가요?"
+      }
+    },
+    "download": {
+      "header": "========================================",
+      "destination": "목적지: {{destination}}",
+      "duration": "기간: {{duration}}일",
+      "budget": "예산: {{currency}} {{amount}}",
+      "budgetBreakdown": "예산 세부 내역:",
+      "itinerary": "일정:",
+      "dayHeader": "{{day}}일차 - {{theme}}",
+      "date": "날짜: {{date}}",
+      "location": "위치: {{location}}",
+      "description": "설명: {{description}}",
+      "durationMinutes": "소요 시간: {{duration}}분",
+      "cost": "비용: {{currency}} {{amount}}",
+      "tips": "팁: {{tips}}",
+      "recommendations": "추천:",
+      "rating": "평점: {{rating}}",
+      "practicalInfo": "실용 정보:",
+      "weather": "날씨: {{weather}}",
+      "packingList": "준비물 목록:",
+      "localCustoms": "현지 관습:",
+      "emergencyContacts": "비상 연락처:",
+      "usefulPhrases": "유용한 표현:",
+      "footer": "이 계획은 {{date}}에 생성되었습니다.",
+      "footerTagline": "Trippin - 당신의 여행 파트너"
+    },
+    "display": {
+      "tabs": {
+        "itinerary": "일정",
+        "recommendations": "추천",
+        "practical": "실용 정보"
+      },
+      "sections": {
+        "recommendedRestaurants": "추천 레스토랑",
+        "attractions": "관광 명소",
+        "transportation": "교통 수단",
+        "weatherInfo": "날씨 정보",
+        "packingList": "준비물 목록",
+        "localCustoms": "현지 관습",
+        "emergencyContacts": "비상 연락처",
+        "usefulPhrases": "유용한 표현"
+      },
+      "dayPrefix": "{{day}}일차",
+      "days": "일",
+      "savePlan": "계획 저장",
+      "downloadPlan": "계획 다운로드",
+      "location": "위치",
+      "time": "시간",
+      "cost": "비용",
+      "duration": "소요 시간",
+      "minutes": "분"
+    }
   },
   "tripDetail": {
     "editPlan": "계획 수정",
@@ -1938,5 +2070,44 @@ export const ko = {
     "imageProcessingError": "이미지 처리 중에 오류가 발생했습니다.",
     "imageProcessingFailed": "이미지 처리에 실패했습니다. 네트워크 연결을 확인하세요.",
     "dismiss": "닫다"
+  },
+  "profile": {
+    "title": "프로필 설정",
+    "subtitle": "정보를 관리하세요",
+    "premiumBadge": "프리미엄 회원",
+    "sections": {
+      "basicInfo": "기본 정보",
+      "settings": "설정"
+    },
+    "fields": {
+      "name": "이름",
+      "email": "이메일 주소",
+      "phone": "전화번호",
+      "location": "위치",
+      "birthDate": "생년월일",
+      "bio": "자기소개",
+      "bioPlaceholder": "자신에 대해 알려주세요..."
+    },
+    "preferences": {
+      "newsletter": "뉴스레터 수신",
+      "notifications": "푸시 알림 수신",
+      "marketing": "마케팅 이메일 수신"
+    },
+    "actions": {
+      "edit": "편집",
+      "cancel": "취소",
+      "save": "저장",
+      "saving": "저장 중...",
+      "deleteAccount": "계정 삭제"
+    },
+    "messages": {
+      "saveSuccess": "프로필이 성공적으로 저장되었습니다"
+    },
+    "errors": {
+      "notLoggedIn": "사용자가 로그인하지 않았습니다",
+      "noAuthToken": "인증 토큰을 찾을 수 없습니다. 다시 로그인해 주세요.",
+      "saveFailed": "프로필 저장에 실패했습니다",
+      "saveFailedRetry": "프로필 저장에 실패했습니다. 다시 시도해 주세요."
+    }
   }
 };

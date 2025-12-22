@@ -909,7 +909,139 @@ export const ur = {
       "downloadFailed": "ڈاؤن لوڈ ناکام۔ براہ کرم دوبارہ کوشش کریں۔"
     },
     "loadErrorTitle": "منصوبہ لوڈ کرنے میں ناکام",
-    "loadErrorDescription": "پیدا شدہ منصوبہ نہیں ملا۔ براہ کرم دوبارہ سوال کا جواب دیں۔"
+    "loadErrorDescription": "پیدا شدہ منصوبہ نہیں ملا۔ براہ کرم دوبارہ سوال کا جواب دیں۔",
+    "errors": {
+      "noTripData": "سفر کا ڈیٹا نہیں ملا۔ براہ کرم دوبارہ شروع کریں۔",
+      "planGenerationFailed": "منصوبہ بنانے میں ناکامی",
+      "planGenerationError": "منصوبہ بناتے وقت ایک خرابی پیش آئی۔",
+      "aiUnavailable": "AI پروسیسنگ دستیاب نہیں ہے۔ بنیادی منصوبہ دکھایا جا رہا ہے۔",
+      "planNotFound": "منصوبہ نہیں ملا",
+      "planDataNotLoaded": "منصوبہ کا ڈیٹا صحیح طریقے سے لوڈ نہیں ہو سکا۔"
+    },
+    "activities": {
+      "arrival": "{{destination}} پہنچنا",
+      "arrivalDescription": "پہنچیں اور رہائش میں چیک ان کریں",
+      "checkInHotel": "ہوٹل میں چیک ان کریں",
+      "checkInDescription": "اپنی رہائش میں چیک ان کریں",
+      "localLunch": "مقامی دوپہر کا کھانا",
+      "localLunchDescription": "مقامی کھانا آزمائیں",
+      "culturalSiteVisit": "ثقافتی مقام کا دورہ",
+      "culturalSiteDescription": "تاریخی اور ثقافتی مقامات کی سیر کریں",
+      "localFoodExperience": "مقامی کھانے کا تجربہ",
+      "localFoodDescription": "اصلی مقامی کھانے آزمائیں",
+      "natureExploration": "فطرت کی تلاش",
+      "natureDescription": "پارکس یا قدرتی مقامات کا دورہ کریں"
+    },
+    "tips": {
+      "getTransportPass": "مقامی ٹرانسپورٹ پاس حاصل کریں",
+      "bookInAdvance": "بہتر قیمتوں کے لیے پہلے سے بک کریں",
+      "storeLuggage": "اگر ابتدائی چیک ان دستیاب نہیں ہے تو سامان محفوظ کریں",
+      "askLocals": "تجاویز کے لیے مقامی لوگوں سے پوچھیں",
+      "arriveEarly": "ہجوم سے بچنے کے لیے جلدی پہنچیں",
+      "tryStreetFood": "اصلی تجربے کے لیے گلی کا کھانا آزمائیں",
+      "comfortableShoes": "آرام دہ چلنے والے جوتے لائیں"
+    },
+    "themes": {
+      "arrival": "پہنچنا اور رہنمائی",
+      "cultural": "ثقافتی تلاش",
+      "local": "مقامی تجربات",
+      "adventure": "مہم جوئی اور دریافت",
+      "relaxation": "آرام اور غور و فکر",
+      "sightseeing": "سیاحت"
+    },
+    "recommendations": {
+      "localMarket": "مقامی مارکیٹ",
+      "localCuisine": "مقامی",
+      "traditionalRestaurant": "روایتی ریسٹوران",
+      "traditionalCuisine": "روایتی",
+      "freshIngredients": "تازہ مقامی اجزاء اور اصلی ذائقے",
+      "authenticCuisine": "روایتی ماحول میں اصلی مقامی کھانا",
+      "historicTemple": "تاریخی مندر",
+      "culturalType": "ثقافتی",
+      "museum": "عجائب گھر",
+      "museumDescription": "مقامی تاریخ اور ثقافت",
+      "localPass": "مقامی پاس",
+      "unlimitedTransport": "لامحدود مقامی ٹرانسپورٹ",
+      "buyAtStation": "اسٹیشن یا آن لائن خریدیں"
+    },
+    "practicalInfo": {
+      "weatherCheck": "سفر سے پہلے مقامی موسم کی پیشن گوئی چیک کریں",
+      "packingItems": {
+        "clothes": "کپڑے",
+        "passport": "پاسپورٹ",
+        "camera": "کیمرہ",
+        "charger": "چارجر",
+        "comfortableShoes": "آرام دہ جوتے"
+      },
+      "customs": {
+        "respectTraditions": "مقامی روایات کا احترام کریں",
+        "learnPhrases": "بنیادی جملے سیکھیں",
+        "followEtiquette": "مقامی آداب کا پیروی کریں"
+      },
+      "emergencyContacts": {
+        "police": "پولیس: 110",
+        "ambulance": "ایمبولینس: 119",
+        "helpline": "سیاحتی ہیلپ لائن"
+      },
+      "phrases": {
+        "hello": "ہیلو",
+        "thankYou": "شکریہ",
+        "excuseMe": "معاف کیجیے",
+        "whereIs": "... کہاں ہے؟",
+        "howMuch": "کتنا؟"
+      }
+    },
+    "download": {
+      "header": "========================================",
+      "destination": "منزل: {{destination}}",
+      "duration": "مدت: {{duration}} دن",
+      "budget": "بجٹ: {{currency}} {{amount}}",
+      "budgetBreakdown": "بجٹ کی تفصیل:",
+      "itinerary": "سفر کا منصوبہ:",
+      "dayHeader": "دن {{day}} - {{theme}}",
+      "date": "تاریخ: {{date}}",
+      "location": "مقام: {{location}}",
+      "description": "تفصیل: {{description}}",
+      "durationMinutes": "مدت: {{duration}} منٹ",
+      "cost": "لاگت: {{currency}} {{amount}}",
+      "tips": "نصائح: {{tips}}",
+      "recommendations": "تجاویز:",
+      "rating": "درجہ بندی: {{rating}}",
+      "practicalInfo": "عملی معلومات:",
+      "weather": "موسم: {{weather}}",
+      "packingList": "پیکنگ کی فہرست:",
+      "localCustoms": "مقامی روایات:",
+      "emergencyContacts": "ہنگامی رابطے:",
+      "usefulPhrases": "مفید جملے:",
+      "footer": "یہ منصوبہ {{date}} کو بنایا گیا تھا۔",
+      "footerTagline": "Trippin - آپ کا سفر کا ساتھی"
+    },
+    "display": {
+      "tabs": {
+        "itinerary": "سفر کا منصوبہ",
+        "recommendations": "تجاویز",
+        "practical": "عملی معلومات"
+      },
+      "sections": {
+        "recommendedRestaurants": "تجویز کردہ ریسٹوران",
+        "attractions": "مقامات",
+        "transportation": "ٹرانسپورٹ",
+        "weatherInfo": "موسم کی معلومات",
+        "packingList": "پیکنگ کی فہرست",
+        "localCustoms": "مقامی روایات",
+        "emergencyContacts": "ہنگامی رابطے",
+        "usefulPhrases": "مفید جملے"
+      },
+      "dayPrefix": "دن {{day}}",
+      "days": "دن",
+      "savePlan": "منصوبہ محفوظ کریں",
+      "downloadPlan": "منصوبہ ڈاؤن لوڈ کریں",
+      "location": "مقام",
+      "time": "وقت",
+      "cost": "لاگت",
+      "duration": "مدت",
+      "minutes": "منٹ"
+    }
   },
   "tripDetail": {
     "editPlan": "منصوبہ میں ترمیم کریں",
@@ -1940,5 +2072,44 @@ export const ur = {
     "imageProcessingError": "تصویری پروسیسنگ کے دوران ایک خرابی پیش آگئی۔",
     "imageProcessingFailed": "تصویری پروسیسنگ ناکام ہوگئی۔ براہ کرم اپنے نیٹ ورک کا کنکشن چیک کریں۔",
     "dismiss": "بند کریں"
+  },
+  "profile": {
+    "title": "پروفائل کی ترتیبات",
+    "subtitle": "اپنی معلومات کا انتظام کریں",
+    "premiumBadge": "پریمیم ممبر",
+    "sections": {
+      "basicInfo": "بنیادی معلومات",
+      "settings": "ترتیبات"
+    },
+    "fields": {
+      "name": "نام",
+      "email": "ای میل پتہ",
+      "phone": "فون نمبر",
+      "location": "مقام",
+      "birthDate": "تاریخ پیدائش",
+      "bio": "سوانح",
+      "bioPlaceholder": "ہمیں اپنے بارے میں بتائیں..."
+    },
+    "preferences": {
+      "newsletter": "نیوز لیٹر وصول کریں",
+      "notifications": "پش اطلاعات وصول کریں",
+      "marketing": "مارکیٹنگ ای میلز وصول کریں"
+    },
+    "actions": {
+      "edit": "ترمیم",
+      "cancel": "منسوخ کریں",
+      "save": "محفوظ کریں",
+      "saving": "محفوظ ہو رہا ہے...",
+      "deleteAccount": "اکاؤنٹ حذف کریں"
+    },
+    "messages": {
+      "saveSuccess": "پروفائل کامیابی سے محفوظ ہو گئی"
+    },
+    "errors": {
+      "notLoggedIn": "صارف لاگ ان نہیں ہے",
+      "noAuthToken": "تصدیقی ٹوکن نہیں ملا۔ براہ کرم دوبارہ لاگ ان کریں۔",
+      "saveFailed": "پروفائل محفوظ کرنے میں ناکام",
+      "saveFailedRetry": "پروفائل محفوظ کرنے میں ناکام۔ براہ کرم دوبارہ کوشش کریں۔"
+    }
   }
 };
