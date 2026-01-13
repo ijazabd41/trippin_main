@@ -653,27 +653,69 @@ Format as JSON:
   // Save generated plan to backend
   async savePlan(plan: GeneratedPlan, token?: string): Promise<string> {
     try {
+      // Get original request data from localStorage to get travelers and interests
+      const completeDataStr = localStorage.getItem('trippin-complete-data');
+      let travelers = 1;
+      let interests: string[] = [];
+      
+      if (completeDataStr) {
+        try {
+          const completeData = JSON.parse(completeDataStr);
+          travelers = completeData.basicInfo?.travelers || completeData.planRequest?.travelers || 1;
+          interests = completeData.travelStyle?.interests || completeData.planRequest?.interests || [];
+        } catch (e) {
+          console.warn('Failed to parse complete data for travelers/interests:', e);
+        }
+      }
+
+      // Ensure budget.total is a number
+      let budgetTotal = plan.budget.total;
+      if (typeof budgetTotal === 'string') {
+        budgetTotal = parseFloat(budgetTotal);
+      }
+      if (isNaN(budgetTotal) || budgetTotal <= 0) {
+        budgetTotal = 100000; // Fallback default
+      }
+
+      // Get dates from itinerary or use fallback
+      const startDate = plan.itinerary && plan.itinerary.length > 0 
+        ? plan.itinerary[0].date 
+        : new Date().toISOString().split('T')[0];
+      const endDate = plan.itinerary && plan.itinerary.length > 0
+        ? plan.itinerary[plan.itinerary.length - 1].date
+        : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+      // Prepare trip data with only required fields (backend expects these specific fields)
       const tripData = {
-        title: plan.title,
+        title: plan.title || `${plan.destination} Trip`,
+        description: `Travel plan for ${plan.destination}`,
         destination: plan.destination,
-        start_date: plan.itinerary[0]?.date || new Date().toISOString().split('T')[0],
-        end_date: plan.itinerary[plan.itinerary.length - 1]?.date || new Date().toISOString().split('T')[0],
-        budget: plan.budget.total,
-        currency: plan.budget.currency,
-        travelers: 1, // Default, should be passed from request
-        interests: [], // Should be passed from request
-        status: 'planning',
-        itinerary: plan.itinerary,
-        recommendations: plan.recommendations,
-        practical_info: plan.practicalInfo
+        start_date: startDate,
+        end_date: endDate,
+        budget: budgetTotal,
+        currency: plan.budget.currency || 'USD',
+        travelers: travelers,
+        interests: interests
       };
+
+      console.log('💾 Saving plan to backend:', {
+        title: tripData.title,
+        destination: tripData.destination,
+        start_date: tripData.start_date,
+        end_date: tripData.end_date,
+        budget: tripData.budget,
+        currency: tripData.currency,
+        travelers: tripData.travelers,
+        interestsCount: tripData.interests.length
+      });
 
       const response = await backendService.createTrip(tripData, token);
       
       if (response.success) {
+        console.log('✅ Plan saved successfully to backend:', response.data.id);
         return response.data.id;
       } else {
-        console.warn('Failed to save plan to backend, but plan was generated successfully');
+        console.warn('Failed to save plan to backend, but plan was generated successfully:', response);
         return `local-plan-${Date.now()}`;
       }
     } catch (error) {

@@ -96,13 +96,14 @@ const Confirmation: React.FC = () => {
     setIsGenerating(true);
 
     try {
-      // Prepare the plan generation request
+      // Prepare the plan generation request data
+      // The actual plan generation will happen in PlanGeneration.tsx
       const planRequest: PlanGenerationRequest = {
         destination: allData.basicInfo.destination || 'Tokyo',
         startDate: allData.basicInfo.startDate || new Date().toISOString().split('T')[0],
         endDate: allData.basicInfo.endDate || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
         travelers: allData.basicInfo.travelers || 1,
-        budget: allData.travelStyle.budget || 100000,
+        budget: parseFloat(allData.travelStyle.budget) || 100000, // Ensure budget is a number
         currency: (allData.travelStyle.currency || 'jpy').toUpperCase(),
         interests: allData.travelStyle.interests || [],
         accommodationType: allData.detailedPreferences.accommodationType || 'mid-range',
@@ -112,102 +113,30 @@ const Confirmation: React.FC = () => {
         language: 'ja'
       };
 
-      console.log('🚀 Starting plan generation with request:', planRequest);
+      console.log('🚀 Preparing data for plan generation:', planRequest);
       console.log('📊 All questionnaire data:', allData);
-      console.log('🔍 Basic info from localStorage:', allData.basicInfo);
-      console.log('🔍 Travel style from localStorage:', allData.travelStyle);
-      console.log('🔍 Detailed preferences from localStorage:', allData.detailedPreferences);
 
-      // Generate the plan using single API call (not PlanGenerationService which makes 4 calls)
-      const flattenedTripData = {
-        destination: planRequest.destination,
-        startDate: planRequest.startDate,
-        endDate: planRequest.endDate,
-        travelers: planRequest.travelers,
-        budget: planRequest.budget,
-        currency: planRequest.currency,
-        interests: planRequest.interests,
-        accommodationType: planRequest.accommodationType,
-        transportationType: planRequest.transportationType,
-        dietaryRestrictions: planRequest.dietaryRestrictions,
-        specialRequirements: planRequest.specialRequirements,
-        language: planRequest.language
-      };
-      
-      console.log('🚀 Calling OpenAI API directly (single call):', flattenedTripData);
-      
-      const { backendApiCall, BACKEND_API_CONFIG } = await import('../../config/backend-api');
-      const result = await backendApiCall(BACKEND_API_CONFIG.ENDPOINTS.OPENAI.GENERATE, {
-        method: 'POST',
-        body: JSON.stringify({ 
-          tripData: flattenedTripData
-        })
-      });
-      
-      if (!result.success || !result.data) {
-        throw new Error('Failed to generate plan');
-      }
-      
-      const generatedPlan = result.data;
-      console.log('✅ Plan generated successfully:', generatedPlan);
-
-      // Save the plan to backend (pass session token, not user ID)
-      // Wrap in try-catch to handle any structure mismatches gracefully
-      let planId: string;
-      try {
-        // Ensure budget.total is a number if it's a string
-        if (generatedPlan.budget && typeof generatedPlan.budget.total === 'string') {
-          generatedPlan.budget.total = parseFloat(generatedPlan.budget.total) || planRequest.budget;
-        }
-        
-        // Only attempt to save if user is authenticated
-        if (session?.access_token) {
-          planId = await planGenerationService.savePlan(generatedPlan as any, session.access_token);
-        } else {
-          console.log('User not authenticated, skipping backend save');
-          planId = `local-plan-${Date.now()}`;
-        }
-      } catch (saveError) {
-        console.warn('Failed to save plan to backend:', saveError);
-        planId = `local-plan-${Date.now()}`;
-      }
-
-      // Store the complete data and generated plan
+      // Store the complete data for the PlanGeneration page to use
+      // Clear any previous generated plan to ensure fresh generation
       const completeData = {
         ...allData,
-        generatedPlan,
-        planId,
+        planRequest, // Store the request data for plan generation
         metadata: {
           language: 'ja',
-          generatedAt: new Date().toISOString()
+          preparedAt: new Date().toISOString()
         }
       };
 
       localStorage.setItem('trippin-complete-data', JSON.stringify(completeData));
-      localStorage.setItem('trippin-generated-plan', JSON.stringify(generatedPlan));
-      localStorage.setItem('trippin-plan-id', planId);
+      localStorage.removeItem('trippin-generated-plan'); // Clear any previous generated plan
+      localStorage.removeItem('trippin-plan-id'); // Clear any previous plan ID
 
-      // Navigate to plan generation page
+      // Navigate to plan generation page (which will now trigger the API call)
       navigate('/plan-generation');
 
     } catch (error) {
-      console.error('❌ Plan generation failed:', error);
-      
-      // Show error message to user
-      alert('プラン生成に失敗しました。もう一度お試しください。');
-      
-      // Still navigate to plan generation page with fallback data
-      const completeData = {
-        ...allData,
-        metadata: {
-          language: 'ja',
-          generatedAt: new Date().toISOString(),
-          error: 'Plan generation failed, using fallback data'
-        }
-      };
-
-      localStorage.setItem('trippin-complete-data', JSON.stringify(completeData));
-      navigate('/plan-generation');
+      console.error('❌ Failed to prepare data for plan generation:', error);
+      alert('プラン生成の準備中にエラーが発生しました。もう一度お試しください。');
     } finally {
       setIsGenerating(false);
     }

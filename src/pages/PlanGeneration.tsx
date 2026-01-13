@@ -33,7 +33,7 @@ const PlanGeneration: React.FC = () => {
   const isGeneratingRef = useRef(false); // Use ref to prevent re-render issues
 
   useEffect(() => {
-    console.log('PlanGeneration component mounted - always generating fresh plan');
+    console.log('PlanGeneration component mounted');
     
     // Prevent multiple calls using ref
     if (isGeneratingRef.current) {
@@ -41,7 +41,22 @@ const PlanGeneration: React.FC = () => {
       return;
     }
     
-    // Always generate fresh plan - no localStorage caching
+    // Check if a plan was already generated and stored
+    const storedPlan = localStorage.getItem('trippin-generated-plan');
+    if (storedPlan) {
+      try {
+        const plan = JSON.parse(storedPlan);
+        console.log('✅ Found existing generated plan, loading from localStorage');
+        setGeneratedPlan(plan);
+        setIsLoading(false);
+        return;
+      } catch (error) {
+        console.warn('Failed to parse stored plan, will generate fresh:', error);
+        localStorage.removeItem('trippin-generated-plan');
+      }
+    }
+    
+    // No existing plan, generate fresh plan from trip data
     const tripData = JSON.parse(localStorage.getItem('trippin-complete-data') || '{}');
     console.log('Trip data from localStorage:', tripData);
     
@@ -51,6 +66,7 @@ const PlanGeneration: React.FC = () => {
       console.log('- Has basicInfo:', !!tripData.basicInfo);
       console.log('- Has travelStyle:', !!tripData.travelStyle);
       console.log('- Has detailedPreferences:', !!tripData.detailedPreferences);
+      console.log('- Has planRequest:', !!tripData.planRequest);
       console.log('- Destination:', tripData.basicInfo?.destination || tripData.destination);
       console.log('- Budget:', tripData.travelStyle?.budget || tripData.budget);
       console.log('- Interests:', tripData.travelStyle?.interests || tripData.interests);
