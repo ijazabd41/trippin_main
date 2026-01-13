@@ -63,7 +63,9 @@ const LandingPage: React.FC = () => {
     if (isAuthenticated) {
       navigate('/dashboard');
     } else {
-      navigate('/questionnaire/language');
+      // Redirect to login with returnUrl to questionnaire
+      const returnUrl = encodeURIComponent('/questionnaire/language');
+      navigate(`/supabase-auth/login?returnUrl=${returnUrl}`);
     }
   };
 

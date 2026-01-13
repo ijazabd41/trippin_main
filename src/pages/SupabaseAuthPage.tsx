@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Routes, Route, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
+import { Routes, Route, Navigate, useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { useSupabaseAuth } from '../contexts/SupabaseAuthContext';
 import { X } from 'lucide-react';
 import { createClient } from '@supabase/supabase-js';
@@ -1086,6 +1086,8 @@ const OAuthCallback: React.FC = () => {
 const SupabaseAuthPage: React.FC = () => {
   const { user, isLoading } = useSupabaseAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const location = useLocation();
 
   // Debug logging
   console.log('SupabaseAuthPage: Current user:', user);
@@ -1095,10 +1097,13 @@ const SupabaseAuthPage: React.FC = () => {
   // Handle authentication state changes
   useEffect(() => {
     if (!isLoading && user && user.email_confirmed_at) {
-      console.log('SupabaseAuthPage: User became authenticated, redirecting to dashboard');
-      navigate('/dashboard', { replace: true });
+      // Check if there's a returnUrl parameter to redirect back to intended destination
+      const returnUrl = searchParams.get('returnUrl');
+      const destination = returnUrl ? decodeURIComponent(returnUrl) : '/dashboard';
+      console.log('SupabaseAuthPage: User became authenticated, redirecting to:', destination);
+      navigate(destination, { replace: true });
     }
-  }, [user, isLoading, navigate]);
+  }, [user, isLoading, navigate, searchParams]);
 
   // Don't redirect while loading - wait for session restoration to complete
   if (isLoading) {
@@ -1114,8 +1119,11 @@ const SupabaseAuthPage: React.FC = () => {
 
   // Redirect if already authenticated AND email is verified
   if (user && user.email_confirmed_at) {
-    console.log('SupabaseAuthPage: User is authenticated and verified, redirecting to dashboard');
-    return <Navigate to="/dashboard" replace />;
+    // Check if there's a returnUrl parameter
+    const returnUrl = searchParams.get('returnUrl');
+    const destination = returnUrl ? decodeURIComponent(returnUrl) : '/dashboard';
+    console.log('SupabaseAuthPage: User is authenticated and verified, redirecting to:', destination);
+    return <Navigate to={destination} replace />;
   }
 
   return (
