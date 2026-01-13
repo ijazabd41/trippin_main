@@ -1,0 +1,20 @@
+{
+  "rewrites": [
+    {
+      "source": "/supabase-auth/callback",
+      "destination": "/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/supabase-auth/callback",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, no-cache, must-revalidate"
+        }
+      ]
+    }
+  ]
+}
+

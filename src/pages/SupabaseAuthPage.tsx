@@ -842,19 +842,24 @@ const OAuthCallback: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { session, user } = useSupabaseAuth();
 
   useEffect(() => {
     const handleOAuthCallback = async () => {
       try {
         console.log('OAuth callback: Starting authentication process...');
+        console.log('OAuth callback: Full URL:', window.location.href);
+        console.log('OAuth callback: Hash:', window.location.hash);
+        console.log('OAuth callback: Search:', window.location.search);
         
         // Check if we already have a valid session
         if (session && user) {
           console.log('OAuth callback: User already authenticated, redirecting...');
-          const returnUrl = sessionStorage.getItem('oauth-return-url') || '/dashboard';
+          const returnUrl = sessionStorage.getItem('oauth-return-url') || searchParams.get('returnUrl') || '/dashboard';
           sessionStorage.removeItem('oauth-return-url');
-          navigate(returnUrl, { replace: true });
+          const destination = returnUrl.startsWith('/') ? returnUrl : decodeURIComponent(returnUrl);
+          navigate(destination, { replace: true });
           return;
         }
 
@@ -864,6 +869,21 @@ const OAuthCallback: React.FC = () => {
         
         console.log('OAuth callback: URL params:', Object.fromEntries(urlParams.entries()));
         console.log('OAuth callback: Hash params:', Object.fromEntries(hashParams.entries()));
+        
+        // Also try to let Supabase handle the session automatically
+        try {
+          const { data: { session: autoSession }, error: autoError } = await supabase.auth.getSession();
+          if (!autoError && autoSession) {
+            console.log('OAuth callback: Supabase auto-detected session');
+            const returnUrl = sessionStorage.getItem('oauth-return-url') || searchParams.get('returnUrl') || '/dashboard';
+            sessionStorage.removeItem('oauth-return-url');
+            const destination = returnUrl.startsWith('/') ? returnUrl : decodeURIComponent(returnUrl);
+            navigate(destination, { replace: true });
+            return;
+          }
+        } catch (autoErr) {
+          console.log('OAuth callback: Auto-detection failed, processing manually:', autoErr);
+        }
         
         // Check for error parameters
         const error = urlParams.get('error') || hashParams.get('error');
@@ -1010,9 +1030,12 @@ const OAuthCallback: React.FC = () => {
                   
                   if (!isExpired) {
                     console.log('OAuth callback: Found valid session in localStorage, redirecting...');
-                    const returnUrl = sessionStorage.getItem('oauth-return-url') || '/dashboard';
+                    const returnUrl = sessionStorage.getItem('oauth-return-url') || 
+                                     searchParams.get('returnUrl') || 
+                                     '/dashboard';
                     sessionStorage.removeItem('oauth-return-url');
-                    navigate(returnUrl, { replace: true });
+                    const destination = returnUrl.startsWith('/') ? returnUrl : decodeURIComponent(returnUrl);
+                    navigate(destination, { replace: true });
                     return;
                   }
                 } catch (parseError) {
