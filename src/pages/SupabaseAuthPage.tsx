@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { useSupabaseAuth } from '../contexts/SupabaseAuthContext';
 import { X } from 'lucide-react';
 import { createClient } from '@supabase/supabase-js';
@@ -18,6 +18,7 @@ const LoginForm: React.FC = () => {
   
   const { signIn } = useSupabaseAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,8 +43,11 @@ const LoginForm: React.FC = () => {
           setError(error.message);
         }
       } else {
-        console.log('Login successful, navigating to dashboard');
-        navigate('/dashboard');
+        // Check if there's a returnUrl parameter to redirect back to intended destination
+        const returnUrl = searchParams.get('returnUrl');
+        const destination = returnUrl ? decodeURIComponent(returnUrl) : '/dashboard';
+        console.log('Login successful, navigating to:', destination);
+        navigate(destination);
       }
     } catch (err: any) {
       console.error('Login exception:', err);

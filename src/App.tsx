@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, useSearchParams } from 'react-router-dom';
 import { Suspense } from 'react';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 import { SupabaseAuthProvider, useSupabaseAuth } from './contexts/SupabaseAuthContext';
@@ -72,12 +72,19 @@ const ScrollToTop: React.FC = () => {
 // Protected Route component
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, isLoading } = useSupabaseAuth();
+  const location = useLocation();
   
   if (isLoading) {
     return <LoadingSpinner />;
   }
   
-  return user ? <>{children}</> : <Navigate to="/supabase-auth/login" />;
+  if (!user) {
+    // Preserve the intended destination so we can redirect back after login
+    const returnUrl = encodeURIComponent(location.pathname + location.search);
+    return <Navigate to={`/supabase-auth/login?returnUrl=${returnUrl}`} />;
+  }
+  
+  return <>{children}</>;
 };
 
 // Component to conditionally render header and padding
@@ -114,8 +121,18 @@ function App() {
                       <Route path="/" element={<LandingPage />} />
                       <Route path="/auth/*" element={<AuthPage />} />
                       <Route path="/supabase-auth/*" element={<SupabaseAuthPage />} />
-                      <Route path="/questionnaire/*" element={<QuestionnaireFlow />} />
-                      <Route path="/plan-generation" element={<PlanGeneration />} />
+                      
+                      {/* Protected Routes - Require Login */}
+                      <Route path="/questionnaire/*" element={
+                        <ProtectedRoute>
+                          <QuestionnaireFlow />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/plan-generation" element={
+                        <ProtectedRoute>
+                          <PlanGeneration />
+                        </ProtectedRoute>
+                      } />
                       <Route path="/checkout" element={<CheckoutPage />} />
                       <Route path="/payment-success" element={<PaymentSuccess />} />
                       <Route path="/premium" element={<PremiumFeatures />} />

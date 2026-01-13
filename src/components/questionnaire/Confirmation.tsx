@@ -152,7 +152,25 @@ const Confirmation: React.FC = () => {
       console.log('✅ Plan generated successfully:', generatedPlan);
 
       // Save the plan to backend (pass session token, not user ID)
-      const planId = await planGenerationService.savePlan(generatedPlan, session?.access_token);
+      // Wrap in try-catch to handle any structure mismatches gracefully
+      let planId: string;
+      try {
+        // Ensure budget.total is a number if it's a string
+        if (generatedPlan.budget && typeof generatedPlan.budget.total === 'string') {
+          generatedPlan.budget.total = parseFloat(generatedPlan.budget.total) || planRequest.budget;
+        }
+        
+        // Only attempt to save if user is authenticated
+        if (session?.access_token) {
+          planId = await planGenerationService.savePlan(generatedPlan as any, session.access_token);
+        } else {
+          console.log('User not authenticated, skipping backend save');
+          planId = `local-plan-${Date.now()}`;
+        }
+      } catch (saveError) {
+        console.warn('Failed to save plan to backend:', saveError);
+        planId = `local-plan-${Date.now()}`;
+      }
 
       // Store the complete data and generated plan
       const completeData = {
