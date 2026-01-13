@@ -1851,41 +1851,51 @@ Return the response as a valid JSON object with this structure:
 
     console.log("Calling OpenAI API with prompt length:", prompt.length);
 
-    // Call OpenAI API directly using fetch to avoid Deno compatibility issues
-    // Use faster model and JSON mode for better performance and reliability
-    const openaiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${openaiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "gpt-3.5-turbo", // Faster than gpt-4, reduces timeout risk
-        messages: [
-          {
-            role: "system",
-            content: "You are a travel planning assistant. Always respond with valid JSON only, no additional text or markdown formatting.",
-          },
-          { role: "user", content: prompt },
-        ],
-        temperature: 0.7,
-        max_tokens: 2500, // Reduced to speed up generation
-        response_format: { type: "json_object" }, // Force JSON output
-      }),
-    });
+    // Add timeout to prevent Edge Function from shutting down
+    // Supabase Edge Functions have 60s timeout, so we'll use 50s for OpenAI call
+    const OPENAI_TIMEOUT = 50000; // 50 seconds
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), OPENAI_TIMEOUT);
 
-    if (!openaiResponse.ok) {
-      const errorText = await openaiResponse.text();
-      throw new Error(`OpenAI API error: ${openaiResponse.status} ${openaiResponse.statusText} - ${errorText}`);
-    }
+    try {
+      // Call OpenAI API directly using fetch to avoid Deno compatibility issues
+      // Use faster model and JSON mode for better performance and reliability
+      const openaiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${openaiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "gpt-3.5-turbo", // Faster than gpt-4, reduces timeout risk
+          messages: [
+            {
+              role: "system",
+              content: "You are a travel planning assistant. Always respond with valid JSON only, no additional text or markdown formatting.",
+            },
+            { role: "user", content: prompt },
+          ],
+          temperature: 0.7,
+          max_tokens: 2500, // Reduced to speed up generation
+          response_format: { type: "json_object" }, // Force JSON output
+        }),
+        signal: controller.signal, // Add abort signal for timeout
+      });
 
-    const completion = await openaiResponse.json();
-    console.log("OpenAI API response received");
+      clearTimeout(timeoutId); // Clear timeout if request completes
 
-    const content = completion.choices[0]?.message?.content;
-    if (!content) {
-      throw new Error("OpenAI API returned empty response");
-    }
+      if (!openaiResponse.ok) {
+        const errorText = await openaiResponse.text();
+        throw new Error(`OpenAI API error: ${openaiResponse.status} ${openaiResponse.statusText} - ${errorText}`);
+      }
+
+      const completion = await openaiResponse.json();
+      console.log("OpenAI API response received");
+
+      const content = completion.choices[0]?.message?.content;
+      if (!content) {
+        throw new Error("OpenAI API returned empty response");
+      }
 
     // Try to parse JSON, handle both JSON and markdown-wrapped JSON
     let plan;
@@ -1957,10 +1967,69 @@ Return the response as a valid JSON object with this structure:
       };
     }
 
-    return new Response(
-      JSON.stringify({ success: true, data: plan }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+      return new Response(
+        JSON.stringify({ success: true, data: plan }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    } catch (fetchError) {
+      clearTimeout(timeoutId); // Ensure timeout is cleared
+      
+      // Handle timeout specifically
+      if (fetchError.name === "AbortError" || fetchError.message?.includes("aborted")) {
+        console.error("⏱️ OpenAI API call timed out after 50 seconds");
+        
+        // Return fallback plan instead of error to prevent function shutdown
+        const duration = tripData.startDate && tripData.endDate 
+          ? Math.ceil((new Date(tripData.endDate).getTime() - new Date(tripData.startDate).getTime()) / (1000 * 60 * 60 * 24))
+          : tripData.duration || 3;
+        
+        const fallbackPlan = {
+          id: `fallback-plan-${Date.now()}`,
+          title: `${tripData.destination || "Destination"} Adventure`,
+          destination: tripData.destination || "Unknown Destination",
+          duration: duration,
+          budget: {
+            total: tripData.budget || 100000,
+            currency: tripData.currency || "JPY",
+            breakdown: {
+              accommodation: Math.round((tripData.budget || 100000) * 0.4),
+              transportation: Math.round((tripData.budget || 100000) * 0.2),
+              food: Math.round((tripData.budget || 100000) * 0.25),
+              activities: Math.round((tripData.budget || 100000) * 0.1),
+              miscellaneous: Math.round((tripData.budget || 100000) * 0.05),
+            },
+          },
+          itinerary: [
+            {
+              day: 1,
+              date: tripData.startDate || new Date().toISOString().split("T")[0],
+              theme: "Arrival and Orientation",
+              activities: [
+                {
+                  time: "09:00",
+                  title: "Arrival",
+                  description: "Arrive at your destination",
+                  location: tripData.destination || "Destination",
+                  type: "transport",
+                  duration: 120,
+                  cost: 3000,
+                },
+              ],
+            },
+          ],
+          note: "OpenAI API call timed out, using fallback plan",
+          isTimeout: true,
+        };
+        
+        return new Response(
+          JSON.stringify({ success: true, data: fallbackPlan, isTimeout: true }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      
+      // Re-throw other fetch errors to be handled by outer catch
+      throw fetchError;
+    }
   } catch (error) {
     console.error("OpenAI generate error:", error);
     console.error("Error details:", {
