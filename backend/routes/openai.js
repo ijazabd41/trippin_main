@@ -195,7 +195,7 @@ router.post('/generate', async (req, res) => {
       }
     }`;
 
-    // Try different models in order of preference
+    // Use faster model with JSON mode for better performance and reliability
     const models = ["gpt-3.5-turbo", "gpt-4", "gpt-4-turbo"];
     let completion;
     let lastError;
@@ -208,7 +208,7 @@ router.post('/generate', async (req, res) => {
           messages: [
             {
               role: "system",
-              content: "You are a professional travel planner. Create detailed, practical travel plans in JSON format. Always respond with valid JSON only."
+              content: "You are a professional travel planner. Create detailed, practical travel plans in JSON format. Always respond with valid JSON only, no additional text or markdown formatting."
             },
             {
               role: "user",
@@ -216,7 +216,8 @@ router.post('/generate', async (req, res) => {
             }
           ],
           temperature: 0.7,
-          max_tokens: 4000
+          max_tokens: 2500, // Reduced to speed up generation
+          response_format: { type: "json_object" } // Force JSON output
         });
         console.log(`✅ Successfully used model: ${model}`);
         break;
@@ -234,7 +235,25 @@ router.post('/generate', async (req, res) => {
     const response = completion.choices[0].message.content;
     
     try {
-      const planData = JSON.parse(response);
+      // Remove markdown code blocks if present (even with response_format, sometimes GPT adds them)
+      let cleanedContent = response.trim();
+      cleanedContent = cleanedContent.replace(/^```json\s*/i, "").replace(/^```\s*/i, "").replace(/\s*```$/i, "").trim();
+      
+      // Try parsing first
+      let planData;
+      try {
+        planData = JSON.parse(cleanedContent);
+        console.log('✅ Successfully parsed OpenAI JSON response');
+      } catch (firstError) {
+        // If first parse fails, try extracting JSON from text
+        const jsonMatch = cleanedContent.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          planData = JSON.parse(jsonMatch[0]);
+          console.log('✅ Successfully extracted and parsed JSON from response');
+        } else {
+          throw new Error('No valid JSON found in response');
+        }
+      }
       
       res.json({
         success: true,
@@ -243,10 +262,12 @@ router.post('/generate', async (req, res) => {
       });
     } catch (parseError) {
       console.error('Failed to parse OpenAI response:', parseError);
+      console.error('Response content (first 500 chars):', response.substring(0, 500));
       res.status(500).json({
         success: false,
         message: 'Failed to parse AI response',
-        error: parseError.message
+        error: parseError.message,
+        rawResponse: response.substring(0, 500) // Include for debugging
       });
     }
 

@@ -47,7 +47,7 @@ const LoginForm: React.FC = () => {
         const returnUrl = searchParams.get('returnUrl');
         const destination = returnUrl ? decodeURIComponent(returnUrl) : '/dashboard';
         console.log('Login successful, navigating to:', destination);
-        navigate(destination);
+        navigate(destination, { replace: true });
       }
     } catch (err: any) {
       console.error('Login exception:', err);

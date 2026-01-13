@@ -163,8 +163,8 @@ export const BACKEND_API_CONFIG = {
     }
   },
   TIMEOUT: 30000, // 30 seconds (default)
-  OPENAI_TIMEOUT: 60000, // 60 seconds for OpenAI endpoints
-  RETRY_ATTEMPTS: 3,
+  OPENAI_TIMEOUT: 45000, // 45 seconds for OpenAI endpoints (before Supabase 60s limit)
+  RETRY_ATTEMPTS: 1, // Reduced to 1 for OpenAI to avoid long waits
   RETRY_DELAY: 1000 // 1 second
 };
 
@@ -579,8 +579,12 @@ export const backendApiCall = async (endpoint: string, options: RequestInit = {}
   };
 
   // Execute with retry logic
+  // Skip retries for OpenAI endpoints to avoid long waits (they already have longer timeout)
+  const shouldRetry = !endpoint.includes('/openai/');
+  const maxRetries = shouldRetry ? BACKEND_API_CONFIG.RETRY_ATTEMPTS : 1;
+  
   try {
-    return await retryWithBackoff(makeRequest);
+    return await retryWithBackoff(makeRequest, maxRetries);
   } catch (error) {
     const apiError = error as BackendAPIError;
     

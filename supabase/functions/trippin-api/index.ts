@@ -1852,6 +1852,7 @@ Return the response as a valid JSON object with this structure:
     console.log("Calling OpenAI API with prompt length:", prompt.length);
 
     // Call OpenAI API directly using fetch to avoid Deno compatibility issues
+    // Use faster model and JSON mode for better performance and reliability
     const openaiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -1859,7 +1860,7 @@ Return the response as a valid JSON object with this structure:
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "gpt-4",
+        model: "gpt-3.5-turbo", // Faster than gpt-4, reduces timeout risk
         messages: [
           {
             role: "system",
@@ -1868,7 +1869,8 @@ Return the response as a valid JSON object with this structure:
           { role: "user", content: prompt },
         ],
         temperature: 0.7,
-        max_tokens: 3000, // Limit response size to speed up generation
+        max_tokens: 2500, // Reduced to speed up generation
+        response_format: { type: "json_object" }, // Force JSON output
       }),
     });
 
@@ -1888,23 +1890,33 @@ Return the response as a valid JSON object with this structure:
     // Try to parse JSON, handle both JSON and markdown-wrapped JSON
     let plan;
     try {
-      // Remove markdown code blocks if present
-      let cleanedContent = content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+      // Remove markdown code blocks if present (even with response_format, sometimes GPT adds them)
+      let cleanedContent = content.trim();
       
-      // Handle escaped newlines - if content has literal \n characters, they need to be handled
-      // But if it's already valid JSON with actual newlines, we need to be careful
-      // Try parsing first, if it fails, try cleaning escaped sequences
+      // Remove markdown code blocks
+      cleanedContent = cleanedContent.replace(/^```json\s*/i, "").replace(/^```\s*/i, "").replace(/\s*```$/i, "").trim();
+      
+      // Try parsing first
       try {
         plan = JSON.parse(cleanedContent);
+        console.log("✅ Successfully parsed OpenAI JSON response");
       } catch (firstError) {
-        // If first parse fails, try handling escaped sequences
-        cleanedContent = cleanedContent.replace(/\\n/g, "\n").replace(/\\t/g, "\t").replace(/\\"/g, '"');
-        plan = JSON.parse(cleanedContent);
+        // If first parse fails, try extracting JSON from text
+        // Look for JSON object boundaries
+        const jsonMatch = cleanedContent.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          plan = JSON.parse(jsonMatch[0]);
+          console.log("✅ Successfully extracted and parsed JSON from response");
+        } else {
+          throw new Error("No valid JSON found in response");
+        }
       }
     } catch (parseError) {
-      console.error("Failed to parse OpenAI response as JSON:", parseError);
-      console.error("Response content:", content.substring(0, 500));
-      // Return a structured fallback plan
+      console.error("❌ Failed to parse OpenAI response as JSON:", parseError);
+      console.error("Response content (first 500 chars):", content.substring(0, 500));
+      console.error("Full response length:", content.length);
+      
+      // Return a structured fallback plan with better error info
       plan = {
         id: `fallback-plan-${Date.now()}`,
         title: `${tripData.destination || "Destination"} Adventure`,
@@ -1939,8 +1951,9 @@ Return the response as a valid JSON object with this structure:
             ],
           },
         ],
-        note: "AI response was not in valid JSON format, using fallback plan",
-        rawResponse: content.substring(0, 200),
+        note: "AI response parsing failed, using fallback plan",
+        rawResponse: content.substring(0, 500), // Store more of the response for debugging
+        parseError: parseError.message,
       };
     }
 
