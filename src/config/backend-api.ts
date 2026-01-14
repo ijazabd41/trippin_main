@@ -163,7 +163,7 @@ export const BACKEND_API_CONFIG = {
     }
   },
   TIMEOUT: 30000, // 30 seconds (default)
-  OPENAI_TIMEOUT: 45000, // 45 seconds for OpenAI endpoints (before Supabase 60s limit)
+  OPENAI_TIMEOUT: 120000, // 120 seconds (2 minutes) for OpenAI endpoints - allow time for Edge Function to complete
   RETRY_ATTEMPTS: 1, // Reduced to 1 for OpenAI to avoid long waits
   RETRY_DELAY: 1000 // 1 second
 };

@@ -754,16 +754,22 @@ const PlanGeneration: React.FC = () => {
     let progressInterval: NodeJS.Timeout | null = null;
     
     try {
-      // Simulate progress updates
+      // Simulate progress updates - cap at 95% until API call completes
       progressInterval = setInterval(() => {
         setProgress(prev => {
-          const newProgress = prev + Math.random() * 10;
-          if (Math.floor(newProgress / 10) > Math.floor(prev / 10)) {
-            logDebug(`Progress: ${Math.floor(newProgress)}%`);
+          // Only increment if below 95%, then hold there until API completes
+          if (prev < 95) {
+            const increment = Math.random() * 3 + 1; // Slower, more realistic progress
+            const newProgress = prev + increment;
+            if (Math.floor(newProgress / 10) > Math.floor(prev / 10)) {
+              logDebug(`Progress: ${Math.floor(newProgress)}%`);
+            }
+            return newProgress > 95 ? 95 : newProgress;
           }
-          return newProgress > 95 ? 95 : newProgress;
+          // Hold at 95% while waiting for API response
+          return 95;
         });
-      }, 1000);
+      }, 1500); // Update every 1.5 seconds for smoother progress
       
       logDebug('Preparing to call OpenAI generate function');
       
@@ -825,18 +831,41 @@ const PlanGeneration: React.FC = () => {
           console.warn('⚠️ OpenAI API response missing data:', result);
         }
       } catch (apiError: any) {
-        logDebug('❌ OpenAI API call failed, using enhanced plan', apiError);
+        logDebug('❌ OpenAI API call failed', apiError);
         console.error('API Error details:', {
           message: apiError.message,
           status: apiError.status,
           endpoint: apiError.endpoint
         });
-        setNoticeMessage(t('planGeneration.errors.aiUnavailable'));
-        setShowMockNotice(true);
+        
+        // Check if it's a timeout error
+        if (apiError.status === 408 || apiError.code === 'TIMEOUT' || apiError.message?.includes('タイムアウト')) {
+          // Timeout occurred - don't use fallback plan, show "no plan" message
+          console.warn('⏱️ OpenAI API call timed out after waiting 2 minutes');
+          setNoticeMessage(t('planGeneration.errors.timeout') || 'プランの生成に時間がかかりすぎました。しばらくしてからもう一度お試しください。');
+          setShowMockNotice(true);
+          // Don't set finalPlan - will be handled below
+          aiEnhancedPlan = null;
+        } else {
+          // Other errors - show error message but still allow user plan
+          setNoticeMessage(t('planGeneration.errors.aiUnavailable'));
+          setShowMockNotice(true);
+        }
       }
       
-      // Use AI enhanced plan if available, otherwise use user plan
-      let finalPlan = aiEnhancedPlan || userPlan;
+      // Use AI enhanced plan if available, otherwise check if we should show user plan or no plan
+      let finalPlan = null;
+      
+      if (aiEnhancedPlan) {
+        // We have AI plan - use it
+        finalPlan = aiEnhancedPlan;
+      } else if (noticeMessage && noticeMessage.includes('タイムアウト') || noticeMessage?.includes('時間がかかりすぎ')) {
+        // Timeout occurred - don't show any plan
+        finalPlan = null;
+      } else {
+        // Other error - use user plan as fallback
+        finalPlan = userPlan;
+      }
       
       // Transform OpenAI response structure to match frontend expectations
       if (finalPlan) {
@@ -983,8 +1012,8 @@ const PlanGeneration: React.FC = () => {
         setGeneratedPlan(finalPlan);
         
         // Then update loading state
+        setProgress(100); // Cap at 100%
         setIsLoading(false);
-        setProgress(100);
         
         console.log('✅ Plan generation completed successfully - fresh plan from API');
         console.log('🎯 Final plan:', {
@@ -994,8 +1023,16 @@ const PlanGeneration: React.FC = () => {
           itineraryLength: finalPlan.itinerary?.length || 0
         });
       } else {
-        throw new Error(t('planGeneration.errors.planGenerationFailed'));
+        // No plan generated (timeout or error) - show message
+        console.warn('⚠️ No plan generated - timeout or error occurred');
+        setProgress(100); // Cap at 100%
+        // Notice message already set in catch block above
       }
+      
+      // Update loading state
+      setIsLoading(false);
+      isGeneratingRef.current = false; // Clear flag using ref
+      logDebug('Plan generation process completed - flag cleared');
     } catch (error) {
       logDebug('Error in plan generation', error);
       setNoticeMessage(t('planGeneration.errors.planGenerationError'));
@@ -1052,10 +1089,10 @@ const PlanGeneration: React.FC = () => {
               <div className="absolute inset-0 rounded-full border-4 border-gray-200"></div>
               <div
                 className="absolute inset-0 rounded-full border-4 border-t-purple-600 border-r-transparent border-b-transparent border-l-transparent"
-                style={{ transform: `rotate(${progress * 3.6}deg)` }}
+                style={{ transform: `rotate(${Math.min(100, progress) * 3.6}deg)` }}
               ></div>
               <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-2xl font-bold text-purple-600">{Math.round(progress)}%</span>
+                <span className="text-2xl font-bold text-purple-600">{Math.min(100, Math.round(progress))}%</span>
               </div>
             </div>
             
