@@ -401,8 +401,8 @@ const TravelStyle: React.FC = () => {
                     key={interest.id}
                     onClick={() => toggleInterest(interest.id)}
                     className={`p-4 rounded-2xl border-2 transition-all duration-300 relative overflow-hidden group ${selectedInterests.includes(interest.id)
-                        ? 'border-pink-500 bg-gradient-to-br from-pink-50 to-pink-100 text-pink-700 shadow-lg'
-                        : 'border-gray-200 hover:border-pink-300 hover:bg-gradient-to-br hover:from-pink-50 hover:to-white bg-white/50 backdrop-blur-sm'
+                      ? 'border-pink-500 bg-gradient-to-br from-pink-50 to-pink-100 text-pink-700 shadow-lg'
+                      : 'border-gray-200 hover:border-pink-300 hover:bg-gradient-to-br hover:from-pink-50 hover:to-white bg-white/50 backdrop-blur-sm'
                       }`}
                     variants={itemVariants}
                     whileHover={{
@@ -494,8 +494,8 @@ const TravelStyle: React.FC = () => {
                     key={dietary.id}
                     onClick={() => toggleInterest(dietary.id)}
                     className={`p-4 rounded-2xl border-2 transition-all duration-300 relative overflow-hidden group ${selectedInterests.includes(dietary.id)
-                        ? 'border-green-500 bg-gradient-to-br from-green-50 to-green-100 text-green-700 shadow-lg'
-                        : 'border-gray-200 hover:border-green-300 hover:bg-gradient-to-br hover:from-green-50 hover:to-white bg-white/50 backdrop-blur-sm'
+                      ? 'border-green-500 bg-gradient-to-br from-green-50 to-green-100 text-green-700 shadow-lg'
+                      : 'border-gray-200 hover:border-green-300 hover:bg-gradient-to-br hover:from-green-50 hover:to-white bg-white/50 backdrop-blur-sm'
                       }`}
                     variants={itemVariants}
                     whileHover={{
@@ -668,7 +668,10 @@ const TravelStyle: React.FC = () => {
                       value={budget}
                       onChange={(e) => setBudget(e.target.value)}
                       placeholder={t('questionnaire.budgetPlaceholder')}
-                      className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-pink-200 focus:border-pink-500 transition-all duration-300 bg-white/50 backdrop-blur-sm"
+                      className={`w-full pl-10 pr-4 py-3 border-2 rounded-xl focus:ring-4 transition-all duration-300 bg-white/50 backdrop-blur-sm ${budget && parseInt(budget) <= 0
+                          ? 'border-red-500 focus:ring-red-200 focus:border-red-500'
+                          : 'border-gray-200 focus:ring-pink-200 focus:border-pink-500'
+                        }`}
                     />
                   </div>
                 </div>
@@ -703,8 +706,8 @@ const TravelStyle: React.FC = () => {
                 onClick={handleNext}
                 disabled={selectedInterests.length === 0 || !budget || parseInt(budget) <= 0}
                 className={`flex items-center space-x-2 px-8 py-3 rounded-xl font-medium transition-all relative overflow-hidden ${selectedInterests.length === 0 || !budget || parseInt(budget) <= 0
-                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                    : 'bg-gradient-to-r from-pink-600 to-red-600 hover:from-pink-700 hover:to-red-700 text-white shadow-lg hover:shadow-xl'
+                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  : 'bg-gradient-to-r from-pink-600 to-red-600 hover:from-pink-700 hover:to-red-700 text-white shadow-lg hover:shadow-xl'
                   }`}
                 whileHover={selectedInterests.length > 0 && budget && parseInt(budget) > 0 ? { scale: 1.05, y: -2 } : {}}
                 whileTap={selectedInterests.length > 0 && budget && parseInt(budget) > 0 ? { scale: 0.98 } : {}}
