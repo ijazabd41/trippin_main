@@ -669,10 +669,15 @@ const TravelStyle: React.FC = () => {
                       onChange={(e) => setBudget(e.target.value)}
                       placeholder={t('questionnaire.budgetPlaceholder')}
                       className={`w-full pl-10 pr-4 py-3 border-2 rounded-xl focus:ring-4 transition-all duration-300 bg-white/50 backdrop-blur-sm ${budget && parseInt(budget) <= 0
-                          ? 'border-red-500 focus:ring-red-200 focus:border-red-500'
-                          : 'border-gray-200 focus:ring-pink-200 focus:border-pink-500'
+                        ? 'border-red-500 focus:ring-red-200 focus:border-red-500'
+                        : 'border-gray-200 focus:ring-pink-200 focus:border-pink-500'
                         }`}
                     />
+                    {budget && parseInt(budget) <= 0 && (
+                      <p className="absolute left-0 -bottom-6 text-sm text-red-500 pl-2">
+                        {t('questionnaire.budgetMustBePositive') || 'Budget must be greater than 0'}
+                      </p>
+                    )}
                   </div>
                 </div>
                 <motion.select
