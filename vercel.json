@@ -3,6 +3,10 @@
     {
       "source": "/supabase-auth/callback",
       "destination": "/index.html"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ],
   "headers": [
@@ -17,4 +21,3 @@
     }
   ]
 }
-
