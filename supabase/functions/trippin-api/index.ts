@@ -1373,7 +1373,7 @@ You MUST return a valid JSON object with this EXACT structure (include ALL field
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-      model: "gpt-4",
+      model: "gpt-4o",
       messages: [
         {
           role: "system",
@@ -1382,7 +1382,7 @@ You MUST return a valid JSON object with this EXACT structure (include ALL field
         { role: "user", content: prompt },
       ],
       temperature: 0.7,
-        max_tokens: 6000, // Increased to allow for complete multi-day itineraries
+        max_tokens: 4096, // Optimized for speed while allowing detailed plans
       }),
     });
 

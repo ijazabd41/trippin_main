@@ -18,7 +18,7 @@ if (!process.env.OPENAI_API_KEY) {
 router.post('/generate', async (req, res) => {
   try {
     const { tripData } = req.body;
-    
+
     if (!tripData) {
       return res.status(400).json({
         success: false,
@@ -29,7 +29,7 @@ router.post('/generate', async (req, res) => {
     // Check if OpenAI API key is configured
     if (!process.env.OPENAI_API_KEY) {
       console.log('🔄 OpenAI API key not configured, using fallback plan');
-      
+
       const fallbackPlan = {
         id: `fallback-plan-${Date.now()}`,
         title: `${tripData.destination || 'Destination'} Adventure`,
@@ -102,7 +102,7 @@ router.post('/generate', async (req, res) => {
           usefulPhrases: ['Hello', 'Thank you', 'Excuse me']
         }
       };
-      
+
       return res.json({
         success: true,
         data: fallbackPlan,
@@ -196,7 +196,7 @@ router.post('/generate', async (req, res) => {
     }`;
 
     // Use faster model with JSON mode for better performance and reliability
-    const models = ["gpt-3.5-turbo", "gpt-4", "gpt-4-turbo"];
+    const models = ["gpt-4o", "gpt-4-turbo", "gpt-3.5-turbo"];
     let completion;
     let lastError;
 
@@ -233,12 +233,12 @@ router.post('/generate', async (req, res) => {
     }
 
     const response = completion.choices[0].message.content;
-    
+
     try {
       // Remove markdown code blocks if present (even with response_format, sometimes GPT adds them)
       let cleanedContent = response.trim();
       cleanedContent = cleanedContent.replace(/^```json\s*/i, "").replace(/^```\s*/i, "").replace(/\s*```$/i, "").trim();
-      
+
       // Try parsing first
       let planData;
       try {
@@ -254,7 +254,7 @@ router.post('/generate', async (req, res) => {
           throw new Error('No valid JSON found in response');
         }
       }
-      
+
       res.json({
         success: true,
         data: planData,
@@ -273,11 +273,11 @@ router.post('/generate', async (req, res) => {
 
   } catch (error) {
     console.error('OpenAI Generate Error:', error);
-    
+
     // If all models fail, return a fallback plan
     if (error.message.includes('model_not_found') || error.message.includes('does not exist') || error.message.includes('quota')) {
       console.log('🔄 All OpenAI models failed, using fallback plan');
-      
+
       const fallbackPlan = {
         id: `fallback-plan-${Date.now()}`,
         title: `${tripData.destination || 'Destination'} Adventure`,
@@ -350,7 +350,7 @@ router.post('/generate', async (req, res) => {
           usefulPhrases: ['Hello', 'Thank you', 'Excuse me']
         }
       };
-      
+
       res.json({
         success: true,
         data: fallbackPlan,
@@ -371,7 +371,7 @@ router.post('/generate', async (req, res) => {
 router.post('/chat', async (req, res) => {
   try {
     const { message, language = 'ja', context = 'travel_japan', conversationHistory = [] } = req.body;
-    
+
     if (!message) {
       return res.status(400).json({
         success: false,
@@ -382,14 +382,14 @@ router.post('/chat', async (req, res) => {
     // Check if OpenAI API key is configured
     if (!process.env.OPENAI_API_KEY) {
       console.log('🔄 OpenAI API key not configured, using fallback response');
-      
+
       const fallbackResponses = {
         ja: '申し訳ございませんが、現在AIサービスが一時的に利用できません。基本的な日本旅行情報についてお答えできます。緊急連絡先: 警察110、消防・救急119、観光ホットライン050-3816-2787',
         en: 'Sorry, AI service is temporarily unavailable. I can provide basic Japan travel information. Emergency contacts: Police 110, Fire/Ambulance 119, Tourist Hotline 050-3816-2787',
         zh: '抱歉，AI服务暂时不可用。我可以提供基本的日本旅游信息。紧急联系方式：警察110、消防/救护车119、旅游热线050-3816-2787',
         ko: '죄송합니다. AI 서비스가 일시적으로 사용할 수 없습니다. 기본적인 일본 여행 정보를 제공할 수 있습니다. 긴급 연락처: 경찰 110, 소방/응급 119, 관광 핫라인 050-3816-2787'
       };
-      
+
       return res.json({
         success: true,
         response: fallbackResponses[language] || fallbackResponses.ja,
@@ -425,7 +425,7 @@ router.post('/chat', async (req, res) => {
     ];
 
     // Try different models in order of preference
-    const models = ["gpt-3.5-turbo", "gpt-4", "gpt-4-turbo"];
+    const models = ["gpt-4o", "gpt-4-turbo", "gpt-3.5-turbo"];
     let completion;
     let lastError;
 
@@ -452,7 +452,7 @@ router.post('/chat', async (req, res) => {
     }
 
     const response = completion.choices[0].message.content;
-    
+
     res.json({
       success: true,
       response,
@@ -462,7 +462,7 @@ router.post('/chat', async (req, res) => {
 
   } catch (error) {
     console.error('OpenAI Chat Error:', error);
-    
+
     // Return fallback response for any errors
     const fallbackResponses = {
       ja: '申し訳ございませんが、現在AIサービスが一時的に利用できません。基本的な日本旅行情報についてお答えできます。',
@@ -470,9 +470,9 @@ router.post('/chat', async (req, res) => {
       zh: '抱歉，AI服务暂时不可用。我可以提供基本的日本旅游信息。',
       ko: '죄송합니다. AI 서비스가 일시적으로 사용할 수 없습니다. 기본적인 일본 여행 정보를 제공할 수 있습니다.'
     };
-    
+
     const language = req.body?.language || 'ja';
-    
+
     res.json({
       success: true,
       response: fallbackResponses[language] || fallbackResponses.ja,
