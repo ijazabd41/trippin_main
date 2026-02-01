@@ -19,7 +19,7 @@ class BackendService {
       backendUrl: BACKEND_API_CONFIG.BASE_URL,
       timeout: BACKEND_API_CONFIG.TIMEOUT
     };
-    
+
     this.initializeService();
   }
 
@@ -28,7 +28,7 @@ class BackendService {
       console.log('🔍 Initializing backend service...');
       const isHealthy = await this.checkBackendHealth();
       console.log('✅ Backend health check result:', isHealthy);
-      
+
       // Don't immediately switch to mock data - let individual calls decide
       if (!isHealthy) {
         console.warn('⚠️ Backend health check failed, but will still attempt real calls');
@@ -45,7 +45,7 @@ class BackendService {
 
   private async checkBackendHealth(): Promise<boolean> {
     const now = Date.now();
-    
+
     // Only check if enough time has passed since last check
     if (now - this.lastHealthCheck < this.healthCheckInterval) {
       console.log('⏰ Using cached backend health status:', this.isBackendAvailable);
@@ -56,12 +56,12 @@ class BackendService {
       console.log('🔍 Performing fresh backend health check...');
       this.isBackendAvailable = await backendHealthCheck();
       this.lastHealthCheck = now;
-      
+
       console.log('📊 Backend health check result:', {
         isBackendAvailable: this.isBackendAvailable,
         useMockData: this.config.useMockData
       });
-      
+
       if (!this.isBackendAvailable) {
         console.warn('⚠️ Backend not available, switching to mock data');
         this.config.useMockData = true;
@@ -69,7 +69,7 @@ class BackendService {
         console.log('✅ Backend is available, using real backend');
         this.config.useMockData = false;
       }
-      
+
       return this.isBackendAvailable;
     } catch (error) {
       console.warn('❌ Backend health check failed:', error);
@@ -193,12 +193,12 @@ class BackendService {
         token
       );
     } catch (error) {
-        console.warn('Backend call failed, using mock data:', error);
-        return {
-          success: true,
-          data: this.generateMockTrip(tripId)
-        };
-      }
+      console.warn('Backend call failed, using mock data:', error);
+      return {
+        success: true,
+        data: this.generateMockTrip(tripId)
+      };
+    }
   }
 
   async createTrip(tripData: any, token?: string) {
@@ -386,7 +386,7 @@ class BackendService {
       console.log('🚀 Attempting real backend call...');
       console.log('📡 Full URL will be:', `${this.config.backendUrl}/api/subscriptions/create-checkout-session`);
       console.log('🔑 Token preview:', token ? `${token.substring(0, 20)}...` : 'no token');
-      
+
       const result = await backendApiCall(
         '/api/subscriptions/create-checkout-session',
         {
@@ -395,7 +395,7 @@ class BackendService {
         },
         token
       );
-      
+
       console.log('✅ Real backend call successful:', result);
       return result;
     } catch (error) {
@@ -405,7 +405,7 @@ class BackendService {
         status: error.status,
         code: error.code
       });
-      
+
       // Only use mock data if the real backend call actually fails
       return {
         success: true,
@@ -457,7 +457,7 @@ class BackendService {
 
     try {
       return await backendApiCall(
-        '/subscriptions/cancel',
+        '/api/payments/cancel-subscription',
         { method: 'POST' },
         token
       );

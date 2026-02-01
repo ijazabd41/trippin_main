@@ -13,6 +13,8 @@ const PremiumFeatures: React.FC = () => {
   const { user, isAuthenticated } = useSupabaseAuth();
   const [isPremium, setIsPremium] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isCancelling, setIsCancelling] = useState(false);
+  const [cancelMessage, setCancelMessage] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('overview');
 
   useEffect(() => {
@@ -34,6 +36,31 @@ const PremiumFeatures: React.FC = () => {
       console.error('Error checking premium status:', error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleCancelSubscription = async () => {
+    if (!confirm(t('premium.cancelConfirmation') || 'Are you sure you want to cancel your premium subscription?')) {
+      return;
+    }
+
+    try {
+      setIsCancelling(true);
+      setCancelMessage(null);
+
+      const result = await backendService.cancelSubscription(user?.access_token);
+
+      if (result.success) {
+        setCancelMessage(t('premium.cancelSuccess') || 'Subscription cancellation scheduled successfully.');
+        // Optionally refresh status or just show message
+      } else {
+        setCancelMessage(t('premium.cancelError') || 'Failed to cancel subscription. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error cancelling subscription:', error);
+      setCancelMessage(t('premium.cancelError') || 'Failed to cancel subscription. Please try again.');
+    } finally {
+      setIsCancelling(false);
     }
   };
 
@@ -218,11 +245,10 @@ const PremiumFeatures: React.FC = () => {
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all ${
-                      activeTab === tab.id
-                        ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white'
-                        : 'text-gray-600 hover:bg-gray-100'
-                    }`}
+                    className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all ${activeTab === tab.id
+                      ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white'
+                      : 'text-gray-600 hover:bg-gray-100'
+                      }`}
                   >
                     <IconComponent className="w-4 h-4" />
                     <span>{tab.label}</span>
@@ -318,6 +344,40 @@ const PremiumFeatures: React.FC = () => {
             </div>
           )}
         </motion.div>
+
+        {/* Cancellation Section - Only show in Customization or Features tab, or add a dedicated settings tab */}
+        {activeTab === 'features' && (
+          <div className="mt-8 bg-white rounded-2xl shadow-lg p-8 border border-red-100">
+            <h3 className="text-lg font-semibold text-red-600 mb-4">{t('premium.dangerZone') || 'Danger Zone'}</h3>
+            <p className="text-gray-600 mb-6">
+              {t('premium.cancelDescription') || 'If you wish to stop your premium subscription, you can cancel it here. You will lose access to premium features at the end of your current billing period.'}
+            </p>
+
+            {cancelMessage && (
+              <div className={`p-4 rounded-lg mb-6 ${cancelMessage.includes('success')
+                  ? 'bg-green-100 text-green-700'
+                  : 'bg-red-100 text-red-700'
+                }`}>
+                {cancelMessage}
+              </div>
+            )}
+
+            <button
+              onClick={handleCancelSubscription}
+              disabled={isCancelling}
+              className="px-6 py-3 bg-white border-2 border-red-500 text-red-500 rounded-xl hover:bg-red-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium flex items-center space-x-2"
+            >
+              {isCancelling ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-red-500 border-t-transparent rounded-full animate-spin"></div>
+                  <span>{t('premium.processing') || 'Processing...'}</span>
+                </>
+              ) : (
+                <span>{t('premium.cancelSubscription') || 'Cancel Subscription'}</span>
+              )}
+            </button>
+          </div>
+        )}
 
         {/* Back Button */}
         <div className="text-center mt-8">
