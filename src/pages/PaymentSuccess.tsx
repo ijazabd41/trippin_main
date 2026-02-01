@@ -138,11 +138,11 @@ const PaymentSuccess: React.FC = () => {
           // Add premium upgrade notification
           addNotification({
             type: 'success',
-            title: t('premium.success.title'),
-            message: t('premium.success.message'),
+            title: t('landing.premium.success.title'),
+            message: t('landing.premium.success.message'),
             actions: [
               {
-                label: t('premium.success.viewDashboard'),
+                label: t('landing.premium.success.viewDashboard'),
                 action: () => navigate('/dashboard')
               }
             ]
@@ -176,19 +176,19 @@ const PaymentSuccess: React.FC = () => {
         {isVerifying ? (
           <>
             <div className="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">{t('premium.success.verifying')}</h2>
-            <p className="text-gray-600">{t('premium.success.pleaseWait')}</p>
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">{t('landing.premium.success.verifying')}</h2>
+            <p className="text-gray-600">{t('landing.premium.success.pleaseWait')}</p>
           </>
         ) : error ? (
           <>
             <div className="text-red-500 text-6xl mb-6">⚠️</div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">{t('premium.success.error')}</h2>
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">{t('landing.premium.success.error')}</h2>
             <p className="text-gray-600 mb-6">{error}</p>
             <button
               onClick={() => navigate('/checkout')}
               className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors"
             >
-              {t('premium.success.retry')}
+              {t('landing.premium.success.retry')}
             </button>
           </>
         ) : (
@@ -196,20 +196,20 @@ const PaymentSuccess: React.FC = () => {
             <div className="w-20 h-20 bg-gradient-to-r from-purple-100 to-pink-100 rounded-full flex items-center justify-center mx-auto mb-6">
               <Crown className="w-12 h-12 text-purple-600" />
             </div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">{t('premium.success.title')}</h2>
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">{t('landing.premium.success.title')}</h2>
             <p className="text-gray-600 mb-6">
-              {t('premium.success.message')}
+              {t('landing.premium.success.message')}
             </p>
 
             {/* Premium Status Badge */}
             <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-xl p-4 mb-6">
               <div className="flex items-center justify-center space-x-2 mb-3">
                 <Star className="w-5 h-5 text-yellow-500" />
-                <span className="font-semibold text-purple-800">{t('premium.success.premiumMember')}</span>
+                <span className="font-semibold text-purple-800">{t('landing.premium.success.premiumMember')}</span>
                 <Star className="w-5 h-5 text-yellow-500" />
               </div>
               <p className="text-sm text-purple-700">
-                {t('premium.success.activeMessage')}
+                {t('landing.premium.success.activeMessage')}
               </p>
             </div>
 
@@ -217,15 +217,15 @@ const PaymentSuccess: React.FC = () => {
             <div className="space-y-3 mb-8">
               <div className="flex items-center space-x-3 text-sm">
                 <Zap className="w-4 h-4 text-purple-600" />
-                <span className="text-gray-700">{t('premium.success.features.ai')}</span>
+                <span className="text-gray-700">{t('landing.premium.success.features.ai')}</span>
               </div>
               <div className="flex items-center space-x-3 text-sm">
                 <Crown className="w-4 h-4 text-purple-600" />
-                <span className="text-gray-700">{t('premium.success.features.support')}</span>
+                <span className="text-gray-700">{t('landing.premium.success.features.support')}</span>
               </div>
               <div className="flex items-center space-x-3 text-sm">
                 <CheckCircle className="w-4 h-4 text-purple-600" />
-                <span className="text-gray-700">{t('premium.success.features.esim')}</span>
+                <span className="text-gray-700">{t('landing.premium.success.features.esim')}</span>
               </div>
             </div>
 
@@ -235,7 +235,7 @@ const PaymentSuccess: React.FC = () => {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
-              <span>{t('premium.success.continue')}</span>
+              <span>{t('landing.premium.success.continue')}</span>
               <ArrowRight className="w-5 h-5" />
             </motion.button>
           </>
