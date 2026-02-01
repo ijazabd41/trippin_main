@@ -151,6 +151,23 @@ export const sv = {
           "title": "24 timmars support",
           "description": "Support är alltid tillgänglig"
         }
+      },
+      "success": {
+        "title": "Payment Successful!",
+        "message": "Thank you for upgrading to Premium. Your account has been updated.",
+        "verifying": "Verifying payment...",
+        "pleaseWait": "Please wait a moment",
+        "error": "An error occurred",
+        "retry": "Try again",
+        "premiumMember": "Premium Member",
+        "activeMessage": "All premium features are now available",
+        "features": {
+          "ai": "AI Itinerary Generation",
+          "support": "Priority Support",
+          "esim": "eSIM Discounts"
+        },
+        "continue": "Continue to Dashboard",
+        "viewDashboard": "View Dashboard"
       }
     },
     "closing": {
@@ -1820,7 +1837,7 @@ export const sv = {
     "pastDate": "Välj ett avresedatum efter idag",
     "invalidDateRange": "Vänligen välj ett datum senare än ditt avresedatum för ditt returdatum.",
     "travelersRange": "Antalet resenärer varierar från 1 till 20",
-"boundaryTitle": "Something went wrong",
+    "boundaryTitle": "Something went wrong",
     "boundaryMessage": "We're sorry, but something unexpected happened.",
     "reloadPage": "Reload page",
     "pages": {

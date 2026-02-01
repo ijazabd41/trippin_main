@@ -3374,26 +3374,11 @@ router.add("GET", "/api/esim/plans", async (req) => {
       );
     }
 
-    // Always filter for Japan (JP) plans only
-    // The API doesn't support direct country filtering in catalogue, so we'll search through pages
-    // Cache for eSIM plans
-    const CACHE_DURATION = 60 * 60 * 1000; // 1 hour
+    // Cache for eSIM plans (1 hour)
+    const CACHE_DURATION = 60 * 60 * 1000;
     const now = Date.now();
 
-    // Check in-memory cache if available (global variables defined outside/above would be better but Deno edge function might recycle, 
-    // so we can use a simple module-level cache if defined top-level, but for now let's check if we can declare them here or 
-    // if we need to modify the file structure. Logic below assumes we want to add caching. 
-    // Since I can't easily add global vars without context of where top level is, I will rely on the fact that 
-    // I can modify the whole block. 
-    // But wait, I'm inside the router handler. Global vars need to be outside. 
-    // Actually, I can rely on the fact that I'm replacing the whole endpoint logic or a large chunk of it.
-    // Let's assume for this specific edit I'm just replacing the fetching logic. 
-    // To properly do caching, I should have defined the cache variable outside. 
-    // Let's assume I'll add the cache variable in a separate edit or just put it outside the router usage if possible.
-    // However, since I can't see the top level easily, I'll use a property on the global object or just accept that 
-    // for this specific "run" it might not persist across cold starts, but Deno usually keeps it warm.
-    // Use 'globalThis' for caching.
-
+    // Check in-memory cache
     // @ts-ignore
     if (globalThis.cachedJapanPlans && globalThis.lastCacheTime && (now - globalThis.lastCacheTime < CACHE_DURATION)) {
       console.log("🚀 Serving eSIM plans from cache");
@@ -3406,8 +3391,7 @@ router.add("GET", "/api/esim/plans", async (req) => {
     }
 
     // Always filter for Japan (JP) plans only
-    // The API doesn't support direct country filtering in catalogue, so we'll search through pages
-    const maxPagesToSearch = 20; // Search first 20 pages to find Japan plans (faster response)
+    const maxPagesToSearch = 20; // Search first 20 pages
     let allJapanBundles: any[] = [];
 
     console.log("🔄 Fetching Japan (JP) eSIM plans from API (Parallel)...");
@@ -3463,41 +3447,9 @@ router.add("GET", "/api/esim/plans", async (req) => {
 
     console.log(`✅ Found ${allJapanBundles.length} Japan bundles via parallel fetch`);
 
-    // Update cache
-    // @ts-ignore
-    globalThis.cachedJapanPlans = allJapanBundles; // We'll store the raw bundles or normalized? 
-    // Let's process normalization first before caching if we want to cache the final result, 
-    // BUT the existing code normalizes AFTER this block. 
-    // To match existing structure, I'll let it proceed to normalization, but I should cache the normalized result ideally.
-    // However, looking at the code structure I'm editing, I am replacing the fetching block.
-    // Ideally I cache the *normalized* result to save CPU too. 
-    // Let's modify the flow to normalize inside here or let it fall through.
-    // If I let it fall through, I can't reuse the cache logic easily above unless I cache the output of normalization.
-    // Let's stick to the plan: parallel fetch first. I'll insert a "cache set" later or better yet,
-    // I can cache the raw bundles here and let normalization run (it's fast), OR
-    // I'll leave the normalization code below and just update the cache check to return the already normalized data if I can.
-    // Actually, simply caching the `allJapanBundles` (raw data) is safer for now as it minimaly changes downstream logic.
-    // So I will cache `allJapanBundles` here? No, the cache check above returns `data`. 
-    // If I return `cachedJapanPlans` as `data`, it expects normalized structure.
-    // So I MUST normalize before caching.
-    // For this Edit, I will just implement the parallel fetching to `allJapanBundles`.
-    // I will add the normalization and cache saving in a subsequent edit or if I can include it in the replace range.
-    // The replace range ends at 3445 which is inside the loop.
-    // I will replace the WHOLE loop logic.
-
-    // ... logic continues to normalization ...
-
-    console.log(`✅ Found ${allJapanBundles.length} Japan bundles across all checked pages`);
-
-    // Use the collected Japan bundles
-    const bundles = allJapanBundles;
-
-    console.log(`🇯🇵 Processing ${bundles.length} Japan bundles for normalization`);
-
-    // Normalize plan structure for the frontend (matching backend logic)
-    const transformedPlans = bundles.map((p: any) => {
+    // Normalize plan structure
+    const transformedPlans = allJapanBundles.map((p: any) => {
       // Convert dataAmount from MB to GB if needed
-      // Handle unlimited plans (dataAmount: -1 or unlimited: true)
       const dataAmountMB = p.dataAmount || 0;
       const isUnlimited = p.unlimited === true || dataAmountMB === -1 || dataAmountMB < 0;
 
@@ -3509,7 +3461,6 @@ router.add("GET", "/api/esim/plans", async (req) => {
       } else if (dataAmountMB > 0) {
         dataAmountGB = `${dataAmountMB}MB`;
       } else {
-        // Try to extract from bundle name or size field
         const sizeMatch = p.name?.match(/(\d+)\s*(GB|MB|gb|mb)/i);
         if (sizeMatch) {
           dataAmountGB = sizeMatch[0];
@@ -3520,14 +3471,12 @@ router.add("GET", "/api/esim/plans", async (req) => {
         }
       }
 
-      // Extract price and currency from API response
-      // API may return price as: number, {amount: number, currency: string}, or {price: number, currency: string}
+      // Extract price
       let priceAmount = 0;
-      let priceCurrency = "USD"; // Default fallback
+      let priceCurrency = "USD";
 
       if (typeof p.price === "number") {
         priceAmount = p.price;
-        // Try to find currency in other fields
         priceCurrency = p.currency || p.priceCurrency || (p.priceInfo && p.priceInfo.currency) || "USD";
       } else if (p.price && typeof p.price === "object") {
         priceAmount = p.price.amount || p.price.price || p.price.value || 0;
@@ -3537,51 +3486,41 @@ router.add("GET", "/api/esim/plans", async (req) => {
         priceCurrency = p.currency || p.priceCurrency || "USD";
       }
 
-      // Extract validity from API response
-      // API may return: duration (number), validityDays (number), validity (string), or validityPeriod (string)
+      // Extract validity
       let validity = "";
       if (p.duration) {
-        // Format duration: "7 days" or "7日" for Japanese
         const duration = p.duration;
         validity = `${duration} ${duration === 1 ? "day" : "days"}`;
       } else if (p.validityDays) {
         const days = p.validityDays;
         validity = `${days} ${days === 1 ? "day" : "days"}`;
       } else if (p.validity) {
-        validity = p.validity; // Use as-is if it's already a string
+        validity = p.validity;
       } else if (p.validityPeriod) {
         validity = p.validityPeriod;
       } else {
-        // Fallback: try to extract from name
         const validityMatch = p.name?.match(/(\d+)\s*(days|day|日)/i);
         if (validityMatch) {
           validity = `${validityMatch[1]}日`;
         } else {
-          validity = "15日"; // Default fallback
+          validity = "15日";
         }
       }
 
-      // Extract coverage from API response
-      // Since we're filtering for Japan only, ensure coverage shows Japan
-      // API may return: countries (array), coverage (array), regions (array), or coverageArea (array)
-      // Coverage may be array of strings or array of objects with name/code properties
+      // Extract coverage
       const rawCoverage = p.countries || p.coverage || p.regions || p.coverageArea || [];
-
-      // Normalize coverage to always be an array of strings, ensuring Japan is included
       let coverage: string[] = [];
       if (Array.isArray(rawCoverage)) {
         coverage = rawCoverage.map((item: any) => {
           if (typeof item === "string") {
             return item;
           } else if (typeof item === "object" && item !== null) {
-            // Extract country name from object (could be name, country, countryName, code, etc.)
             return item.name || item.country || item.countryName || item.code || item.iso || JSON.stringify(item);
           }
           return String(item);
         });
       }
 
-      // Ensure Japan is in coverage (all bundles are Japan, so this should always be true)
       if (coverage.length === 0 || !coverage.some((c) => c.toLowerCase().includes("japan") || c.toUpperCase() === "JP")) {
         coverage = ["Japan"];
       }
@@ -3596,56 +3535,63 @@ router.add("GET", "/api/esim/plans", async (req) => {
 
       return {
         id: p.name || String(p.id || p.productId || p.code || ""),
-        name: p.name || p.title || "", // Use API name directly for consistency
+        name: p.name || p.title || "",
         description: p.description || "",
         dataAmount: dataAmountGB,
-        validity: validity, // Use API validity directly
+        validity: validity,
         price: {
           amount: priceAmount,
-          currency: priceCurrency.toUpperCase(), // Normalize to uppercase (USD, JPY, etc.)
+          currency: priceCurrency.toUpperCase(),
         },
-        coverage: coverage, // Normalized array of strings
+        coverage: coverage,
         features: features,
         imageUrl: p.imageUrl || null,
         autostart: p.autostart || false,
-        unlimited: isUnlimited, // Properly set unlimited flag
+        unlimited: isUnlimited,
         isAvailable: p.available !== false && p.status !== "unavailable",
-        // Keep original data for purchase
         originalData: p,
       };
     });
 
-    console.log(`✅ Returning ${transformedPlans.length} normalized plans to frontend`);
+    // Update cache with normalized plans
+    // @ts-ignore
+    globalThis.cachedJapanPlans = transformedPlans;
+    // @ts-ignore
+    globalThis.lastCacheTime = now;
+
+    console.log(`✅ Returning ${transformedPlans.length} normalized plans`);
 
     if (transformedPlans.length === 0) {
-      console.warn("⚠️ No Japan plans found, using fallback plans");
-      // Return fallback plans if no plans found
-      const fallbackPlans = [
-        {
-          id: "plan_1",
-          name: "Japan 3GB - 15 Days",
-          description: "日本全国で使える15日間3GBプラン",
-          dataAmount: "3GB",
-          validity: "15日",
-          price: { amount: 3500, currency: "JPY" },
-          coverage: ["Japan"],
-          features: ["High-speed data", "24/7 support"],
-          isAvailable: true,
-        },
-        {
-          id: "plan_2",
-          name: "Japan 10GB - 30 Days",
-          description: "日本全国で使える30日間10GBプラン",
-          dataAmount: "10GB",
-          validity: "30日",
-          price: { amount: 8500, currency: "JPY" },
-          coverage: ["Japan"],
-          features: ["High-speed data", "24/7 support"],
-          isAvailable: true,
-        },
-      ];
+      // Fallback
       return new Response(
-        JSON.stringify({ success: true, data: fallbackPlans, isMockData: true }),
+        JSON.stringify({
+          success: true,
+          data: [
+            {
+              id: "plan_1",
+              name: "Japan 3GB - 15 Days",
+              description: "日本全国で使える15日間3GBプラン",
+              dataAmount: "3GB",
+              validity: "15日",
+              price: { amount: 3500, currency: "JPY" },
+              coverage: ["Japan"],
+              features: ["High-speed data", "24/7 support"],
+              isAvailable: true,
+            },
+            {
+              id: "plan_2",
+              name: "Japan 10GB - 30 Days",
+              description: "日本全国で使える30日間10GBプラン",
+              dataAmount: "10GB",
+              validity: "30日",
+              price: { amount: 8500, currency: "JPY" },
+              coverage: ["Japan"],
+              features: ["High-speed data", "24/7 support"],
+              isAvailable: true,
+            }
+          ],
+          isMockData: true
+        }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }

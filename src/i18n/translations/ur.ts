@@ -151,6 +151,23 @@ export const ur = {
           "title": "24 گھنٹے کی حمایت",
           "description": "سپورٹ ہمیشہ دستیاب ہے"
         }
+      },
+      "success": {
+        "title": "Payment Successful!",
+        "message": "Thank you for upgrading to Premium. Your account has been updated.",
+        "verifying": "Verifying payment...",
+        "pleaseWait": "Please wait a moment",
+        "error": "An error occurred",
+        "retry": "Try again",
+        "premiumMember": "Premium Member",
+        "activeMessage": "All premium features are now available",
+        "features": {
+          "ai": "AI Itinerary Generation",
+          "support": "Priority Support",
+          "esim": "eSIM Discounts"
+        },
+        "continue": "Continue to Dashboard",
+        "viewDashboard": "View Dashboard"
       }
     },
     "closing": {
@@ -1820,7 +1837,7 @@ export const ur = {
     "pastDate": "براہ کرم آج کے بعد روانگی کی تاریخ منتخب کریں",
     "invalidDateRange": "براہ کرم اپنی واپسی کی تاریخ کے لئے اپنی روانگی کی تاریخ کے بعد ایک تاریخ منتخب کریں۔",
     "travelersRange": "مسافروں کی تعداد 1 سے 20 تک ہے",
-"boundaryTitle": "Something went wrong",
+    "boundaryTitle": "Something went wrong",
     "boundaryMessage": "We're sorry, but something unexpected happened.",
     "reloadPage": "Reload page",
     "pages": {

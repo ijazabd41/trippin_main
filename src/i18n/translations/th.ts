@@ -151,6 +151,23 @@ export const th = {
           "title": "การสนับสนุนตลอด 24 ชั่วโมง",
           "description": "การสนับสนุนมีอยู่เสมอ"
         }
+      },
+      "success": {
+        "title": "Payment Successful!",
+        "message": "Thank you for upgrading to Premium. Your account has been updated.",
+        "verifying": "Verifying payment...",
+        "pleaseWait": "Please wait a moment",
+        "error": "An error occurred",
+        "retry": "Try again",
+        "premiumMember": "Premium Member",
+        "activeMessage": "All premium features are now available",
+        "features": {
+          "ai": "AI Itinerary Generation",
+          "support": "Priority Support",
+          "esim": "eSIM Discounts"
+        },
+        "continue": "Continue to Dashboard",
+        "viewDashboard": "View Dashboard"
       }
     },
     "closing": {
@@ -1818,7 +1835,7 @@ export const th = {
     "pastDate": "กรุณาเลือกวันออกเดินทางหลังจากวันนี้",
     "invalidDateRange": "โปรดเลือกวันที่หลังจากวันออกเดินทางของคุณเป็นวันเดินทางกลับ",
     "travelersRange": "จำนวนผู้เดินทางมีตั้งแต่ 1 ถึง 20 คน",
-"boundaryTitle": "Something went wrong",
+    "boundaryTitle": "Something went wrong",
     "boundaryMessage": "We're sorry, but something unexpected happened.",
     "reloadPage": "Reload page",
     "pages": {

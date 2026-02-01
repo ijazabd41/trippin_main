@@ -151,6 +151,23 @@ export const ja = {
           "title": "24時間サポート",
           "description": "いつでもサポートが受けられます"
         }
+      },
+      "success": {
+        "title": "支払い完了！",
+        "message": "プレミアムプランへのアップグレードありがとうございます。アカウントが更新されました。",
+        "verifying": "支払いを確認中...",
+        "pleaseWait": "しばらくお待ちください",
+        "error": "エラーが発生しました",
+        "retry": "もう一度試す",
+        "premiumMember": "プレミアム会員",
+        "activeMessage": "すべてのプレミアム機能が利用可能になりました",
+        "features": {
+          "ai": "AI搭載の旅程生成",
+          "support": "優先サポート",
+          "esim": "eSIM割引"
+        },
+        "continue": "ダッシュボードに進む",
+        "viewDashboard": "ダッシュボードを見る"
       }
     },
     "closing": {
@@ -1164,33 +1181,33 @@ export const ja = {
             "label": "春（3-5月）",
             "description": "桜、穏やかな気候、新緑の美しさ",
             "details": "桜の季節（3月下旬-5月上旬）。穏やかで過ごしやすい気候。花見や桜祭りが楽しめます。",
-            "features": {"0": "桜満開の絶景", "1": "花見文化体験", "2": "春の山菜料理", "3": "新緑の森林浴"},
+            "features": { "0": "桜満開の絶景", "1": "花見文化体験", "2": "春の山菜料理", "3": "新緑の森林浴" },
             "temperature": "15-25°C",
-            "activities": {"0": "花見ピクニック", "1": "桜祭り参加", "2": "春の寺院巡り"}
+            "activities": { "0": "花見ピクニック", "1": "桜祭り参加", "2": "春の寺院巡り" }
           },
           "summer": {
             "label": "夏（6-8月）",
             "description": "祭り、花火、海・山のアクティビティ",
             "details": "暑いですが、夏祭りや花火大会、海水浴、山登りなど活動的な体験が豊富です。",
-            "features": {"0": "夏祭りと花火", "1": "海水浴とマリンスポーツ", "2": "登山とハイキング", "3": "避暑地体験"},
+            "features": { "0": "夏祭りと花火", "1": "海水浴とマリンスポーツ", "2": "登山とハイキング", "3": "避暑地体験" },
             "temperature": "25-35°C",
-            "activities": {"0": "花火大会観覧", "1": "浴衣レンタル", "2": "夏限定グルメ"}
+            "activities": { "0": "花火大会観覧", "1": "浴衣レンタル", "2": "夏限定グルメ" }
           },
           "autumn": {
             "label": "秋（9-11月）",
             "description": "紅葉、涼しい気候、グルメの季節",
             "details": "美しい紅葉と涼しく過ごしやすい気候。グルメや温泉、文化活動に最適な季節です。",
-            "features": {"0": "絶景紅葉スポット", "1": "秋の味覚グルメ", "2": "温泉の心地よさ", "3": "文化芸術鑑賞"},
+            "features": { "0": "絶景紅葉スポット", "1": "秋の味覚グルメ", "2": "温泉の心地よさ", "3": "文化芸術鑑賞" },
             "temperature": "10-25°C",
-            "activities": {"0": "紅葉狩り", "1": "秋の味覚ツアー", "2": "芸術鑑賞"}
+            "activities": { "0": "紅葉狩り", "1": "秋の味覚ツアー", "2": "芸術鑑賞" }
           },
           "winter": {
             "label": "冬（12-2月）",
             "description": "雪景色、温泉、ウィンタースポーツ",
             "details": "雪化粧した日本の美しさ、温泉の心地よさ、スキーなどのウィンタースポーツが楽しめます。",
-            "features": {"0": "雪景色の絶景", "1": "温泉と雪見風呂", "2": "ウィンタースポーツ", "3": "イルミネーション"},
+            "features": { "0": "雪景色の絶景", "1": "温泉と雪見風呂", "2": "ウィンタースポーツ", "3": "イルミネーション" },
             "temperature": "0-15°C",
-            "activities": {"0": "雪見温泉", "1": "スキー・スノボ", "2": "イルミネーション"}
+            "activities": { "0": "雪見温泉", "1": "スキー・スノボ", "2": "イルミネーション" }
           }
         }
       },
@@ -1373,7 +1390,7 @@ export const ja = {
     "generating": "生成中...",
     "yourTravelStyle": "あなたの旅行スタイル"
   },
- 
+
   "settings": {
     "notifications": {
       "title": "通知設定",
@@ -1381,32 +1398,32 @@ export const ja = {
       "email": {
         "title": "メール通知",
         "description": "メールで受信する通知を選択",
-        "tripReminders": {"title": "旅行リマインダー", "description": "出発前の準備リマインダー"},
-        "bookingConfirmations": {"title": "予約確認", "description": "ホテル・航空券の予約確認"},
-        "paymentNotifications": {"title": "決済通知", "description": "支払い完了・失敗の通知"},
-        "promotions": {"title": "プロモーション", "description": "特別オファーやキャンペーン情報"},
-        "newsletter": {"title": "ニュースレター", "description": "旅行情報やサービス更新"}
+        "tripReminders": { "title": "旅行リマインダー", "description": "出発前の準備リマインダー" },
+        "bookingConfirmations": { "title": "予約確認", "description": "ホテル・航空券の予約確認" },
+        "paymentNotifications": { "title": "決済通知", "description": "支払い完了・失敗の通知" },
+        "promotions": { "title": "プロモーション", "description": "特別オファーやキャンペーン情報" },
+        "newsletter": { "title": "ニュースレター", "description": "旅行情報やサービス更新" }
       },
       "push": {
         "title": "プッシュ通知",
         "description": "アプリからの即座な通知",
-        "tripReminders": {"title": "旅行リマインダー", "description": "出発時刻や集合時間の通知"},
-        "emergencyAlerts": {"title": "緊急アラート", "description": "安全情報や緊急連絡"},
-        "locationUpdates": {"title": "位置情報更新", "description": "周辺スポットやおすすめ情報"},
-        "chatMessages": {"title": "チャットメッセージ", "description": "AIコンシェルジュからの返信"},
-        "promotions": {"title": "プロモーション", "description": "限定オファーの即時通知"}
+        "tripReminders": { "title": "旅行リマインダー", "description": "出発時刻や集合時間の通知" },
+        "emergencyAlerts": { "title": "緊急アラート", "description": "安全情報や緊急連絡" },
+        "locationUpdates": { "title": "位置情報更新", "description": "周辺スポットやおすすめ情報" },
+        "chatMessages": { "title": "チャットメッセージ", "description": "AIコンシェルジュからの返信" },
+        "promotions": { "title": "プロモーション", "description": "限定オファーの即時通知" }
       },
       "sms": {
         "title": "SMS通知",
         "description": "重要な通知のみSMSで受信",
-        "emergencyOnly": {"title": "緊急時のみ", "description": "安全に関わる重要な情報のみ"},
-        "bookingConfirmations": {"title": "予約確認", "description": "重要な予約の確認通知"},
-        "tripReminders": {"title": "旅行リマインダー", "description": "出発前の最終確認"}
+        "emergencyOnly": { "title": "緊急時のみ", "description": "安全に関わる重要な情報のみ" },
+        "bookingConfirmations": { "title": "予約確認", "description": "重要な予約の確認通知" },
+        "tripReminders": { "title": "旅行リマインダー", "description": "出発前の最終確認" }
       },
       "schedule": {
         "title": "通知スケジュール",
         "description": "通知を受信する時間帯を設定",
-        "quietHours": {"title": "サイレント時間", "description": "指定時間は通知を停止"},
+        "quietHours": { "title": "サイレント時間", "description": "指定時間は通知を停止" },
         "startTime": "開始時刻",
         "endTime": "終了時刻",
         "timezone": "タイムゾーン"
@@ -1506,7 +1523,7 @@ export const ja = {
     "pastDate": "出発日は今日以降を選択してください",
     "invalidDateRange": "帰国日は出発日より後の日付を選択してください",
     "travelersRange": "旅行者数は1人から20人までです",
-"boundaryTitle": "問題が発生しました",
+    "boundaryTitle": "問題が発生しました",
     "boundaryMessage": "予期しないエラーが発生しました。ご不便をおかけして申し訳ありません。",
     "reloadPage": "ページを再読み込み",
     "pages": {

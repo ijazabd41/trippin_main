@@ -151,6 +151,23 @@ export const it = {
           "title": "Supporto 24 ore su 24",
           "description": "Il supporto è sempre disponibile"
         }
+      },
+      "success": {
+        "title": "Payment Successful!",
+        "message": "Thank you for upgrading to Premium. Your account has been updated.",
+        "verifying": "Verifying payment...",
+        "pleaseWait": "Please wait a moment",
+        "error": "An error occurred",
+        "retry": "Try again",
+        "premiumMember": "Premium Member",
+        "activeMessage": "All premium features are now available",
+        "features": {
+          "ai": "AI Itinerary Generation",
+          "support": "Priority Support",
+          "esim": "eSIM Discounts"
+        },
+        "continue": "Continue to Dashboard",
+        "viewDashboard": "View Dashboard"
       }
     },
     "closing": {
@@ -1818,7 +1835,7 @@ export const it = {
     "pastDate": "Seleziona una data di partenza successiva a oggi",
     "invalidDateRange": "Seleziona una data successiva alla data di partenza per la data di ritorno.",
     "travelersRange": "Il numero di viaggiatori varia da 1 a 20",
-"boundaryTitle": "Something went wrong",
+    "boundaryTitle": "Something went wrong",
     "boundaryMessage": "We're sorry, but something unexpected happened.",
     "reloadPage": "Reload page",
     "pages": {

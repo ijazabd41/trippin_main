@@ -151,6 +151,23 @@ export const tr = {
           "title": "24 saat destek",
           "description": "Destek her zaman mevcuttur"
         }
+      },
+      "success": {
+        "title": "Payment Successful!",
+        "message": "Thank you for upgrading to Premium. Your account has been updated.",
+        "verifying": "Verifying payment...",
+        "pleaseWait": "Please wait a moment",
+        "error": "An error occurred",
+        "retry": "Try again",
+        "premiumMember": "Premium Member",
+        "activeMessage": "All premium features are now available",
+        "features": {
+          "ai": "AI Itinerary Generation",
+          "support": "Priority Support",
+          "esim": "eSIM Discounts"
+        },
+        "continue": "Continue to Dashboard",
+        "viewDashboard": "View Dashboard"
       }
     },
     "closing": {
@@ -1820,7 +1837,7 @@ export const tr = {
     "pastDate": "Lütfen bugünden sonra bir kalkış tarihi seçin",
     "invalidDateRange": "Lütfen dönüş tarihiniz olarak gidiş tarihinizden sonraki bir tarihi seçiniz.",
     "travelersRange": "Yolcu sayısı 1 ila 20 arasında değişiyor",
-"boundaryTitle": "Something went wrong",
+    "boundaryTitle": "Something went wrong",
     "boundaryMessage": "We're sorry, but something unexpected happened.",
     "reloadPage": "Reload page",
     "pages": {

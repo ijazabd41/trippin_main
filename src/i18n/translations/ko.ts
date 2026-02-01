@@ -151,6 +151,23 @@ export const ko = {
           "title": "24시간 지원",
           "description": "지원은 항상 가능합니다"
         }
+      },
+      "success": {
+        "title": "Payment Successful!",
+        "message": "Thank you for upgrading to Premium. Your account has been updated.",
+        "verifying": "Verifying payment...",
+        "pleaseWait": "Please wait a moment",
+        "error": "An error occurred",
+        "retry": "Try again",
+        "premiumMember": "Premium Member",
+        "activeMessage": "All premium features are now available",
+        "features": {
+          "ai": "AI Itinerary Generation",
+          "support": "Priority Support",
+          "esim": "eSIM Discounts"
+        },
+        "continue": "Continue to Dashboard",
+        "viewDashboard": "View Dashboard"
       }
     },
     "closing": {
@@ -1818,7 +1835,7 @@ export const ko = {
     "pastDate": "오늘 이후의 출발일을 선택하세요.",
     "invalidDateRange": "귀국일은 ​​출발일보다 늦은 날짜를 선택해 주세요.",
     "travelersRange": "여행자 수는 1명부터 20명까지입니다.",
-"boundaryTitle": "Something went wrong",
+    "boundaryTitle": "Something went wrong",
     "boundaryMessage": "We're sorry, but something unexpected happened.",
     "reloadPage": "Reload page",
     "pages": {

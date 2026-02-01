@@ -151,6 +151,23 @@ export const ar = {
           "title": "دعم على مدار 24 ساعة",
           "description": "الدعم متاح دائما"
         }
+      },
+      "success": {
+        "title": "Payment Successful!",
+        "message": "Thank you for upgrading to Premium. Your account has been updated.",
+        "verifying": "Verifying payment...",
+        "pleaseWait": "Please wait a moment",
+        "error": "An error occurred",
+        "retry": "Try again",
+        "premiumMember": "Premium Member",
+        "activeMessage": "All premium features are now available",
+        "features": {
+          "ai": "AI Itinerary Generation",
+          "support": "Priority Support",
+          "esim": "eSIM Discounts"
+        },
+        "continue": "Continue to Dashboard",
+        "viewDashboard": "View Dashboard"
       }
     },
     "closing": {
@@ -1818,7 +1835,7 @@ export const ar = {
     "pastDate": "يرجى تحديد تاريخ المغادرة بعد اليوم",
     "invalidDateRange": "يرجى تحديد تاريخ لاحق لتاريخ المغادرة لتاريخ عودتك.",
     "travelersRange": "عدد المسافرين يتراوح من 1 إلى 20",
-"boundaryTitle": "Something went wrong",
+    "boundaryTitle": "Something went wrong",
     "boundaryMessage": "We're sorry, but something unexpected happened.",
     "reloadPage": "Reload page",
     "pages": {
